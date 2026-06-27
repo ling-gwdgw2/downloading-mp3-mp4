@@ -271,9 +271,17 @@
                         
                         source.close();
 
-                        // Redirect to download the file directly from flask server
+                        // Deliver file using an iframe and auto-close tab
                         setTimeout(() => {
-                            window.location.href = '/download_file/' + download_id;
+                            const iframe = document.createElement('iframe');
+                            iframe.style.display = 'none';
+                            iframe.src = '/download_file/' + download_id;
+                            document.body.appendChild(iframe);
+                            
+                            statusMessage.textContent = 'Download started. Closing tab in 3 seconds...';
+                            setTimeout(() => {
+                                window.close();
+                            }, 3000);
                         }, 1200);
                     } else if (progress.status === 'error') {
                         showError(progress.message);
