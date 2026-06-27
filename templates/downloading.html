@@ -18,6 +18,7 @@
             --border-color: #000000;
             --shadow-color: #000000;
             --accent-pink: #FF9AA2;
+            --btn-green: #E2F0CB;
             --text-color: #2D2D2D;
             --text-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
@@ -31,7 +32,7 @@
             align-items: center;
             justify-content: center;
             margin: 0;
-            overflow: hidden;
+            overflow: auto;
             font-size: 1.5rem;
             padding: 20px;
         }
@@ -172,7 +173,7 @@
 <body>
 
     <div class="processing-card">
-        <div class="spinner-custom"></div>
+        <div class="spinner-custom" id="spinner"></div>
         <h2>Downloading...</h2>
         <p id="statusMessage">Initializing download parameters...</p>
 
@@ -194,14 +195,29 @@
             </div>
         </div>
 
+        <!-- Action Buttons (Shown after completion) -->
+        <div id="actionButtons" style="display: none; flex-direction: column; gap: 15px; margin-top: 1.5rem; margin-bottom: 1.5rem;">
+            <button class="btn" id="openFolderBtn" style="border: 4px solid black; box-shadow: 4px 4px 0px #000; font-family: 'VT323', monospace; font-size: 1.6rem; padding: 10px; background: var(--btn-green); color: black; border-radius: 0;">
+                <i class="bi bi-folder2-open"></i> OPEN DOWNLOADS FOLDER
+            </button>
+            <a href="/" class="btn" style="border: 4px solid black; box-shadow: 4px 4px 0px #000; font-family: 'VT323', monospace; font-size: 1.6rem; padding: 10px; background: white; color: black; text-decoration: none; display: block; text-align: center; border-radius: 0;">
+                <i class="bi bi-house-door-fill"></i> BACK TO HOME
+            </a>
+        </div>
+
         <!-- Error Dialog -->
         <div id="errorAlert" class="alert alert-danger d-none mt-3" style="border: 3px solid black; background: #FFB7B2; color: black; border-radius: 0; text-align: left; font-family: var(--text-sans); font-size: 1.1rem;">
             <i class="bi bi-exclamation-triangle-fill"></i> <span id="errorText"></span>
+            <div class="mt-3">
+                <a href="/" class="btn" style="border: 3px solid black; box-shadow: 3px 3px 0px #000; font-family: 'VT323', monospace; font-size: 1.2rem; background: white; color: black; text-decoration: none; border-radius: 0;">
+                    <i class="bi bi-house-door-fill"></i> BACK TO HOME
+                </a>
+            </div>
         </div>
 
-        <div class="progress-note mt-3">
+        <div class="progress-note mt-3" id="helperNote">
             <i class="bi bi-info-circle me-2"></i>
-            For 4K videos or playlist downloads, processing and merging may take a few minutes.
+            Files are saved to: <strong style="word-break: break-all;">{{ save_folder }}</strong>
         </div>
     </div>
 
@@ -220,6 +236,8 @@
             const statusMessage = document.getElementById('statusMessage');
             const errorAlert = document.getElementById('errorAlert');
             const errorText = document.getElementById('errorText');
+            const spinner = document.getElementById('spinner');
+            const actionButtons = document.getElementById('actionButtons');
 
             // 1. Post parameters to backend to start the download thread
             const formData = new FormData();
@@ -263,26 +281,17 @@
                         downloadSpeed.textContent = 'Processing...';
                         downloadEta.textContent = 'Working...';
                     } else if (progress.status === 'completed') {
-                        statusMessage.textContent = 'Success! Delivering download to browser...';
+                        statusMessage.textContent = 'Success! File saved directly to your folder.';
                         progressBar.style.width = '100%';
                         progressPercent.textContent = '100%';
-                        downloadSpeed.textContent = 'Completed';
+                        downloadSpeed.textContent = 'Done';
                         downloadEta.textContent = '00:00';
                         
                         source.close();
-
-                        // Deliver file using an iframe and auto-close tab
-                        setTimeout(() => {
-                            const iframe = document.createElement('iframe');
-                            iframe.style.display = 'none';
-                            iframe.src = '/download_file/' + download_id;
-                            document.body.appendChild(iframe);
-                            
-                            statusMessage.textContent = 'Download started. Closing tab in 3 seconds...';
-                            setTimeout(() => {
-                                window.close();
-                            }, 3000);
-                        }, 1200);
+                        spinner.style.animation = 'none'; // Stop bouncing
+                        
+                        // Show direct Action Buttons
+                        actionButtons.style.display = 'flex';
                     } else if (progress.status === 'error') {
                         showError(progress.message);
                         source.close();
@@ -290,12 +299,17 @@
                 };
 
                 source.onerror = function () {
-                    showError('Server connection lost. Retrying, or check if the app was closed.');
+                    showError('Server connection lost. Please verify the application is running.');
                     source.close();
                 };
             })
             .catch(err => {
                 showError(err.message || 'An error occurred while preparing the download thread.');
+            });
+
+            // Open Folder Action
+            document.getElementById('openFolderBtn').addEventListener('click', function() {
+                fetch('/open_folder', { method: 'POST' });
             });
 
             function showError(msg) {
@@ -304,6 +318,9 @@
                 statusMessage.textContent = 'Download failed.';
                 downloadSpeed.textContent = 'Error';
                 downloadEta.textContent = 'Error';
+                spinner.style.display = 'none';
+                document.getElementById('statsGrid').style.display = 'none';
+                progressBar.style.background = '#FFB7B2';
             }
         };
     </script>

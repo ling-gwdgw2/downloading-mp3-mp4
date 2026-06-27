@@ -7,7 +7,8 @@ import zipfile
 import urllib.request
 import tempfile
 import json
-from flask import Flask, render_template, request, jsonify, send_file, Response
+import winreg
+from flask import Flask, render_template, request, jsonify, Response
 
 # Determine base path and app path
 if getattr(sys, 'frozen', False):
@@ -36,9 +37,20 @@ app = Flask(__name__)
 app.template_folder = template_folder
 app.static_folder = static_folder
 
-DOWNLOAD_FOLDER = os.path.join(app_path, 'downloads')
-if not os.path.exists(DOWNLOAD_FOLDER):
-    os.makedirs(DOWNLOAD_FOLDER)
+# Detect Default Windows Downloads Path
+def get_windows_downloads_path():
+    try:
+        sub_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, sub_key) as key:
+            path = winreg.QueryValueEx(key, '{374DE290-123F-4565-9164-39C4925E467B}')[0]
+            return os.path.normpath(path)
+    except Exception:
+        return os.path.normpath(os.path.join(os.path.expanduser('~'), 'Downloads'))
+
+# Settings Store
+config = {
+    'save_folder': get_windows_downloads_path()
+}
 
 # Global dictionary to track active download states
 download_progress = {}
@@ -68,6 +80,49 @@ def index():
 @app.route('/setup')
 def setup_page():
     return render_template('setup.html')
+
+@app.route('/settings', methods=['GET'])
+def get_settings():
+    return jsonify(config)
+
+def ask_directory_thread(result_list):
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+        root = tk.Tk()
+        root.withdraw() # Hide root Tk window
+        root.attributes('-topmost', True) # Focus on top of all windows
+        folder = filedialog.askdirectory(parent=root, title="Select Save Folder")
+        root.destroy()
+        result_list.append(folder)
+    except Exception as e:
+        print(f"Tkinter dialog error: {e}")
+
+@app.route('/select_folder', methods=['POST'])
+def select_folder():
+    import threading
+    res = []
+    t = threading.Thread(target=ask_directory_thread, args=(res,))
+    t.start()
+    t.join() # Block Flask handler until window selection is closed
+    
+    if res and res[0]:
+        selected_path = os.path.normpath(res[0])
+        config['save_folder'] = selected_path
+        return jsonify({'save_folder': selected_path})
+    return jsonify({'save_folder': config['save_folder']})
+
+@app.route('/open_folder', methods=['POST'])
+def open_folder():
+    try:
+        folder_path = config.get('save_folder')
+        if os.path.exists(folder_path):
+            os.startfile(folder_path)
+            return jsonify({'status': 'opened'})
+        else:
+            return jsonify({'error': 'Folder path does not exist.'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/setup/download')
 def setup_download():
@@ -185,7 +240,6 @@ def get_info():
         return jsonify({'error': 'Please provide a URL'}), 400
 
     try:
-        # Check if multiple URLs separated by commas or newlines
         urls = [u.strip() for u in url.replace('\n', ',').split(',') if u.strip()]
         
         if len(urls) > 1:
@@ -264,7 +318,7 @@ def prepare_download():
     bitrate = request.form.get('bitrate', '192')
     subtitles = request.form.get('subtitles', 'false')
     download_id = str(uuid.uuid4())
-    return render_template('downloading.html', url=url, format_type=format_type, bitrate=bitrate, subtitles=subtitles, download_id=download_id)
+    return render_template('downloading.html', url=url, format_type=format_type, bitrate=bitrate, subtitles=subtitles, download_id=download_id, save_folder=config['save_folder'])
 
 @app.route('/download_start', methods=['POST'])
 def download_start():
@@ -277,7 +331,6 @@ def download_start():
     if not url or not download_id:
         return jsonify({'error': 'Missing parameters'}), 400
 
-    # Initialize download status
     download_progress[download_id] = {
         'status': 'starting',
         'percent': 0,
@@ -285,7 +338,6 @@ def download_start():
         'eta': 'Unknown'
     }
 
-    # Start the downloading thread
     import threading
     threading.Thread(
         target=run_download_thread,
@@ -297,8 +349,8 @@ def download_start():
 
 def run_download_thread(download_id, url, format_type, bitrate, subtitles):
     try:
-        session_dir = os.path.join(DOWNLOAD_FOLDER, download_id)
-        os.makedirs(session_dir, exist_ok=True)
+        save_dir = config.get('save_folder')
+        os.makedirs(save_dir, exist_ok=True)
         
         urls = [u.strip() for u in url.replace('\n', ',').split(',') if u.strip()]
         
@@ -311,7 +363,6 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                 if check_info.get('_type') == 'playlist':
                     is_playlist = True
 
-        # Custom progress hook closure that captures download_id
         def make_progress_hook(d_id):
             def hook(d):
                 if d['status'] == 'downloading':
@@ -345,7 +396,7 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                     }
             return hook
 
-        output_template = os.path.join(session_dir, '%(title)s.%(ext)s')
+        output_template = os.path.join(save_dir, '%(title)s.%(ext)s')
         ydl_opts = {
             'outtmpl': output_template,
             'quiet': True,
@@ -401,7 +452,7 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                         continue
                     final_url = m3u8_url
 
-                output_template = os.path.join(session_dir, '%(title)s.%(ext)s')
+                output_template = os.path.join(save_dir, '%(title)s.%(ext)s')
                 
                 ydl_opts = {
                     'outtmpl': output_template,
@@ -416,7 +467,7 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                     if custom_title:
                         safe_title = re.sub(r'[\\/*?:"<>|]', "", custom_title)
                         safe_title = safe_title[:100].strip()
-                        output_template = os.path.join(session_dir, f"{safe_title}.%(ext)s")
+                        output_template = os.path.join(save_dir, f"{safe_title}.%(ext)s")
                         ydl_opts['outtmpl'] = output_template
 
                 if subtitles == 'true':
@@ -454,17 +505,7 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([final_url])
         
-        # Scan downloaded files
-        downloaded_files = []
-        for root, dirs, files in os.walk(session_dir):
-            for file in files:
-                if not file.endswith(('.part', '.ytdl', '.temp')):
-                    downloaded_files.append(os.path.join(root, file))
-                
-        if not downloaded_files:
-            raise Exception("No files were downloaded.")
-
-        # Update status to completed
+        # Complete
         download_progress[download_id] = {
             'status': 'completed',
             'percent': 100,
@@ -493,61 +534,6 @@ def download_progress_stream(download_id):
             if state['status'] in ['completed', 'error']:
                 break
     return Response(generate(), mimetype='text/event-stream')
-
-@app.route('/download_file/<download_id>')
-def download_file(download_id):
-    try:
-        session_dir = os.path.join(DOWNLOAD_FOLDER, download_id)
-        downloaded_files = []
-        for root, dirs, files in os.walk(session_dir):
-            for file in files:
-                if not file.endswith(('.part', '.ytdl', '.temp')):
-                    downloaded_files.append(os.path.join(root, file))
-                    
-        if not downloaded_files:
-            return "Error: No downloaded files found.", 404
-            
-        # Single file
-        if len(downloaded_files) == 1:
-            filepath = downloaded_files[0]
-            
-            def delayed_cleanup(dir_path):
-                import time
-                time.sleep(15)
-                try:
-                    if os.path.exists(dir_path):
-                        shutil.rmtree(dir_path)
-                except Exception as e:
-                    print(f"Error cleaning up folder {dir_path}: {e}")
-            
-            import threading
-            threading.Thread(target=delayed_cleanup, args=(session_dir,)).start()
-            return send_file(filepath, as_attachment=True)
-            
-        else:
-            # Batch ZIP file
-            zip_filename = os.path.join(DOWNLOAD_FOLDER, f"{download_id}.zip")
-            with zipfile.ZipFile(zip_filename, 'w') as zipf:
-                for file in downloaded_files:
-                    zipf.write(file, os.path.basename(file))
-                    
-            def delayed_cleanup_all(dir_path, zip_path):
-                import time
-                time.sleep(20)
-                try:
-                    if os.path.exists(dir_path):
-                        shutil.rmtree(dir_path)
-                    if os.path.exists(zip_path):
-                        os.remove(zip_path)
-                except Exception as e:
-                    print(f"Error cleaning up files: {e}")
-                    
-            import threading
-            threading.Thread(target=delayed_cleanup_all, args=(session_dir, zip_filename)).start()
-            return send_file(zip_filename, as_attachment=True, download_name="downloader_batch.zip")
-            
-    except Exception as e:
-        return str(e), 500
 
 @app.route('/shutdown', methods=['POST'])
 def shutdown():

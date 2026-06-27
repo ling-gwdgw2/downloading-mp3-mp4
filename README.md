@@ -1,4 +1,4 @@
-# 🌐 Universal Video & Audio Downloader — System Architecture
+# Video & Audio Downloader — System Architecture
 
 แอปพลิเคชันดาวน์โหลดวิดีโอและเสียงประสิทธิภาพสูง ทำงานแบบ Local Web Application (ทำงานในเครื่องคอมพิวเตอร์ของผู้ใช้โดยตรง) พัฒนาด้วยภาษา Python (Flask) ร่วมกับแกนดาวน์โหลดประสิทธิภาพสูง `yt-dlp` และตัวแปลงสัญญาณสัญญาณ `FFmpeg` พร้อมส่วนติดต่อผู้ใช้สไตล์ Retro-Pixel ที่มีสีสันสวยงาม เข้าใจง่าย และแสดงผลสถานะแบบเรียลไทม์
 
@@ -131,19 +131,9 @@ python app.py
 
 ### 1. **คอมไพล์ด้วย PyInstaller**
 เราใช้สคริปต์ [build_exe.py](build_exe.py) ในการควบคุมพารามิเตอร์ของ PyInstaller ทั้งหมด (รวมถึงการแนบเทมเพลต HTML/CSS และไลบรารีดักจับคุกกี้ `curl_cffi`):
-
-* **แบบรันผ่าน Virtual Environment ของเครื่องโดยตรง (แนะนำสำหรับ PowerShell/Windows):**
-  ```powershell
-  & .venv/Scripts/python build_exe.py
-  ```
-* **แบบเปิดใช้งาน Virtual Environment ก่อนแล้วสั่งรัน:**
-  ```bash
-  # 1. เปิดใช้งาน Virtual Environment
-  & .venv/Scripts/Activate.ps1
-  
-  # 2. คอมไพล์โปรแกรม
-  python build_exe.py
-  ```
+```bash
+python build_exe.py
+```
 ผลลัพธ์ไฟล์เดี่ยวจะปรากฏขึ้นที่โฟลเดอร์ **`dist/YouTubeDownloader.exe`** โดยรันแบบซ่อนหน้าจอคอนโซลดำ (`--noconsole`)
 
 ### 2. **สร้างตัวติดตั้ง Windows ด้วย Inno Setup**
