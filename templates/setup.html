@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFmpeg Setup - Universal Downloader</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bg-color: #EBC8D6;
+            --card-bg: #FFFFFF;
+            --border-color: #000000;
+            --shadow-color: #000000;
+            --btn-pink: #FF9AA2;
+            --btn-green: #E2F0CB;
+            --text-color: #2D2D2D;
+            --text-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            border: 5px solid var(--border-color);
+            box-shadow: 10px 10px 0px var(--shadow-color);
+            padding: 3rem 2rem;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .pixel-title {
+            font-size: 3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0px #D87B88; /* Darker pink for better contrast */
+            margin-bottom: 1.5rem;
+        }
+
+        p {
+            font-family: var(--text-sans);
+            font-size: 1.15rem;
+            line-height: 1.5;
+            color: var(--text-color);
+        }
+
+        #statusText {
+            font-family: var(--text-sans);
+            font-size: 1.15rem;
+            font-weight: bold;
+        }
+
+        .btn-action {
+            background: var(--btn-pink);
+            border: 4px solid var(--border-color);
+            box-shadow: 5px 5px 0px var(--shadow-color);
+            color: var(--text-color);
+            font-family: 'VT323', monospace;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            padding: 10px 30px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn-action:hover {
+            background: #ff808b;
+        }
+
+        .btn-action:active {
+            transform: translate(2px, 2px);
+            box-shadow: 3px 3px 0px var(--shadow-color);
+        }
+
+        .btn-action:focus {
+            outline: 3px dotted black;
+            outline-offset: 2px;
+        }
+
+        /* Progress Container */
+        .progress-pixel-container {
+            border: 4px solid var(--border-color);
+            background: white;
+            height: 40px;
+            box-shadow: 5px 5px 0px var(--shadow-color);
+            margin: 2rem 0;
+            position: relative;
+            display: none;
+        }
+
+        .progress-pixel-bar {
+            background: var(--btn-green);
+            height: 100%;
+            width: 0%;
+            transition: width 0.2s;
+        }
+
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-card">
+        <i class="bi bi-cpu-fill" style="font-size: 5rem;"></i>
+        <h1 class="pixel-title">FFmpeg Setup</h1>
+        <p>FFmpeg is required to process and merge high-resolution video and audio downloads. We need to install it before using the app.</p>
+        
+        <div id="statusText" class="mt-4">Status: Ready to install</div>
+
+        <div class="progress-pixel-container" id="progressContainer">
+            <div class="progress-pixel-bar" id="progressBar"></div>
+            <div class="progress-text" id="progressPercent">0%</div>
+        </div>
+
+        <button class="btn-action mt-4" id="installBtn">
+            <i class="bi bi-download"></i> Install FFmpeg
+        </button>
+    </div>
+
+    <script>
+        document.getElementById('installBtn').addEventListener('click', function() {
+            const installBtn = document.getElementById('installBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const statusText = document.getElementById('statusText');
+
+            installBtn.style.display = 'none';
+            progressContainer.style.display = 'block';
+            statusText.textContent = "Status: Connecting to installer...";
+
+            const source = new EventSource('/setup/download');
+
+            source.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                if (data.status === 'starting') {
+                    statusText.textContent = "Status: Initializing...";
+                    progressBar.style.width = '5%';
+                    progressPercent.textContent = '5%';
+                } else if (data.status === 'downloading') {
+                    statusText.textContent = `Status: Downloading FFmpeg...`;
+                    progressBar.style.width = `${data.percent}%`;
+                    progressPercent.textContent = `${data.percent}%`;
+                } else if (data.status === 'extracting') {
+                    statusText.textContent = "Status: Extracting & Configuring binaries...";
+                    progressBar.style.width = '95%';
+                    progressPercent.textContent = '95%';
+                } else if (data.status === 'success') {
+                    statusText.textContent = "Status: FFmpeg Installed successfully! Redirecting...";
+                    progressBar.style.width = '100%';
+                    progressPercent.textContent = '100%';
+                    source.close();
+                    setTimeout(function() {
+                        window.location.href = '/';
+                    }, 2000);
+                } else if (data.status === 'error') {
+                    statusText.textContent = `Error: ${data.message}`;
+                    installBtn.style.display = 'inline-block';
+                    progressContainer.style.display = 'none';
+                    source.close();
+                }
+            };
+
+            source.onerror = function() {
+                statusText.textContent = "Error: Connection lost. Please try again.";
+                installBtn.style.display = 'inline-block';
+                progressContainer.style.display = 'none';
+                source.close();
+            };
+        });
+    </script>
+</body>
+</html>
