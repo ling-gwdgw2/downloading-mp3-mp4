@@ -4,7 +4,7 @@
 
 ---
 
-## 🏗️ แผนภาพสถาปัตยกรรมระบบ (System Architecture)
+## แผนภาพสถาปัตยกรรมระบบ (System Architecture)
 
 แผนภาพต่อไปนี้แสดงโครงสร้างสถาปัตยกรรมและการโต้ตอบระหว่างแต่ละส่วนประกอบของระบบ (Components)
 
@@ -77,7 +77,7 @@ graph TD
 
 ---
 
-## 🔄 ลำดับการดาวน์โหลดแบบมีสถานะเรียลไทม์ (Live Download Stream Flow)
+## ลำดับการดาวน์โหลดแบบมีสถานะเรียลไทม์ (Live Download Stream Flow)
 
 ```mermaid
 sequenceDiagram
@@ -101,7 +101,7 @@ sequenceDiagram
 
 ---
 
-## 🛠️ วิธีการติดตั้งเพื่อพัฒนาและทดสอบ (Development Guide)
+## วิธีการติดตั้งเพื่อพัฒนาและทดสอบ (Development Guide)
 
 ### 1. **สิ่งที่ต้องเตรียม (Prerequisites)**
 - Python เวอร์ชัน 3.8 หรือสูงกว่า
@@ -127,13 +127,23 @@ python app.py
 
 ---
 
-## 📦 ขั้นตอนการคอมไพล์เป็นไฟล์เดี่ยวและตัวติดตั้ง (Packaging Guide)
+## ขั้นตอนการคอมไพล์เป็นไฟล์เดี่ยวและตัวติดตั้ง (Packaging Guide)
 
 ### 1. **คอมไพล์ด้วย PyInstaller**
 เราใช้สคริปต์ [build_exe.py](build_exe.py) ในการควบคุมพารามิเตอร์ของ PyInstaller ทั้งหมด (รวมถึงการแนบเทมเพลต HTML/CSS และไลบรารีดักจับคุกกี้ `curl_cffi`):
-```bash
-python build_exe.py
-```
+
+* **แบบรันผ่าน Virtual Environment ของเครื่องโดยตรง (แนะนำสำหรับ PowerShell/Windows):**
+  ```powershell
+  & .venv/Scripts/python build_exe.py
+  ```
+* **แบบเปิดใช้งาน Virtual Environment ก่อนแล้วสั่งรัน:**
+  ```bash
+  # 1. เปิดใช้งาน Virtual Environment
+  & .venv/Scripts/Activate.ps1
+  
+  # 2. คอมไพล์โปรแกรม
+  python build_exe.py
+  ```
 ผลลัพธ์ไฟล์เดี่ยวจะปรากฏขึ้นที่โฟลเดอร์ **`dist/YouTubeDownloader.exe`** โดยรันแบบซ่อนหน้าจอคอนโซลดำ (`--noconsole`)
 
 ### 2. **สร้างตัวติดตั้ง Windows ด้วย Inno Setup**
