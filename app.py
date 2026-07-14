@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import logging
 import uuid
 import shutil
 import zipfile
@@ -8,7 +9,8 @@ import urllib.request
 import tempfile
 import json
 import winreg
-from flask import Flask, render_template, request, jsonify, Response
+# pyrefly: ignore [missing-import]
+from flask import Flask, render_template, request, jsonify, Response, make_response
 
 # Determine base path and app path
 if getattr(sys, 'frozen', False):
@@ -24,13 +26,27 @@ else:
     static_folder = 'static'
     app_path = base_path
 
+# Setup logging
+log_file_path = os.path.join(app_path, 'app.log')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler(log_file_path, encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logging.info("Application starting up...")
+logging.info(f"App path: {app_path}")
+
 # Dynamic Engine Loading
 update_path = os.path.join(app_path, 'bin', 'yt-dlp-update')
 if os.path.exists(update_path):
     sys.path.insert(0, update_path)
-    print(f"Dynamically loaded updated yt-dlp engine from: {update_path}")
+    logging.info(f"Dynamically loaded updated yt-dlp engine from: {update_path}")
 
 import yt_dlp
+# pyrefly: ignore [missing-import]
 from curl_cffi import requests as curl_requests
 
 app = Flask(__name__)
@@ -47,6 +63,88 @@ def get_windows_downloads_path():
     except Exception:
         return os.path.normpath(os.path.join(os.path.expanduser('~'), 'Downloads'))
 
+def extract_info_with_fallback(target_url, ydl_opts):
+    if 'youtube.com' not in target_url and 'youtu.be' not in target_url:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            return ydl.extract_info(target_url, download=False)
+            
+    detected_browsers = []
+    local_appdata = os.environ.get('LOCALAPPDATA', '')
+    appdata = os.environ.get('APPDATA', '')
+    
+    browsers_to_check = [
+        ('chrome', os.path.join(local_appdata, 'Google', 'Chrome', 'User Data')),
+        ('edge', os.path.join(local_appdata, 'Microsoft', 'Edge', 'User Data')),
+        ('firefox', os.path.join(appdata, 'Mozilla', 'Firefox', 'Profiles')),
+        ('opera', os.path.join(appdata, 'Opera Software', 'Opera Stable')),
+    ]
+    for name, path in browsers_to_check:
+        if path and os.path.exists(path):
+            detected_browsers.append(name)
+    detected_browsers.append(None)
+    
+    last_err = None
+    for browser in detected_browsers:
+        opts = ydl_opts.copy()
+        if browser:
+            opts['cookiesfrombrowser'] = (browser,)
+        else:
+            opts.pop('cookiesfrombrowser', None)
+            
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                return ydl.extract_info(target_url, download=False)
+        except Exception as e:
+            if browser is not None:
+                logging.warning(f"Failed to fetch info using cookies from browser '{browser}': {e}. Trying next fallback...")
+                last_err = e
+                continue
+            else:
+                raise e
+    raise last_err
+
+def download_url_with_fallback(ydl_opts, target_url):
+    if 'youtube.com' not in target_url and 'youtu.be' not in target_url:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([target_url])
+            return
+
+    detected_browsers = []
+    local_appdata = os.environ.get('LOCALAPPDATA', '')
+    appdata = os.environ.get('APPDATA', '')
+    
+    browsers_to_check = [
+        ('chrome', os.path.join(local_appdata, 'Google', 'Chrome', 'User Data')),
+        ('edge', os.path.join(local_appdata, 'Microsoft', 'Edge', 'User Data')),
+        ('firefox', os.path.join(appdata, 'Mozilla', 'Firefox', 'Profiles')),
+        ('opera', os.path.join(appdata, 'Opera Software', 'Opera Stable')),
+    ]
+    for name, path in browsers_to_check:
+        if path and os.path.exists(path):
+            detected_browsers.append(name)
+    detected_browsers.append(None)
+    
+    last_err = None
+    for browser in detected_browsers:
+        opts = ydl_opts.copy()
+        if browser:
+            opts['cookiesfrombrowser'] = (browser,)
+        else:
+            opts.pop('cookiesfrombrowser', None)
+            
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                ydl.download([target_url])
+                return
+        except Exception as e:
+            if browser is not None:
+                logging.warning(f"Failed to download using cookies from browser '{browser}': {e}. Trying next fallback...")
+                last_err = e
+                continue
+            else:
+                raise e
+    raise last_err
+
 # Settings Store
 config = {
     'save_folder': get_windows_downloads_path()
@@ -55,31 +153,51 @@ config = {
 # Global dictionary to track active download states
 download_progress = {}
 
+cancelled_downloads = set()
+
+def format_bytes(b):
+    if b is None or b == 0:
+        return '0 B'
+    for unit in ['B', 'KB', 'MB', 'GB']:
+        if b < 1024:
+            return f"{b:.1f} {unit}"
+        b /= 1024
+    return f"{b:.1f} TB"
+
 # FFmpeg setup
 BIN_FOLDER = os.path.join(app_path, 'bin')
 if os.path.exists(os.path.join(BIN_FOLDER, 'ffmpeg.exe')):
     os.environ["PATH"] += os.pathsep + BIN_FOLDER
-    print(f"Added local FFmpeg from {BIN_FOLDER}")
+    logging.info(f"Added local FFmpeg from {BIN_FOLDER}")
 
 # Middleware to check FFmpeg requirements
 @app.before_request
 def check_ffmpeg():
-    # Exempt setup, shutdown and static files
-    if request.path.startswith('/setup') or request.path.startswith('/static') or request.path == '/shutdown':
+    # Exempt setup, shutdown, logs and static files
+    if request.path.startswith('/setup') or request.path.startswith('/static') or request.path == '/shutdown' or request.path == '/api/logs' or request.path == '/update_engine':
         return
         
     ffmpeg_path = os.path.join(BIN_FOLDER, 'ffmpeg.exe')
     if not os.path.exists(ffmpeg_path):
+        # pyrefly: ignore [missing-import]
         from flask import redirect, url_for
         return redirect(url_for('setup_page'))
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    resp = make_response(render_template('index.html'))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
 
 @app.route('/setup')
 def setup_page():
-    return render_template('setup.html')
+    resp = make_response(render_template('setup.html'))
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
 
 @app.route('/settings', methods=['GET'])
 def get_settings():
@@ -96,21 +214,35 @@ def ask_directory_thread(result_list):
         root.destroy()
         result_list.append(folder)
     except Exception as e:
-        print(f"Tkinter dialog error: {e}")
+        logging.error(f"Tkinter dialog error: {e}", exc_info=True)
 
 @app.route('/select_folder', methods=['POST'])
 def select_folder():
+    # Allow manual path input as fallback
+    manual_path = request.form.get('manual_path')
+    if manual_path:
+        manual_path = os.path.normpath(manual_path)
+        if os.path.isdir(manual_path):
+            config['save_folder'] = manual_path
+            return jsonify({'save_folder': manual_path})
+        else:
+            return jsonify({'error': 'Invalid directory path. Please check if the folder exists.'}), 400
+
     import threading
     res = []
     t = threading.Thread(target=ask_directory_thread, args=(res,))
     t.start()
-    t.join() # Block Flask handler until window selection is closed
+    t.join(timeout=60.0) # Prevent permanent hang by setting a timeout
     
     if res and res[0]:
         selected_path = os.path.normpath(res[0])
         config['save_folder'] = selected_path
         return jsonify({'save_folder': selected_path})
-    return jsonify({'save_folder': config['save_folder']})
+    
+    return jsonify({
+        'save_folder': config['save_folder'],
+        'dialog_failed': len(res) == 0
+    })
 
 @app.route('/open_folder', methods=['POST'])
 def open_folder():
@@ -230,7 +362,7 @@ def extract_missav(url):
         
         return None, None
     except Exception as e:
-        print(f"MissAV extraction error: {e}")
+        logging.error(f"MissAV extraction error: {e}", exc_info=True)
         return None, None
 
 @app.route('/info', methods=['POST'])
@@ -267,47 +399,45 @@ def get_info():
             'no_warnings': True,
             'nocache': True,
         }
-        
         if is_missav:
             from urllib.parse import urlparse
             ydl_opts['referer'] = f"https://{urlparse(url).netloc}/"
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(target_url, download=False)
+        info = extract_info_with_fallback(target_url, ydl_opts)
             
-            # Check if playlist
-            if info.get('_type') == 'playlist':
-                entries = list(info.get('entries', []))
-                return jsonify({
-                    'title': f"Playlist: {info.get('title', 'Playlist')}",
-                    'thumbnail': entries[0].get('thumbnail') if entries and entries[0] else '',
-                    'duration': f"{len(entries)} items",
-                    'uploader': info.get('uploader', 'Unknown'),
-                    'resolutions': ['720p', '1080p', 'mp3'],
-                    'url': url
-                })
-
-            # Extract available resolutions
-            formats = info.get('formats', [])
-            resolutions = set()
-            for f in formats:
-                if f.get('vcodec') != 'none' and f.get('height'):
-                    resolutions.add(f.get('height'))
-            
-            available_qualities = []
-            if 2160 in resolutions: available_qualities.append('2160p')
-            if 1080 in resolutions: available_qualities.append('1080p')
-            if 720 in resolutions: available_qualities.append('720p')
-            available_qualities.append('mp3')
-
+        # Check if playlist
+        if info.get('_type') == 'playlist':
+            entries = list(info.get('entries', []))
             return jsonify({
-                'title': custom_title if custom_title else info.get('title'),
-                'thumbnail': info.get('thumbnail'),
-                'duration': info.get('duration_string', ''),
+                'title': f"Playlist: {info.get('title', 'Playlist')}",
+                'thumbnail': entries[0].get('thumbnail') if entries and entries[0] else '',
+                'duration': f"{len(entries)} items",
                 'uploader': info.get('uploader', 'Unknown'),
-                'resolutions': available_qualities,
+                'resolutions': ['720p', '1080p', 'mp3'],
                 'url': url
             })
+
+        # Extract available resolutions
+        formats = info.get('formats', [])
+        resolutions = set()
+        for f in formats:
+            if f.get('vcodec') != 'none' and f.get('height'):
+                resolutions.add(f.get('height'))
+        
+        available_qualities = []
+        if 2160 in resolutions: available_qualities.append('2160p')
+        if 1080 in resolutions: available_qualities.append('1080p')
+        if 720 in resolutions: available_qualities.append('720p')
+        available_qualities.append('mp3')
+
+        return jsonify({
+            'title': custom_title if custom_title else info.get('title'),
+            'thumbnail': info.get('thumbnail'),
+            'duration': info.get('duration_string', ''),
+            'uploader': info.get('uploader', 'Unknown'),
+            'resolutions': available_qualities,
+            'url': url
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -358,13 +488,14 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
         is_playlist = False
         if len(urls) == 1:
             ydl_opts_check = {'quiet': True, 'extract_flat': True, 'nocache': True}
-            with yt_dlp.YoutubeDL(ydl_opts_check) as ydl:
-                check_info = ydl.extract_info(urls[0], download=False)
-                if check_info.get('_type') == 'playlist':
-                    is_playlist = True
+            check_info = extract_info_with_fallback(urls[0], ydl_opts_check)
+            if check_info.get('_type') == 'playlist':
+                is_playlist = True
 
         def make_progress_hook(d_id):
             def hook(d):
+                if d_id in cancelled_downloads:
+                    raise Exception("Download cancelled by user")
                 if d['status'] == 'downloading':
                     total = d.get('total_bytes') or d.get('total_bytes_estimate') or 0
                     downloaded = d.get('downloaded_bytes', 0)
@@ -380,19 +511,22 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                         
                     speed_str = d.get('_speed_str', 'Unknown speed').strip()
                     eta_str = d.get('_eta_str', 'Unknown ETA').strip()
+                    size_str = f"{format_bytes(downloaded)} / {format_bytes(total)}" if total > 0 else format_bytes(downloaded)
                     
                     download_progress[d_id] = {
                         'status': 'downloading',
                         'percent': percent_val,
                         'speed': speed_str,
-                        'eta': eta_str
+                        'eta': eta_str,
+                        'size': size_str
                     }
                 elif d['status'] == 'finished':
                     download_progress[d_id] = {
                         'status': 'processing',
                         'percent': 99,
                         'speed': 'Processing...',
-                        'eta': '00:00'
+                        'eta': '00:00',
+                        'size': 'Merging...'
                     }
             return hook
 
@@ -401,7 +535,9 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
             'outtmpl': output_template,
             'quiet': True,
             'nocache': True,
-            'progress_hooks': [make_progress_hook(download_id)]
+            'progress_hooks': [make_progress_hook(download_id)],
+            'retries': 10,
+            'fragment_retries': 10
         }
         
         if is_playlist:
@@ -422,14 +558,22 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                         'preferredquality': bitrate,
                     }],
                 })
+            elif format_type == 'wav':
+                ydl_opts.update({
+                    'format': 'bestaudio/best',
+                    'postprocessors': [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': 'wav',
+                    }],
+                })
             elif format_type == 'mp4_1080':
                 ydl_opts.update({
-                    'format': 'bestvideo[height=1080]+bestaudio/best[height=1080]',
+                    'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best[height<=1080]/best',
                     'merge_output_format': 'mp4'
                 })
             elif format_type == 'mp4_2160':
                 ydl_opts.update({
-                    'format': 'bestvideo[height=2160]+bestaudio/best[height=2160]',
+                    'format': 'bestvideo[height<=2160]+bestaudio/best[height<=2160]/best[height<=2160]/best',
                     'merge_output_format': 'mp4'
                 })
             else:
@@ -437,11 +581,12 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                     'format': 'best[ext=mp4][height<=720]/best[height<=720]/best',
                 })
                 
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([urls[0]])
+            download_url_with_fallback(ydl_opts, urls[0])
         else:
             # Batch URLs
             for target_url in urls:
+                if download_id in cancelled_downloads:
+                    raise Exception("Download cancelled by user")
                 is_missav = 'missav.' in target_url
                 final_url = target_url
                 custom_title = None
@@ -458,7 +603,9 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                     'outtmpl': output_template,
                     'quiet': True,
                     'nocache': True,
-                    'progress_hooks': [make_progress_hook(download_id)]
+                    'progress_hooks': [make_progress_hook(download_id)],
+                    'retries': 10,
+                    'fragment_retries': 10
                 }
                 
                 if is_missav:
@@ -487,14 +634,22 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                             'preferredquality': bitrate,
                         }],
                     })
+                elif format_type == 'wav':
+                    ydl_opts.update({
+                        'format': 'bestaudio/best',
+                        'postprocessors': [{
+                            'key': 'FFmpegExtractAudio',
+                            'preferredcodec': 'wav',
+                        }],
+                    })
                 elif format_type == 'mp4_1080':
                     ydl_opts.update({
-                        'format': 'bestvideo[height=1080]+bestaudio/best[height=1080]',
+                        'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best[height<=1080]/best',
                         'merge_output_format': 'mp4'
                     })
                 elif format_type == 'mp4_2160':
                     ydl_opts.update({
-                        'format': 'bestvideo[height=2160]+bestaudio/best[height=2160]',
+                        'format': 'bestvideo[height<=2160]+bestaudio/best[height<=2160]/best[height<=2160]/best',
                         'merge_output_format': 'mp4'
                     })
                 else: # mp4_720
@@ -502,8 +657,7 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                         'format': 'best[ext=mp4][height<=720]/best[height<=720]/best',
                     })
                 
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    ydl.download([final_url])
+                download_url_with_fallback(ydl_opts, final_url)
         
         # Complete
         download_progress[download_id] = {
@@ -599,8 +753,46 @@ def update_engine():
         return jsonify({'message': f'Engine updated successfully to v{latest_version}. Please restart the application.'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+@app.route('/api/cancel_download', methods=['POST'])
+def cancel_download():
+    download_id = request.form.get('download_id')
+    if download_id:
+        cancelled_downloads.add(download_id)
+        logging.info(f"Cancellation requested for download: {download_id}")
+        return jsonify({'status': 'cancel_requested'})
+    return jsonify({'error': 'Missing download_id'}), 400
+@app.route('/api/logs', methods=['GET'])
+def get_logs():
+    try:
+        log_file = os.path.join(app_path, 'app.log')
+        if os.path.exists(log_file):
+            with open(log_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                return jsonify({'logs': ''.join(lines[-150:])})
+        return jsonify({'logs': 'Log file not found.'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def cleanup_temp_files():
+    try:
+        save_dir = config.get('save_folder')
+        if save_dir and os.path.exists(save_dir):
+            cleaned_count = 0
+            for filename in os.listdir(save_dir):
+                if filename.endswith('.part') or filename.endswith('.ytdl') or filename.endswith('.temp'):
+                    file_path = os.path.join(save_dir, filename)
+                    try:
+                        os.remove(file_path)
+                        cleaned_count += 1
+                    except Exception:
+                        pass
+            if cleaned_count > 0:
+                logging.info(f"Startup Cleanup: Removed {cleaned_count} stale temp/part files.")
+    except Exception as e:
+        logging.error(f"Error during startup cleanup: {e}", exc_info=True)
 
 if __name__ == '__main__':
+    cleanup_temp_files()
     def open_browser(port):
         import time
         import webbrowser

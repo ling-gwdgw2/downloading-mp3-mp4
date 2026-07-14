@@ -94,9 +94,9 @@ sequenceDiagram
     end
     Flask->>Browser: ส่งสถานะ "completed" เมื่อทำทุกอย่างเสร็จสิ้น
     Browser->>Browser: ปิดการเชื่อมต่อท่อสถานะ (SSE Close)
-    Browser->>Flask: HTTP GET: ร้องขอดาวน์โหลดไฟล์ (/download_file/download_id)
-    Flask->>Browser: ส่งมอบไฟล์เข้าสู่เบราว์เซอร์ (Browser Download Manager)
-    Flask->>Flask: สั่งตั้งเวลาลบไฟล์ทิ้งหลังส่งมอบ 15 วินาที (Delayed Cleanup Thread)
+    Note over Browser: แสดงตัวเลือกและปุ่มเปิดโฟลเดอร์
+    Browser->>Flask: HTTP POST: ร้องขอเปิดโฟลเดอร์เก็บไฟล์ (/open_folder)
+    Flask->>Browser: สั่งระบบเปิดหน้าต่างโฟลเดอร์ปลายทาง (os.startfile)
 ```
 
 ---

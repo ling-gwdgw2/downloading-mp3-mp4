@@ -1,12 +1,23 @@
-import PyInstaller.__main__
+import sys
 import os
+import subprocess
+
+# Auto-reexecute using virtualenv python if available and not already running in it
+base_dir = os.path.dirname(os.path.abspath(__file__))
+venv_python = os.path.normpath(os.path.join(base_dir, '.venv', 'Scripts', 'python.exe'))
+if os.path.exists(venv_python) and os.path.abspath(sys.executable) != venv_python:
+    print(f"Re-executing build script inside virtual environment: {venv_python}")
+    result = subprocess.run([venv_python] + sys.argv)
+    sys.exit(result.returncode)
+
+import PyInstaller.__main__
 import shutil
 
 # Clean previous build
 if os.path.exists('dist'):
-    shutil.rmtree('dist')
+    shutil.rmtree('dist', ignore_errors=True)
 if os.path.exists('build'):
-    shutil.rmtree('build')
+    shutil.rmtree('build', ignore_errors=True)
 
 print("Building executable...")
 

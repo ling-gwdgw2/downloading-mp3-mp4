@@ -11,6 +11,8 @@ downloads/
 .gemini/
 .agents/
 .git/
+bin/
+*.log
 *.part
 *.ytdl
 *.temp

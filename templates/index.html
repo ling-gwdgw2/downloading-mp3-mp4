@@ -1,744 +1,1106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video & Audio Downloader</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <title>Phoebe Downloader</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Quicksand & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Alpine.js for interactive state management -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Quicksand', 'sans-serif'],
+                        rounded: ['Quicksand', 'sans-serif'],
+                    },
+                    colors: {
+                        miku: {
+                            50: '#fefce8',
+                            100: '#fef9c3',
+                            200: '#fef08a',
+                            300: '#fde047',
+                            400: '#facc15', // Phoebe golden yellow
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                            900: '#713f12',
+                        },
+                        mikuDark: '#422006',
+                        mikuPink: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --bg-color: #EBC8D6;
-            --card-bg: #FFFFFF;
-            --border-color: #000000;
-            --shadow-color: #000000;
-            --btn-pink: #FF9AA2;
-            --btn-green: #E2F0CB;
-            --btn-blue: #D4F1F4;
-            --text-color: #2D2D2D;
-            --text-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
         body {
-            font-family: 'VT323', monospace;
-            background: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin: 0;
-            padding: 20px;
+            font-family: 'Quicksand', 'Plus Jakarta Sans', sans-serif;
+            background-color: #fefcf3;
         }
 
-        /* Focus States */
-        .form-control-custom:focus {
-            outline: 3px dotted var(--border-color);
-            outline-offset: -3px;
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
 
-        .btn-fetch:focus,
-        .btn:focus,
-        select:focus,
-        input[type="checkbox"]:focus {
-            outline: 3px dotted black;
-            outline-offset: 2px;
+        ::-webkit-scrollbar-track {
+            background: #fefce8;
         }
 
-        /* Main Card */
-        .main-card {
-            background: var(--card-bg);
-            border: 5px solid var(--border-color);
-            box-shadow: 10px 10px 0px var(--shadow-color);
-            padding: 3rem 2rem;
-            width: 100%;
-            max-width: 900px;
-            position: relative;
+        ::-webkit-scrollbar-thumb {
+            background: #ffe182;
+            border-radius: 999px;
         }
 
-        /* Header */
-        .card-header-custom {
-            text-align: center;
-            margin-bottom: 2rem;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #eab30866;
         }
 
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 0.5rem;
+        [x-cloak] {
+            display: none !important;
         }
 
-        .pixel-title {
-            font-size: 3.5rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 3px 3px 0px #D87B88;
-            /* Darker pink for better accessibility contrast */
-            line-height: 1;
-        }
+        /* Rotating Vinyl Animation */
+        @keyframes rotate-vinyl {
+            from {
+                transform: rotate(0deg);
+            }
 
-        .sub-title {
-            font-family: var(--text-sans);
-            color: #555;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-        }
-
-        /* Input Section */
-        .input-group-custom {
-            background: #ffffff;
-            border: 4px solid var(--border-color);
-            box-shadow: 6px 6px 0px var(--shadow-color);
-            display: flex;
-            padding: 0;
-            margin-bottom: 1.5rem;
-            height: 60px;
-        }
-
-        .form-control-custom {
-            border: none;
-            outline: none;
-            width: 100%;
-            padding: 10px 20px;
-            font-family: 'VT323', monospace;
-            font-size: 1.6rem;
-            color: var(--text-color);
-            background: transparent;
-        }
-
-        .form-control-custom::placeholder {
-            color: #888;
-        }
-
-        .btn-fetch {
-            background: var(--btn-pink);
-            border: none;
-            border-left: 4px solid var(--border-color);
-            color: var(--text-color);
-            font-family: 'VT323', monospace;
-            font-size: 1.6rem;
-            text-transform: uppercase;
-            padding: 0 40px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-fetch:hover {
-            background: #ff808b;
-        }
-
-        .btn-fetch:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            color: #666;
-        }
-
-        /* Divider */
-        .dashed-divider {
-            border-top: 3px dashed var(--border-color);
-            margin: 2rem 0;
-            opacity: 0.6;
-        }
-
-        /* Empty State */
-        .empty-state-card {
-            border: 4px dashed var(--border-color);
-            background: #FAFAFA;
-            padding: 3rem;
-            text-align: center;
-        }
-
-        .empty-state-title {
-            font-family: 'VT323', monospace;
-            font-size: 2.2rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-top: 1rem;
-        }
-
-        .empty-state-desc {
-            font-family: var(--text-sans);
-            font-size: 1.1rem;
-            color: #555;
-        }
-
-        /* Result Area */
-        #resultArea {
-            display: none;
-        }
-
-        .video-container {
-            display: flex;
-            gap: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .video-container {
-                flex-direction: column;
+            to {
+                transform: rotate(360deg);
             }
         }
 
-        .thumbnail-wrapper {
-            flex: 0 0 40%;
+        .animate-vinyl {
+            animation: rotate-vinyl 8s linear infinite;
         }
 
-        .thumbnail-img {
-            width: 100%;
-            height: auto;
-            border: 4px solid var(--border-color);
-            box-shadow: 6px 6px 0px var(--shadow-color);
-            display: block;
-        }
-
-        .info-wrapper {
-            flex: 1;
-        }
-
-        .video-title {
-            font-size: 2rem;
-            font-weight: bold;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-        }
-
-        .meta-info {
-            display: flex;
-            gap: 20px;
-            color: #333;
-            font-size: 1.4rem;
-            margin-bottom: 1.5rem;
-            align-items: center;
-        }
-
-        /* Format Options Grid */
-        .format-grid {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .format-label-btn {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .format-label-btn input {
-            display: none;
-        }
-
-        .format-box {
-            border: 4px solid var(--border-color);
-            padding: 10px 20px;
-            min-width: 140px;
-            text-align: center;
-            background: white;
-            box-shadow: 5px 5px 0px var(--shadow-color);
-            transition: transform 0.1s, box-shadow 0.1s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100px;
-        }
-
-        .format-box i {
-            font-size: 2rem;
-            margin-bottom: 5px;
-        }
-
-        /* Format Selection Highlighting */
-        .format-label-btn input:checked+.format-box {
-            transform: translate(3px, 3px);
-            box-shadow: 2px 2px 0px var(--shadow-color);
-            border: 5px solid black;
-            background: var(--btn-green) !important;
-            /* Force distinct visual selection */
-        }
-
-        /* Styles per type */
-        .format-box.standard {
-            background: #FFFFFF;
-        }
-
-        .format-box.fullhd {
-            background: #FFF9C4;
-            /* Soft yellow for FullHD */
-        }
-
-        .format-box.audio {
-            background: var(--btn-blue);
-        }
-
-        .res-tag {
-            background: black;
-            color: white;
-            padding: 2px 8px;
-            font-size: 1rem;
-            margin-top: 5px;
-        }
-
-        /* Footer & Descriptions */
-        .footer {
-            margin-top: 3rem;
-            text-align: center;
-            color: #2d2d2d;
-            font-family: var(--text-sans);
-            font-size: 1rem;
-        }
-
-        /* Loader */
-        .loader-container {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .spinner-pixel {
-            width: 40px;
-            height: 40px;
-            background-color: var(--text-color);
-            margin: 0 auto;
-            animation: rotate-pixel 1.2s infinite ease-in-out;
-        }
-
-        @keyframes rotate-pixel {
-            0% {
-                transform: perspective(120px) rotateX(0deg) rotateY(0deg);
-            }
-
-            50% {
-                transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
-            }
-
-            100% {
-                transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-            }
-        }
-
-        /* Checkbox Pixel Style */
-        .pixel-checkbox {
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            accent-color: black;
-            border: 3px solid black;
+        .animate-vinyl-fast {
+            animation: rotate-vinyl 2s linear infinite;
         }
     </style>
 </head>
 
-<body>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col selection:bg-miku-200 selection:text-miku-800"
+    x-data="downloaderState()">
 
-    <!-- Shutdown Overlay Screen -->
-    <div id="shutdownOverlay"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #EBC8D6; z-index: 9999; align-items: center; justify-content: center; text-align: center;">
+    <!-- Audio synthesizer helper for cute gaming feedback and preview audio playing -->
+    <script>
+        let audioCtx = null;
+        let playInterval = null;
+
+        const playCuteSound = (type = 'click') => {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.08);
+                } else if (type === 'pop') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16); // G5
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch (e) {
+                console.log('Audio Context not allowed or supported yet');
+            }
+        };
+
+        // Synthesize an 8-bit melody for downloaded music player preview
+        const startSynthMelody = () => {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (playInterval) clearInterval(playInterval);
+
+                const melody = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+                let index = 0;
+
+                playInterval = setInterval(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(melody[index % melody.length], audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.5);
+                    index++;
+                }, 400);
+            } catch (e) {
+                console.error("Synth melody failed to start", e);
+            }
+        };
+
+        const stopSynthMelody = () => {
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+        };
+    </script>
+
+    <!-- SMALL LOGO HEADER -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex items-center gap-3 cursor-pointer group"
+        @click="playCuteSound('pop')">
         <div
-            style="background: white; border: 5px solid black; box-shadow: 10px 10px 0px #000; padding: 3rem; max-width: 500px; margin: 20px;">
-            <i class="bi bi-power text-danger" style="font-size: 5rem; text-shadow: 3px 3px 0 #000;"></i>
-            <h1 style="font-size: 3rem; font-weight: bold; text-transform: uppercase; margin-top: 1rem;">APP OFFLINE
-            </h1>
-            <p style="font-family: var(--text-sans); font-size: 1.3rem; margin-top: 1rem;">The application server has
-                shut down. You can now close this browser tab safely.</p>
+            class="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform duration-300 border-2 border-miku-200 bg-miku-50 flex items-center justify-center">
+            <img src="/static/phoebe1.png" class="w-full h-full object-contain">
         </div>
+        <span class="font-bold text-xl tracking-tight text-slate-800 font-rounded">
+            Phoebe <span class="text-miku-400">Loader</span>
+        </span>
     </div>
 
-    <div class="main-card">
-        <!-- Close App Button at Top Right -->
-        <div style="position: absolute; top: 15px; right: 15px;">
-            <button class="btn btn-danger" id="shutdownBtn" aria-label="Shutdown Server and Exit Application"
-                style="border: 3px solid black; box-shadow: 3px 3px 0px #000; border-radius: 0; font-family: 'VT323', monospace; font-size: 1.2rem; font-weight: bold; background: #ff808b;">
-                <i class="bi bi-power"></i> CLOSE APP
-            </button>
-        </div>
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
 
-        <div class="card-header-custom">
-            <div class="header-content">
-                <i class="bi bi-download" style="font-size: 4rem; text-shadow: 3px 3px 0 #000;"></i>
-                <span class="pixel-title ms-3">Universal Downloader</span>
+        <!-- HERO DOWNLOADER PANEL -->
+        <section
+            class="relative mb-8 rounded-3xl bg-gradient-to-r from-[#ffe0a1] to-[#fbe089] text-white shadow-xl p-8 md:p-12">
+            <!-- Standing Chibi Character: inside right vinyl column, clear of search bar -->
+            <img src="/static/phoebe1.png"
+                class="absolute right-[20%] bottom-0 h-[150px] md:h-[185px] object-contain pointer-events-none z-20 hidden sm:block">
+            <!-- Large Anime Girl: fills hero height, slightly larger, shifted right -->
+            <img src="/static/phoebe2.png"
+                class="absolute inset-y-0 right-[-3rem] h-full object-contain object-bottom pointer-events-none z-20 scale-[1.18] origin-bottom-right">
+
+            <!-- Background Glows -->
+            <div class="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none">
             </div>
-            <p class="sub-title">Supports YouTube, TikTok, Facebook, Instagram, Bilibili, and 1,000+ sites</p>
-        </div>
-
-        <form id="fetchForm">
-            <div class="input-group-custom">
-                <input type="text" class="form-control-custom" id="urlInput" name="url"
-                    aria-label="Enter video or playlist URL"
-                    placeholder="Paste link here (or separate batch links with commas)..." required autocomplete="off">
-                <button class="btn-fetch" type="submit" id="fetchSubmitBtn" aria-label="Check and validate URL">
-                    <i class="bi bi-search"></i> CHECK
-                </button>
+            <div
+                class="absolute -left-20 -bottom-20 w-80 h-80 bg-miku-900/10 rounded-full blur-2xl pointer-events-none">
             </div>
-        </form>
 
-        <!-- Directory Settings Bar -->
-        <div class="d-flex justify-content-between align-items-center p-3 mb-4" style="border: 4px solid black; background: #fafafa; box-shadow: 4px 4px 0px #000;">
-            <div style="font-family: var(--text-sans); font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 15px;">
-                <i class="bi bi-folder-fill text-warning me-2"></i>
-                <strong>Save Location:</strong> <span id="saveFolderText">Loading...</span>
-            </div>
-            <button class="btn btn-secondary" id="changeFolderBtn" style="border: 3px solid black; box-shadow: 3px 3px 0px #000; border-radius: 0; font-family: 'VT323', monospace; font-size: 1.1rem; background: var(--btn-blue); color: black; white-space: nowrap; font-weight: bold;">
-                <i class="bi bi-pencil-square"></i> CHANGE
-            </button>
-        </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
 
-        <div class="dashed-divider"></div>
-
-        <!-- Empty State Container -->
-        <div id="emptyState" class="empty-state-card">
-            <i class="bi bi-link-45deg" style="font-size: 4.5rem; opacity: 0.5;"></i>
-            <div class="empty-state-title">No URL Loaded</div>
-            <p class="empty-state-desc mb-0">Paste a link in the field above and click "Check" to view resolutions and
-                options.</p>
-        </div>
-
-        <div id="loader" class="loader-container">
-            <div class="spinner-pixel"></div>
-            <p style="margin-top: 15px; font-size: 1.2rem; font-weight: bold;">Checking URL...</p>
-        </div>
-
-        <div id="errorAlert" class="alert alert-danger d-none" role="alert"
-            style="border: 3px solid black; background: #FFB7B2; color: black; border-radius: 0; font-family: var(--text-sans); font-size: 1.1rem;">
-            <i class="bi bi-exclamation-triangle-fill"></i> <span id="errorText"></span>
-        </div>
-
-        <div id="resultArea">
-            <div class="video-container">
-                <!-- Left: Thumbnail -->
-                <div class="thumbnail-wrapper">
-                    <img id="thumbnail" src="" alt="Thumbnail" class="thumbnail-img">
-                </div>
-
-                <!-- Right: Info -->
-                <div class="info-wrapper">
-                    <div class="video-title" id="videoTitle"></div>
-                    <div class="meta-info">
-                        <span><i class="bi bi-clock"></i> <span id="duration"></span></span>
-                        <span><i class="bi bi-person"></i> <span id="uploader"></span></span>
+                <!-- Left Details & Search Input -->
+                <div class="lg:col-span-8 flex flex-col justify-center space-y-6">
+                    <div class="space-y-2">
+                        <span
+                            class="bg-white/20 text-xs font-bold uppercase tracking-widest py-1.5 px-3 rounded-full w-max">
+                            High-Quality Downloader
+                        </span>
+                        <h1 class="text-4xl md:text-5xl font-bold font-rounded tracking-tight">
+                            Download High Quality Audio/Video Free
+                        </h1>
+                        <p class="text-white/90 text-[14px] max-w-xl font-medium leading-relaxed">
+                            ดาวน์โหลดเพลงความละเอียดสูงสุด 320kbps หรือวิดีโอ Full HD / 4K จาก YouTube, SoundCloud,
+                            Facebook, Vimeo และแพลตฟอร์มอื่นๆ ได้ฟรีรวดเร็วทันใจ!
+                        </p>
                     </div>
 
-                    <!-- Download Options (Form submits in same tab) -->
-                    <form action="/prepare_download" method="POST" id="downloadForm">
-                        <input type="hidden" name="url" id="downloadUrl">
+                    <!-- Input Bar Panel -->
+                    <div class="bg-white p-2 rounded-2xl shadow-lg flex flex-col md:flex-row gap-2 max-w-3xl">
+                        <div class="relative flex-1 flex items-center">
+                            <i class="fa-solid fa-link text-slate-400 left-4 absolute"></i>
+                            <input type="text" x-model="urlInput"
+                                placeholder="วางลิงก์ YouTube, SoundCloud, Facebook หรือแพลตฟอร์มอื่นๆ..."
+                                class="w-full text-slate-800 text-sm px-10 py-3.5 rounded-xl border border-transparent focus:outline-none focus:border-miku-300 font-semibold placeholder-slate-400 bg-slate-50">
+                        </div>
+                        <div class="flex gap-2">
+                            <button @click="processInput()" :disabled="isFetchingInfo"
+                                class="bg-miku-500 hover:bg-miku-600 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow active:scale-95 text-sm whitespace-nowrap flex items-center justify-center gap-2 disabled:bg-miku-300">
+                                <span class="flex items-center gap-2" x-show="!isFetchingInfo">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    <span>วิเคราะห์ลิงก์</span>
+                                </span>
+                                <span class="flex items-center gap-2" x-show="isFetchingInfo" x-cloak>
+                                    <i class="fa-solid fa-circle-notch animate-spin"></i>
+                                    <span>กำลังวิเคราะห์...</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
 
-                        <div class="format-grid">
-                            <!-- Standard 720p -->
-                            <label class="format-label-btn" id="option_720">
-                                <input type="radio" name="format_type" value="mp4_720" checked>
-                                <div class="format-box standard">
-                                    <i class="bi bi-file-text"></i>
-                                    <div style="font-weight: bold;">Standard</div>
-                                    <div class="res-tag">720p</div>
-                                </div>
-                            </label>
 
-                            <!-- Full HD 1080p -->
-                            <label class="format-label-btn" id="option_1080">
-                                <input type="radio" name="format_type" value="mp4_1080">
-                                <div class="format-box fullhd">
-                                    <div style="font-weight: bold; font-size: 1.2rem;">Full HD</div>
-                                    <div class="res-tag">1080p</div>
-                                </div>
-                            </label>
+                </div>
 
-                            <!-- 4K Option -->
-                            <label class="format-label-btn" id="option_4k" style="display:none;">
-                                <input type="radio" name="format_type" value="mp4_2160">
-                                <div class="format-box" style="background: #E0BBE4;">
-                                    <div style="font-weight: bold;">Ultra HD</div>
-                                    <div class="res-tag">4K</div>
-                                </div>
-                            </label>
+                <!-- Right Side: Beautiful Downloader Art Silhouette (Miku Headphones theme) -->
+                <div class="lg:col-span-4 flex justify-center">
+                    <svg viewBox="0 0 320 320"
+                        class="w-full max-w-[280px] md:max-w-[310px] h-auto drop-shadow-2xl filter transform hover:scale-105 transition-transform duration-500">
+                        <circle cx="160" cy="160" r="130" fill="white" fill-opacity="0.15" />
+                        <!-- Vinyl disc (Animated rotation) -->
+                        <g class="animate-vinyl" style="transform-origin: 160px 160px;">
+                            <circle cx="160" cy="160" r="100" fill="#422006" />
+                            <circle cx="160" cy="160" r="95" fill="none" stroke="#facc15" stroke-width="2"
+                                opacity="0.4" />
+                            <circle cx="160" cy="160" r="80" fill="none" stroke="#facc15" stroke-width="1"
+                                stroke-dasharray="6,4" />
+                            <circle cx="160" cy="160" r="50" fill="#f59e0b" />
+                            <circle cx="160" cy="160" r="45" fill="#fef3c7" />
+                            <circle cx="160" cy="160" r="15" fill="#facc15" />
+                        </g>
+                        <!-- Stylized needle arm -->
+                        <path d="M230,80 L200,120 L180,150" stroke="white" stroke-width="4" stroke-linecap="round"
+                            fill="none" />
+                        <rect x="175" y="145" width="10" height="15" fill="#f59e0b" transform="rotate(15, 180, 150)" />
+                    </svg>
+                </div>
+            </div>
+        </section>
 
-                            <!-- Audio MP3 -->
-                            <label class="format-label-btn" id="option_audio">
-                                <input type="radio" name="format_type" value="mp3">
-                                <div class="format-box audio">
-                                    <i class="bi bi-music-note-beamed"></i>
-                                    <div style="font-weight: bold;">Audio</div>
-                                    <div class="res-tag">MP3</div>
+        <!-- MAIN DASHBOARD SPLIT GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- LEFT PANEL: DOWNLOAD SETTINGS & PROGRESS (Span 8 of 12) -->
+            <div class="lg:col-span-8 space-y-6">
+
+                <!-- MAIN ACTIVE CONVERSION / DOWNLOAD WINDOW -->
+                <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 flex flex-col space-y-6">
+
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div class="flex items-center gap-2.5">
+                            <!-- Lying Chibi next to title -->
+                            <img src="/static/phoebe0.png"
+                                class="w-14 h-14 object-contain pointer-events-none hidden md:block flex-shrink-0">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-miku-100 text-miku-600 flex items-center justify-center">
+                                <i class="fa-solid fa-play-pause text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold font-rounded text-slate-800">แผงควบคุมการดาวน์โหลด</h3>
+                                <p class="text-xs text-slate-400 font-bold">ACTIVE STREAM ANALYZER</p>
+                            </div>
+                        </div>
+                        <span
+                            class="text-xs bg-slate-100 text-slate-600 font-extrabold px-3 py-1 rounded-full uppercase"
+                            x-text="activeSong.platform">YOUTUBE</span>
+                    </div>
+
+                    <!-- Song Detail Grid (Matching visual aesthetic in Screenshot 2026-07-05 232816.jpg) -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+
+                        <!-- Left Side: Song Thumbnail / Artwork / Mini-Vinyl visualizer -->
+                        <div class="md:col-span-5 flex flex-col items-center">
+                            <div
+                                class="relative w-full aspect-square max-w-[220px] rounded-2xl overflow-hidden shadow-md bg-slate-900 flex items-center justify-center group border border-slate-100">
+
+                                <!-- Song Cover Art (Dynamic from activeSong cover) -->
+                                <img :src="activeSong.cover" class="w-full h-full object-cover transition-all"
+                                    :class="isConverting ? 'animate-vinyl blur-[2px] scale-90 rounded-full' : ''"
+                                    @error="$event.target.src = 'https://placehold.co/400x400/223c40/ffffff?text=Ready+to+Parse'">
+
+                                <!-- Vinyl Center label overlays only when downloading/converting -->
+                                <div x-show="isConverting"
+                                    class="absolute w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-inner border border-slate-200"
+                                    x-cloak>
+                                    <div class="w-3 h-3 bg-slate-900 rounded-full"></div>
                                 </div>
-                            </label>
+                            </div>
+
+                            <!-- Artist / Channel Details -->
+                            <div class="text-center mt-3 space-y-0.5">
+                                <h4 class="font-bold text-sm text-slate-800" x-text="activeSong.title">
+                                    กรุณาเลือกหรือวางลิงก์เพลงที่ต้องการดาวน์โหลด</h4>
+                                <p class="text-xs text-slate-400 font-bold" x-text="'Channel: ' + activeSong.channel">
+                                </p>
+                            </div>
                         </div>
 
-                        <!-- Subtitle Download Option -->
-                        <div class="mt-4 d-flex align-items-center gap-2">
-                            <input type="checkbox" id="subtitlesCheckbox" name="subtitles" value="true"
-                                class="pixel-checkbox">
-                            <label for="subtitlesCheckbox"
-                                style="font-family: var(--text-sans); font-size: 1.1rem; font-weight: bold; cursor: pointer; user-select: none;">
-                                Download & Embed Subtitles (If available)
-                            </label>
+                        <!-- Right Side: Format & Quality Selector -->
+                        <div class="md:col-span-7 flex flex-col space-y-4">
+                            <div>
+                                <label
+                                    class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">เลือกประเภทไฟล์</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button @click="selectFormat('mp3')"
+                                        :class="selectedFormat === 'mp3' ? 'bg-[#59cccc] text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
+                                        class="py-3 px-4 rounded-xl border font-bold text-sm flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        <i class="fa-solid fa-file-audio text-lg"></i>
+                                        <span>Audio MP3</span>
+                                    </button>
+                                    <button @click="selectFormat('wav')"
+                                        :class="selectedFormat === 'wav' ? 'bg-slate-700 text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
+                                        class="py-3 px-4 rounded-xl border font-bold text-sm flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        <i class="fa-solid fa-wave-square text-lg"></i>
+                                        <span>Hi-Res WAV</span>
+                                    </button>
+                                    <button @click="selectFormat('mp4')"
+                                        :class="selectedFormat === 'mp4' ? 'bg-[#cceeed] text-slate-700 border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
+                                        class="py-3 px-4 rounded-xl border font-bold text-sm flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        <i class="fa-solid fa-file-video text-lg"></i>
+                                        <span>Video MP4</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Quality Options -->
+                            <div>
+                                <label
+                                    class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">เลือกคุณภาพของไฟล์</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    <template x-for="qual in availableQualities" :key="qual">
+                                        <button @click="selectedQuality = qual"
+                                            :class="selectedQuality === qual ? 'border-miku-500 bg-miku-50 text-miku-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+                                            class="py-2.5 px-3 rounded-xl border-2 font-bold text-xs text-center transition-all"
+                                            x-text="qual"></button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Conversion triggering -->
+                            <div class="pt-2">
+                                <button @click="startDownloadConversion()" :disabled="isConverting"
+                                    class="w-full bg-[#f59e0b] hover:bg-miku-500 disabled:bg-miku-200 text-white font-bold py-3.5 px-6 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 text-base">
+                                    <span x-show="!isConverting">
+                                        <i class="fa-solid fa-circle-down"></i> เริ่มการแปลงไฟล์ & ดาวน์โหลด
+                                    </span>
+                                    <span x-show="isConverting" class="flex items-center gap-2">
+                                        <i class="fa-solid fa-compact-disc animate-spin text-lg"></i>
+                                        กำลังประมวลผล...
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONVERSION PROGRESS BAR (Visible only during process) -->
+                    <div x-show="isConverting || downloadProgress > 0"
+                        x-transition:enter="transition ease-out duration-300"
+                        class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3" x-cloak>
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-500">
+                            <span class="flex items-center gap-1.5 text-miku-600">
+                                <i class="fa-solid fa-compact-disc" :class="isConverting ? 'animate-spin' : ''"></i>
+                                <span x-text="conversionStatusText">กำลังดาวน์โหลดข้อมูลวิดีโอ...</span>
+                            </span>
+                            <span class="text-slate-700 font-extrabold text-sm"
+                                x-text="downloadProgress + '%'">0%</span>
                         </div>
 
-                        <!-- Audio Quality Dynamic Option -->
-                        <div class="mt-3" id="bitrateContainer" style="display: none;">
-                            <label for="bitrateSelect"
-                                style="font-family: var(--text-sans); font-size: 1.1rem; font-weight: bold; display: block; margin-bottom: 5px;">
-                                Audio Bitrate (Quality):
-                            </label>
-                            <select id="bitrateSelect" name="bitrate" class="form-control-custom"
-                                style="border: 4px solid black; background: white; padding: 5px 15px; font-family: 'VT323', monospace; font-size: 1.4rem; box-shadow: 4px 4px 0px #000; width: 100%; height: 50px;">
-                                <option value="128">128 kbps (Low)</option>
-                                <option value="192" selected>192 kbps (Recommended)</option>
-                                <option value="320">320 kbps (Studio Quality)</option>
-                            </select>
+                        <!-- Progress line -->
+                        <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-miku-400 to-[#d97706] h-full transition-all duration-300"
+                                :style="'width: ' + downloadProgress + '%'"></div>
                         </div>
 
-                        <button type="submit" class="btn-fetch mt-4"
-                            style="width: 100%; justify-content: center; background: black; color: white; border-left: none; border: 4px solid black; box-shadow: 5px 5px 0px #000;">
-                            <i class="bi bi-download"></i> DOWNLOAD NOW
+                        <!-- Real-time Stats Grid -->
+                        <div class="grid grid-cols-3 gap-2.5 text-center text-xs font-bold text-slate-700 pt-1">
+                            <div class="bg-white border border-slate-200/60 p-2 rounded-xl">
+                                <div class="text-[9px] text-slate-400 uppercase">SPEED</div>
+                                <div class="mt-0.5" x-text="downloadSpeed">Connecting...</div>
+                            </div>
+                            <div class="bg-white border border-slate-200/60 p-2 rounded-xl">
+                                <div class="text-[9px] text-slate-400 uppercase">ETA</div>
+                                <div class="mt-0.5" x-text="downloadEta">--:--</div>
+                            </div>
+                            <div class="bg-white border border-slate-200/60 p-2 rounded-xl">
+                                <div class="text-[9px] text-slate-400 uppercase">SIZE</div>
+                                <div class="mt-0.5 text-[10px] truncate" x-text="downloadSize">-- / --</div>
+                            </div>
+                        </div>
+
+                        <!-- Cancel Button and Helper Text -->
+                        <div class="flex items-center justify-between gap-3 pt-1">
+                            <button x-show="isConverting" @click="cancelDownload()"
+                                class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-1.5 px-4 rounded-xl text-xs shadow transition-all active:scale-95">
+                                <i class="fa-solid fa-ban"></i> CANCEL DOWNLOAD
+                            </button>
+                            <span class="text-[10px] text-slate-400 text-right font-semibold flex-1">
+                                กำลังบันทึกข้อมูลแบบเข้ารหัสคลื่นความถี่สูงพิเศษ
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM CONFIGURATION & LOGS CARD -->
+                <div class="bg-white rounded-3xl p-6 border border-miku-100 shadow-sm flex flex-col space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2.5 text-miku-600">
+                            <i class="fa-solid fa-gears text-lg animate-pulse"></i>
+                            <h4 class="font-bold text-sm tracking-tight font-rounded">System Settings & Logs</h4>
+                        </div>
+                        <button @click="shutdownApp()"
+                            class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-power-off"></i> ปิดโปรแกรม
                         </button>
-                    </form>
+                    </div>
+
+                    <!-- Config Grid -->
+                    <div class="text-xs font-semibold text-slate-600">
+                        <!-- Save Folder path -->
+                        <div class="space-y-1.5">
+                            <label
+                                class="text-[10px] text-slate-400 uppercase tracking-wider block">โฟลเดอร์สำหรับเซฟไฟล์</label>
+                            <div class="flex gap-2">
+                                <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 truncate"
+                                    x-text="saveFolder || 'กำลังโหลด...'"></div>
+                                <button @click="selectFolder()"
+                                    class="bg-miku-400 hover:bg-miku-500 text-white px-3 rounded-xl transition-colors">
+                                    <i class="fa-solid fa-folder-open"></i>
+                                </button>
+                                <button @click="openFolder()"
+                                    class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 rounded-xl transition-colors">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subtitles and Update Engine actions -->
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs font-bold text-slate-700 border-t border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="subtitlesCheck" x-model="subtitlesEnabled"
+                                class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
+                            <label for="subtitlesCheck" class="cursor-pointer select-none">ดาวน์โหลดและฝังซับไตเติล
+                                (หากมี)</label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="updateEngine()" :disabled="isUpdatingEngine"
+                                class="bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white py-2 px-4 rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrows-rotate"
+                                    :class="isUpdatingEngine ? 'animate-spin' : ''"></i>
+                                <span>อัปเดต</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p x-show="updateStatusText" x-text="updateStatusText"
+                        class="text-[10px] font-semibold text-miku-600 bg-miku-50 p-2 rounded-xl" x-cloak></p>
+
+                    <!-- Toggle Log Terminal -->
+                    <div class="pt-2 border-t border-slate-100">
+                        <button @click="toggleLogs()"
+                            class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 px-4 rounded-xl text-center flex items-center justify-center gap-2 text-xs transition-colors">
+                            <i class="fa-solid" :class="logsOpen ? 'fa-eye-slash' : 'fa-terminal'"></i>
+                            <span x-text="logsOpen ? 'ซ่อนระบบ Logs' : 'เปิดดูระบบ System Logs Console'"></span>
+                        </button>
+                    </div>
+
+                    <!-- Collapsible Logs Box -->
+                    <div x-show="logsOpen" x-transition class="space-y-2" x-cloak>
+                        <div class="flex items-center justify-between text-[11px] font-bold text-slate-400">
+                            <span>SYSTEM_CONSOLE_OUTPUT.LOG</span>
+                            <button @click="refreshLogs()" class="text-miku-600 hover:underline">REFRESH</button>
+                        </div>
+                        <pre id="mikuLogConsole" x-text="systemLogs"
+                            class="bg-slate-950 text-emerald-400 font-mono text-[10px] p-4 rounded-2xl max-h-[200px] overflow-y-auto whitespace-pre-wrap break-all border border-slate-800 shadow-inner"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: USER MUSIC LIBRARY & CONVERSION LOGS (Span 4 of 12) -->
+            <div class="lg:col-span-4 space-y-6">
+
+                <!-- PLAYABLE CONVERTED LIBRARY (Matches Screenshot structure) -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col space-y-4">
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-8 rounded-xl bg-[#fef9c3] flex items-center justify-center text-[#eab308] font-extrabold text-lg font-rounded shadow-inner">
+                                <i class="fa-solid fa-music text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-[15px] text-slate-800 leading-tight">My Converted Songs</h4>
+                                <p class="text-xs text-slate-400 font-bold"
+                                    x-text="librarySongs.length + ' เพลงพร้อมฟัง'"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Converted Songs List -->
+                    <div class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                        <template x-for="(song, idx) in librarySongs" :key="idx">
+                            <div
+                                class="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                                <img :src="song.cover" class="w-11 h-11 rounded-xl object-cover shadow-sm bg-slate-900"
+                                    @error="$event.target.src = 'https://placehold.co/100x100/223c40/ffffff?text=Music'">
+                                <div class="flex-1 min-w-0">
+                                    <h5 class="text-xs font-bold text-slate-800 truncate" x-text="song.title"></h5>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase"
+                                        x-text="song.format + ' • ' + song.quality"></p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button @click="togglePlayMelody(song)"
+                                        class="w-7 h-7 rounded-full bg-miku-100 text-miku-600 hover:bg-miku-200 flex items-center justify-center text-xs transition-all active:scale-90">
+                                        <i class="fa-solid"
+                                            :class="playingSongIndex === idx ? 'fa-stop text-red-500' : 'fa-play'"></i>
+                                    </button>
+                                    <button @click="triggerFileDownload(song)"
+                                        class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center text-xs transition-all active:scale-90">
+                                        <i class="fa-solid fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div x-show="librarySongs.length === 0"
+                            class="text-center py-6 text-slate-400 text-xs font-semibold">
+                            <i class="fa-solid fa-compact-disc animate-spin block text-lg mb-2 text-miku-300"></i>
+                            ยังไม่พบไฟล์ที่ถูกแปลงเสร็จสิ้น
+                        </div>
+                    </div>
+
+                    <!-- Built-in Synth Player Visualizer feedback -->
+                    <div x-show="playingSongIndex !== null"
+                        class="bg-slate-900 rounded-2xl p-3.5 flex flex-col space-y-2 text-white animate-pulse" x-cloak>
+                        <div class="flex items-center justify-between text-[11px] font-bold">
+                            <span class="text-miku-300 flex items-center gap-1">
+                                <i class="fa-solid fa-headphones"></i>
+                                กำลังเปิดเสียงพรีวิวคีย์สังเคราะห์...
+                            </span>
+                            <span class="text-[10px] text-rose-400">8-Bit Mode Active</span>
+                        </div>
+                        <div class="h-6 flex items-end justify-center gap-1 overflow-hidden pt-1">
+                            <span class="bg-miku-400 w-1.5 h-3 animate-bounce" style="animation-delay: 0.1s"></span>
+                            <span class="bg-miku-400 w-1.5 h-5 animate-bounce" style="animation-delay: 0.3s"></span>
+                            <span class="bg-miku-400 w-1.5 h-2 animate-bounce" style="animation-delay: 0.2s"></span>
+                            <span class="bg-miku-400 w-1.5 h-6 animate-bounce" style="animation-delay: 0.4s"></span>
+                            <span class="bg-miku-400 w-1.5 h-4 animate-bounce" style="animation-delay: 0.15s"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM STATS WIDGET -->
+                <div
+                    class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-[#fef9c3] flex items-center justify-center overflow-hidden flex-shrink-0 border border-miku-100">
+                        <i class="fa-solid fa-circle-nodes text-miku-500 text-xl"></i>
+                    </div>
+                    <div class="flex flex-col space-y-0.5">
+                        <h4 class="font-bold text-[14px] text-slate-800 tracking-tight leading-tight">ระบบแปลงไฟล์อันดับ
+                            #1</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed font-medium">
+                            เราใช้อัลกอริทึมจำลองการดึงย่านเสียงที่สมบูรณ์ที่สุด ครอบคลุมสัญญาณเสียงสูงสุดถึง 320kbps
+                            MP3 เพื่อความสุนทรีย์ของหูคุณ
+                        </p>
+                    </div>
+                </div>
+
+                <!-- INFO ACCORDION GUIDE -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col space-y-3.5">
+                    <h4 class="font-bold text-base text-slate-800 font-rounded">คู่มือการใช้งานแบบย่อ</h4>
+                    <ul class="text-[13px] text-slate-600 space-y-3 leading-relaxed font-semibold">
+                        <li class="flex items-start gap-2.5">
+                            <span
+                                class="w-5 h-5 rounded-full bg-miku-100 text-miku-700 flex items-center justify-center text-[10px] font-bold mt-0.5">1</span>
+                            <span>พิมพ์ชื่อเพลง หรือวางยูอาร์แอล YouTube ลงในช่องค้นหาบนสุด</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span
+                                class="w-5 h-5 rounded-full bg-miku-100 text-miku-700 flex items-center justify-center text-[10px] font-bold mt-0.5">2</span>
+                            <span>เลือกนามสกุลไฟล์ที่ต้องการ เช่น MP3 สำหรับเน้นเสียง หรือ MP4 สำหรับวิดีโอ</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <span
+                                class="w-5 h-5 rounded-full bg-miku-100 text-miku-700 flex items-center justify-center text-[10px] font-bold mt-0.5">3</span>
+                            <span>กดดาวน์โหลดและเพลิดเพลินกับเสียงดนตรีชั้นดีได้ทันที</span>
+                        </li>
+                        <li class="flex items-start gap-2.5 text-rose-600 font-bold border-t border-rose-100/50 pt-2">
+                            <span
+                                class="w-5 h-5 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-[11px] font-bold mt-0.5">!</span>
+                            <span>กรุณากดปุ่ม "ปิดโปรแกรม" ทุกครั้งก่อนออกจากหน้าแอป
+                                ไม่เช่นนั้นระบบหลังบ้านอาจจะไม่ปิดใช้งาน</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
+    </main>
 
-        <!-- Engine Update & Footer -->
-        <div class="dashed-divider"></div>
-        <div class="text-center mt-3 mb-3">
-            <button class="btn btn-secondary" id="updateEngineBtn"
-                style="border: 3px solid black; box-shadow: 4px 4px 0px #000; border-radius: 0; font-family: 'VT323', monospace; font-size: 1.2rem; background: var(--btn-blue); color: black;">
-                <i class="bi bi-arrow-clockwise"></i> UPDATE ENGINE YT-DLP
-            </button>
-            <p class="small text-muted mt-2" id="updateStatusText"
-                style="font-family: var(--text-sans); font-size: 0.95rem; font-weight: bold;"></p>
+    <!-- FOOTER -->
+    <footer class="bg-slate-800 text-slate-400 py-8 mt-16 border-t border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-xs text-slate-500">
+                By © 2026 LING Rube
+            </p>
         </div>
+    </footer>
 
-        <div class="footer">
-            <p class="mb-1">Copyright © 2026 LING Rube</p>
+
+
+    <!-- GLOBAL DYNAMIC NOTIFICATION TOAST -->
+    <div class="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-slate-800/95 backdrop-blur-md text-white rounded-2xl p-4 shadow-2xl border border-slate-700 flex items-center gap-3"
+        x-show="toastShow" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 translate-y-4" x-cloak>
+        <div class="w-8 h-8 rounded-xl bg-miku-400 text-slate-900 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-bell"></i>
         </div>
+        <div class="flex-grow">
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">System Update</p>
+            <p class="text-xs font-semibold text-slate-200 mt-0.5" x-text="toastMessage">Notification details</p>
+        </div>
+        <button @click="toastShow = false" class="text-slate-400 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
     </div>
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    <!-- ALPINE APP LOGIC IN JAVASCRIPT -->
     <script>
-        // Toggle Audio Bitrate select menu based on selected format
-        const formatRadios = document.querySelectorAll('input[name="format_type"]');
-        const bitrateContainer = document.getElementById('bitrateContainer');
+        function downloaderState() {
+            return {
+                activeTab: 'downloader',
+                urlInput: '',
+                selectedFormat: 'mp3',
+                selectedQuality: '320kbps',
+                isConverting: false,
+                downloadProgress: 0,
+                conversionStatusText: '',
+                toastShow: false,
+                toastMessage: '',
+                toastTimeout: null,
 
-        function toggleBitrate() {
-            const checkedRadio = document.querySelector('input[name="format_type"]:checked');
-            if (checkedRadio && checkedRadio.value === 'mp3') {
-                bitrateContainer.style.display = 'block';
-            } else {
-                bitrateContainer.style.display = 'none';
-            }
-        }
+                // Active song processing details
+                activeSong: {
+                    title: 'Melt (メルト)',
+                    channel: 'supercell / Hatsune Miku',
+                    platform: 'YOUTUBE',
+                    duration: '4:37',
+                    cover: 'https://placehold.co/400x400/223c40/ffffff?text=Miku+Music+10th',
+                    videoUrl: 'https://www.youtube.com/watch?v=o1jAMSGi_Xg',
+                    resolutions: []
+                },
 
-        formatRadios.forEach(radio => {
-            radio.addEventListener('change', toggleBitrate);
-        });
-
-        // Initialize state on load
-        toggleBitrate();
-
-        // Load Settings on start
-        function loadSettings() {
-            fetch('/settings')
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('saveFolderText').textContent = data.save_folder;
-                });
-        }
-        loadSettings();
-
-        // Change Save Directory dialog trigger
-        document.getElementById('changeFolderBtn').addEventListener('click', function () {
-            const btn = document.getElementById('changeFolderBtn');
-            btn.disabled = true;
-            btn.textContent = "SELECTING...";
-            
-            fetch('/select_folder', { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('saveFolderText').textContent = data.save_folder;
-                    btn.disabled = false;
-                    btn.textContent = "CHANGE";
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    btn.textContent = "CHANGE";
-                });
-        });
-
-        // Form Submit for Check URL
-        document.getElementById('fetchForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const url = document.getElementById('urlInput').value;
-            const resultArea = document.getElementById('resultArea');
-            const loader = document.getElementById('loader');
-            const errorAlert = document.getElementById('errorAlert');
-            const emptyState = document.getElementById('emptyState');
-            const fetchSubmitBtn = document.getElementById('fetchSubmitBtn');
-
-            // Reset UI states & Disable checking button to prevent multiple queries
-            resultArea.style.display = 'none';
-            errorAlert.classList.add('d-none');
-            emptyState.style.display = 'none';
-            loader.style.display = 'block';
-
-            fetchSubmitBtn.disabled = true;
-            fetchSubmitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> CHECKING...';
-
-            const formData = new FormData();
-            formData.append('url', url);
-
-            fetch('/info', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    loader.style.display = 'none';
-                    fetchSubmitBtn.disabled = false;
-                    fetchSubmitBtn.innerHTML = '<i class="bi bi-search"></i> CHECK';
-
-                    if (data.error) {
-                        document.getElementById('errorText').textContent = data.error;
-                        errorAlert.classList.remove('d-none');
-                        emptyState.style.display = 'block';
-                    } else {
-                        // Show result area
-                        resultArea.style.display = 'block';
-
-                        // Update video details
-                        document.getElementById('thumbnail').src = data.thumbnail || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500';
-                        document.getElementById('videoTitle').textContent = data.title;
-                        document.getElementById('duration').textContent = data.duration;
-                        document.getElementById('uploader').textContent = data.uploader;
-                        document.getElementById('downloadUrl').value = data.url;
-
-                        // Filter resolution options
-                        const qualities = data.resolutions || [];
-
-                        // 4K Option
-                        const opt4k = document.getElementById('option_4k');
-                        if (qualities.includes('2160p')) {
-                            if (opt4k) opt4k.style.display = 'block';
-                        } else {
-                            if (opt4k) opt4k.style.display = 'none';
-                        }
-
-                        // 1080p Option
-                        const opt1080 = document.getElementById('option_1080');
-                        if (qualities.includes('1080p')) {
-                            if (opt1080) opt1080.style.display = 'block';
-                        } else {
-                            if (opt1080) opt1080.style.display = 'none';
-                        }
-
-                        // Select default format
-                        if (qualities.includes('2160p')) {
-                            const r = document.querySelector('input[value="mp4_2160"]');
-                            if (r) r.checked = true;
-                        } else if (qualities.includes('1080p')) {
-                            const r = document.querySelector('input[value="mp4_1080"]');
-                            if (r) r.checked = true;
-                        } else {
-                            const r = document.querySelector('input[value="mp4_720"]');
-                            if (r) r.checked = true;
-                        }
-
-                        toggleBitrate();
+                // Local user converted music database
+                librarySongs: [
+                    {
+                        title: 'Senbonzakura (千本桜)',
+                        channel: 'WhiteFlame / Kurousa-P',
+                        format: 'MP3',
+                        quality: '320kbps',
+                        cover: 'https://placehold.co/400x400/223c40/92dadc?text=Senbonzakura'
+                    },
+                    {
+                        title: 'Miku Miku ni Shite Ageru',
+                        channel: 'ika_mo',
+                        format: 'WAV',
+                        quality: 'Lossless 24bit',
+                        cover: 'https://placehold.co/400x400/ff7597/ffffff?text=Miku+IKA'
                     }
-                })
-                .catch(error => {
-                    loader.style.display = 'none';
-                    fetchSubmitBtn.disabled = false;
-                    fetchSubmitBtn.innerHTML = '<i class="bi bi-search"></i> CHECK';
+                ],
 
-                    document.getElementById('errorText').textContent = 'An error occurred. Please check your connection.';
-                    errorAlert.classList.remove('d-none');
-                    emptyState.style.display = 'block';
-                    console.error('Error:', error);
-                });
-        });
+                // Active synth audio track state
+                playingSongIndex: null,
 
-        // Form Submit for Download: forward extra parameters
-        document.getElementById('downloadForm').addEventListener('submit', function (e) {
-            const subtitles = document.getElementById('subtitlesCheckbox').checked ? 'true' : 'false';
-            const bitrate = document.getElementById('bitrateSelect').value;
+                // Backend integration states
+                isFetchingInfo: false,
+                saveFolder: '',
+                subtitlesEnabled: false,
+                isUpdatingEngine: false,
+                updateStatusText: '',
+                logsOpen: false,
+                systemLogs: '',
+                downloadId: '',
+                downloadSpeed: '',
+                downloadEta: '',
+                downloadSize: '',
 
-            // Inject hidden fields if they are missing
-            let subInput = document.getElementById('hiddenSubtitles');
-            if (!subInput) {
-                subInput = document.createElement('input');
-                subInput.type = 'hidden';
-                subInput.id = 'hiddenSubtitles';
-                subInput.name = 'subtitles';
-                this.appendChild(subInput);
-            }
-            subInput.value = subtitles;
+                init() {
+                    this.triggerToast("ยินดีต้อนรับสู่ Phoebe Loader");
+                    // Load save folder path
+                    fetch('/settings')
+                        .then(res => res.json())
+                        .then(data => {
+                            this.saveFolder = data.save_folder;
+                        });
+                },
 
-            let bitrateInput = document.getElementById('hiddenBitrate');
-            if (!bitrateInput) {
-                bitrateInput = document.createElement('input');
-                bitrateInput.type = 'hidden';
-                bitrateInput.id = 'hiddenBitrate';
-                bitrateInput.name = 'bitrate';
-                this.appendChild(bitrateInput);
-            }
-            bitrateInput.value = bitrate;
-        });
+                async selectFolder() {
+                    playCuteSound('pop');
+                    try {
+                        const response = await fetch('/select_folder', { method: 'POST' });
+                        const data = await response.json();
+                        if (data.dialog_failed || data.error) {
+                            const manualPath = prompt("ระบบเปิดหน้าต่างเลือกโฟลเดอร์ไม่ได้ กรุณากรอกที่อยู่โฟลเดอร์ปลายทางด้วยตัวเอง (เช่น C:\\Users\\Name\\Downloads):", this.saveFolder);
+                            if (manualPath) {
+                                const formData = new FormData();
+                                formData.append('manual_path', manualPath);
+                                const resManual = await fetch('/select_folder', { method: 'POST', body: formData });
+                                const dataManual = await resManual.json();
+                                if (dataManual.error) {
+                                    alert("ไม่สามารถบันทึกโฟลเดอร์นี้ได้: " + dataManual.error);
+                                } else {
+                                    this.saveFolder = dataManual.save_folder;
+                                    this.triggerToast("เปลี่ยนโฟลเดอร์สำเร็จ!");
+                                }
+                            }
+                        } else {
+                            this.saveFolder = data.save_folder;
+                            this.triggerToast("เปลี่ยนโฟลเดอร์สำเร็จ!");
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                },
 
-        // Shutdown Application Action
-        document.getElementById('shutdownBtn').addEventListener('click', function () {
-            if (confirm("Do you want to close the Downloader Application? (The server will shut down and you will need to launch YouTubeDownloader.exe again on your machine to use it)")) {
-                fetch('/shutdown', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('shutdownOverlay').style.setProperty('display', 'flex', 'important');
-                    })
-                    .catch(err => {
-                        // Even if fetch aborts due to sudden server shutdown, display offline overlay
-                        document.getElementById('shutdownOverlay').style.setProperty('display', 'flex', 'important');
+                openFolder() {
+                    playCuteSound('click');
+                    fetch('/open_folder', { method: 'POST' });
+                },
+
+                updateEngine() {
+                    if (this.isUpdatingEngine) return;
+                    playCuteSound('pop');
+                    this.isUpdatingEngine = true;
+                    this.updateStatusText = "กำลังอัปเกรดเครื่องยนต์ yt-dlp ล่าสุดจาก PyPI...";
+
+                    fetch('/update_engine', { method: 'POST' })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.error) {
+                                this.updateStatusText = `อัปเกรดไม่สำเร็จ: ${data.error}`;
+                            } else {
+                                this.updateStatusText = data.message;
+                            }
+                            this.isUpdatingEngine = false;
+                        })
+                        .catch(err => {
+                            this.updateStatusText = "การเชื่อมต่อขัดข้อง";
+                            this.isUpdatingEngine = false;
+                        });
+                },
+
+                toggleLogs() {
+                    playCuteSound('click');
+                    this.logsOpen = !this.logsOpen;
+                    if (this.logsOpen) {
+                        this.refreshLogs();
+                    }
+                },
+
+                refreshLogs() {
+                    fetch('/api/logs')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.logs) {
+                                this.systemLogs = data.logs;
+                                this.$nextTick(() => {
+                                    const consoleEl = document.getElementById('mikuLogConsole');
+                                    if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
+                                });
+                            }
+                        });
+                },
+
+                shutdownApp() {
+                    if (confirm("ต้องการปิดระบบดาวน์โหลดและเซิร์ฟเวอร์หลักใช่หรือไม่?")) {
+                        playCuteSound('click');
+                        fetch('/shutdown', { method: 'POST' });
+                        alert("เซิร์ฟเวอร์หลักหยุดทำงานแล้ว คุณสามารถปิดแท็บนี้ได้ทันทีครับ");
+                    }
+                },
+
+                cancelDownload() {
+                    if (confirm("ยืนยันการยกเลิกดาวน์โหลดชุดนี้?")) {
+                        const formData = new FormData();
+                        formData.append('download_id', this.downloadId);
+                        fetch('/api/cancel_download', { method: 'POST', body: formData });
+                        this.triggerToast("ส่งคำสั่งยกเลิกดาวน์โหลดแล้ว...");
+                    }
+                },
+
+                setActiveTab(tab) {
+                    this.activeTab = tab;
+                    playCuteSound('click');
+                    this.triggerToast(`เปลี่ยนแท็บสำเร็จ: ${tab.toUpperCase()}`);
+                },
+
+                selectFormat(format) {
+                    playCuteSound('click');
+                    this.selectedFormat = format;
+                    this.triggerToast(`เปลี่ยนฟอร์แมตไฟล์เป็น: ${format.toUpperCase()}`);
+
+                    // Auto select the first quality option in the new list
+                    this.$nextTick(() => {
+                        const quals = this.availableQualities;
+                        if (quals && quals.length > 0) {
+                            this.selectedQuality = quals[0];
+                        }
                     });
-            }
-        });
+                },
 
-        // Update Downloader Engine Action
-        document.getElementById('updateEngineBtn').addEventListener('click', function () {
-            const btn = document.getElementById('updateEngineBtn');
-            const status = document.getElementById('updateStatusText');
-
-            btn.disabled = true;
-            btn.textContent = "UPDATING ENGINE...";
-            status.textContent = "Downloading and extracting the latest yt-dlp core from PyPI...";
-
-            fetch('/update_engine', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        status.textContent = `Update failed: ${data.error}`;
-                        btn.disabled = false;
-                        btn.textContent = "UPDATE DOWNLOADER ENGINE (YT-DLP)";
+                get availableQualities() {
+                    if (this.selectedFormat === 'mp3') {
+                        return ['320kbps', '256kbps', '192kbps', '128kbps'];
+                    } else if (this.selectedFormat === 'wav') {
+                        return ['Lossless WAV'];
                     } else {
-                        status.textContent = data.message;
-                        btn.textContent = "UPDATE SUCCESSFUL";
+                        // Video resolutions (mp4)
+                        if (this.activeSong && this.activeSong.resolutions && this.activeSong.resolutions.length > 0) {
+                            const vQuals = this.activeSong.resolutions.filter(q => q.endsWith('p'));
+                            if (vQuals.length > 0) {
+                                return vQuals;
+                            }
+                        }
+                        // Default fallback
+                        return ['2160p', '1080p', '720p', '480p'];
                     }
-                })
-                .catch(err => {
-                    status.textContent = "An error occurred while connecting to server.";
-                    btn.disabled = false;
-                    btn.textContent = "UPDATE DOWNLOADER ENGINE (YT-DLP)";
-                });
-        });
+                },
+
+                // ANALYZE ACTION: Fetch metadata from the backend
+                processInput() {
+                    if (!this.urlInput.trim()) {
+                        this.triggerToast("กรุณากรอกลิงก์วิดีโอหรือเสียงที่ต้องการดาวน์โหลดค่ะ ♪");
+                        return;
+                    }
+
+                    playCuteSound('pop');
+
+                    const isUrl = this.urlInput.includes('http://') || this.urlInput.includes('https://') || (this.urlInput.includes('.') && !this.urlInput.includes(' '));
+                    if (isUrl) {
+                        this.triggerToast("กำลังวิเคราะห์ลิงก์วิดีโอ...");
+                        this.isFetchingInfo = true;
+
+                        const formData = new FormData();
+                        formData.append('url', this.urlInput);
+
+                        fetch('/info', {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(res => {
+                                if (!res.ok) throw new Error("วิเคราะห์ลิงก์ไม่สำเร็จ");
+                                return res.json();
+                            })
+                            .then(data => {
+                                if (data.error) {
+                                    this.triggerToast("ล้มเหลว: " + data.error);
+                                    return;
+                                }
+                                this.activeSong = {
+                                    title: data.title,
+                                    channel: data.uploader,
+                                    platform: this.urlInput.includes('soundcloud') ? 'SOUNDCLOUD' : (this.urlInput.includes('facebook') ? 'FACEBOOK' : (this.urlInput.includes('vimeo') ? 'VIMEO' : 'YOUTUBE')),
+                                    duration: data.duration,
+                                    cover: data.thumbnail || 'https://placehold.co/400x400/223c40/ffffff?text=Music',
+                                    videoUrl: data.url,
+                                    resolutions: data.resolutions || []
+                                };
+
+                                // Auto switch format to best available resolution
+                                if (data.resolutions && data.resolutions.length > 0) {
+                                    const hasVideo = data.resolutions.some(q => q.endsWith('p'));
+                                    if (hasVideo) {
+                                        this.selectedFormat = 'mp4';
+                                        // Pick best resolution
+                                        if (data.resolutions.includes('2160p')) this.selectedQuality = '2160p';
+                                        else if (data.resolutions.includes('1080p')) this.selectedQuality = '1080p';
+                                        else if (data.resolutions.includes('720p')) this.selectedQuality = '720p';
+                                        else {
+                                            const videoQuals = data.resolutions.filter(q => q.endsWith('p'));
+                                            this.selectedQuality = videoQuals[0] || '720p';
+                                        }
+                                    } else {
+                                        this.selectedFormat = 'mp3';
+                                        this.selectedQuality = '320kbps';
+                                    }
+                                }
+
+                                playCuteSound('success');
+                                this.triggerToast("วิเคราะห์ลิงก์สำเร็จ!");
+                            })
+                            .catch(err => {
+                                this.triggerToast("เกิดข้อผิดพลาดในการดึงข้อมูลลิงก์");
+                            })
+                            .finally(() => {
+                                this.isFetchingInfo = false;
+                            });
+                    } else {
+                        this.triggerToast("กรุณากรอกลิงก์ที่ถูกต้อง (เช่น ลิงก์ YouTube หรือ SoundCloud) น้าาา ♪");
+                    }
+                },
+
+                // START PREMIUM AUDIO CONVERSION
+                startDownloadConversion() {
+                    if (this.isConverting) return;
+
+                    this.isConverting = true;
+                    this.downloadProgress = 3;
+                    this.conversionStatusText = "กำลังส่งคำสั่งดาวน์โหลดไปยังเซิร์ฟเวอร์หลัก...";
+                    playCuteSound('pop');
+
+                    this.downloadId = 'dl_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+                    this.downloadSpeed = 'Connecting...';
+                    this.downloadEta = 'Calculating...';
+                    this.downloadSize = '-- / --';
+
+                    // Format type mapping
+                    let formatType = 'mp4_720';
+                    if (this.selectedFormat === 'mp3') {
+                        formatType = 'mp3';
+                    } else if (this.selectedFormat === 'wav') {
+                        formatType = 'wav';
+                    } else { // mp4
+                        if (this.selectedQuality.includes('1080')) {
+                            formatType = 'mp4_1080';
+                        } else if (this.selectedQuality.includes('2160')) {
+                            formatType = 'mp4_2160';
+                        } else if (this.selectedQuality.includes('720')) {
+                            formatType = 'mp4_720';
+                        } else {
+                            formatType = 'mp4_720';
+                        }
+                    }
+
+                    // Bitrate extraction
+                    let bitrateVal = '192';
+                    if (this.selectedQuality.includes('320')) bitrateVal = '320';
+                    else if (this.selectedQuality.includes('256')) bitrateVal = '256';
+                    else if (this.selectedQuality.includes('128')) bitrateVal = '128';
+
+                    const formData = new FormData();
+                    formData.append('url', this.activeSong.videoUrl);
+                    formData.append('format_type', formatType);
+                    formData.append('bitrate', bitrateVal);
+                    formData.append('subtitles', this.subtitlesEnabled ? 'true' : 'false');
+                    formData.append('download_id', this.downloadId);
+
+                    fetch('/download_start', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.error) {
+                                throw new Error(data.error);
+                            }
+
+                            // Open SSE connection
+                            const source = new EventSource('/download_progress/' + this.downloadId);
+
+                            source.onmessage = (event) => {
+                                const progress = JSON.parse(event.data);
+
+                                if (progress.status === 'starting') {
+                                    this.conversionStatusText = 'กำลังเตรียมสตรีมวิดีโอและเลือกขนาดไฟล์...';
+                                    this.downloadProgress = 5;
+                                } else if (progress.status === 'downloading') {
+                                    this.conversionStatusText = 'กำลังสตรีมและเซฟไฟล์ลงไดรฟ์...';
+                                    this.downloadProgress = progress.percent || 10;
+                                    this.downloadSpeed = progress.speed || 'Downloading...';
+                                    this.downloadEta = progress.eta || 'Calculating...';
+                                    this.downloadSize = progress.size || '-- / --';
+                                } else if (progress.status === 'processing') {
+                                    this.conversionStatusText = 'กำลังประสานภาพและย่านเสียงผ่าน FFmpeg...';
+                                    this.downloadProgress = 99;
+                                    this.downloadSpeed = 'Processing...';
+                                    this.downloadEta = 'Working...';
+                                    this.downloadSize = progress.size || 'Merging...';
+                                } else if (progress.status === 'completed') {
+                                    this.conversionStatusText = 'ดาวน์โหลดเสร็จสมบูรณ์!';
+                                    this.downloadProgress = 100;
+                                    this.downloadSpeed = 'Done';
+                                    this.downloadEta = '00:00';
+                                    this.downloadSize = progress.size || 'Saved';
+
+                                    source.close();
+                                    this.isConverting = false;
+
+                                    // Add to library list
+                                    this.librarySongs.unshift({
+                                        title: this.activeSong.title,
+                                        channel: this.activeSong.channel,
+                                        format: this.selectedFormat.toUpperCase(),
+                                        quality: this.selectedQuality,
+                                        cover: this.activeSong.cover
+                                    });
+
+                                    playCuteSound('success');
+                                    this.triggerToast("ดาวน์โหลดไฟล์เสร็จสมบูรณ์เรียบร้อยแล้วค่ะ! ✨💿");
+                                } else if (progress.status === 'error') {
+                                    source.close();
+                                    this.isConverting = false;
+                                    this.downloadProgress = 0;
+                                    this.triggerToast("เกิดข้อผิดพลาด: " + progress.message);
+                                }
+                            };
+
+                            source.onerror = () => {
+                                source.close();
+                                this.isConverting = false;
+                                this.downloadProgress = 0;
+                                this.triggerToast("การเชื่อมต่อสตรีมสถานะหลุดกลางคัน");
+                            };
+                        })
+                        .catch(err => {
+                            this.isConverting = false;
+                            this.downloadProgress = 0;
+                            this.triggerToast("เริ่มดาวน์โหลดล้มเหลว: " + err.message);
+                        });
+                },
+
+                // PLAY MELODY SYNTHESIZER SIMULATOR
+                togglePlayMelody(song) {
+                    const idx = this.librarySongs.indexOf(song);
+                    if (this.playingSongIndex === idx) {
+                        stopSynthMelody();
+                        this.playingSongIndex = null;
+                        playCuteSound('click');
+                    } else {
+                        this.playingSongIndex = idx;
+                        playCuteSound('success');
+                        startSynthMelody();
+                        this.triggerToast(`เล่นคีย์ดนตรีสังเคราะห์ 8-Bit บีตจำลองเพลง ${song.title}`);
+                    }
+                },
+
+                triggerFileDownload(song) {
+                    playCuteSound('success');
+                    this.openFolder();
+                    this.triggerToast(`เปิดโฟลเดอร์เก็บไฟล์เพื่อดูเพลง ${song.title} แล้วค่ะ ♪`);
+                },
+
+                triggerToast(message) {
+                    this.toastMessage = message;
+                    this.toastShow = true;
+                    if (this.toastTimeout) clearTimeout(this.toastTimeout);
+                    this.toastTimeout = setTimeout(() => {
+                        this.toastShow = false;
+                    }, 4000);
+                }
+            }
+        }
     </script>
 </body>
 

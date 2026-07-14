@@ -2,7 +2,7 @@ import os
 import sys
 import zipfile
 import shutil
-import requests
+import urllib.request
 
 def install_ffmpeg():
     # URL for FFmpeg Windows build (Essentials is smaller and sufficient)
@@ -15,11 +15,10 @@ def install_ffmpeg():
     
     try:
         # Download
-        with requests.get(FFMPEG_URL, stream=True) as r:
-            r.raise_for_status()
+        req = urllib.request.Request(FFMPEG_URL, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as response:
             with open(ZIP_NAME, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
+                shutil.copyfileobj(response, f)
         print("Download complete.")
 
         # Extract
