@@ -1,12 +1,38 @@
-# Video & Audio Downloader — System Architecture
+# Video & Audio Downloader — System Architecture & Changelog
 
-แอปพลิเคชันดาวน์โหลดวิดีโอและเสียงประสิทธิภาพสูง ทำงานแบบ Local Web Application (ทำงานในเครื่องคอมพิวเตอร์ของผู้ใช้โดยตรง) พัฒนาด้วยภาษา Python (Flask) ร่วมกับแกนดาวน์โหลดประสิทธิภาพสูง `yt-dlp` และตัวแปลงสัญญาณสัญญาณ `FFmpeg` พร้อมส่วนติดต่อผู้ใช้สไตล์ Retro-Pixel ที่มีสีสันสวยงาม เข้าใจง่าย และแสดงผลสถานะแบบเรียลไทม์
+แอปพลิเคชันดาวน์โหลดวิดีโอและเสียงประสิทธิภาพสูง ทำงานแบบ Local Web Application (เซิร์ฟเวอร์ควบคุมภายในเครื่อง) พัฒนาด้วยภาษา Python (Flask) ร่วมกับแกนดาวน์โหลดประสิทธิภาพสูง `yt-dlp` และตัวแปลงสัญญาณสัญญาณ `FFmpeg` พร้อมส่วนติดต่อผู้ใช้สไตล์ Retro-Pixel ที่มีสีสันสวยงาม เข้าใจง่าย และแสดงผลสถานะแบบเรียลไทม์
 
 ---
 
-## แผนภาพสถาปัตยกรรมระบบ (System Architecture)
+## 📌 บันทึกการเปลี่ยนแปลงครั้งสำคัญ (Key Changes & Version Upgrades)
 
-แผนภาพต่อไปนี้แสดงโครงสร้างสถาปัตยกรรมและการโต้ตอบระหว่างแต่ละส่วนประกอบของระบบ (Components)
+ระบบได้รับการปรับเปลี่ยนสถาปัตยกรรมและโครงสร้างไฟล์เพื่อรองรับเสถียรภาพและขยายขีดความสามารถการดาวน์โหลดระดับสากล ดังนี้:
+
+### 1. **การรวมหน้าจอแสดงผลเดี่ยว (Single-Page UI Consolidation)**
+* **การเปลี่ยนแปลง**: ลบหน้าจอแสดงผลการดาวน์โหลดแยกต่างหาก (`templates/downloading.html`) ออกไปทั้งหมด
+* **ผลลัพธ์**: ควบรวมตรรกะและแถบความคืบหน้า (Progress Bar) มาไว้ในหน้าจอเดียวที่ **[templates/index.html](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/templates/index.html)** (Single Page Interface) ส่งผลให้ UX/UI ไหลลื่น รวดเร็ว ไม่ต้องสลับการเปลี่ยนหน้า และควบคุมสถานะคิวการดาวน์โหลดได้อย่างเป็นระเบียบ
+
+### 2. **ระบบสลับคุกกี้เบราว์เซอร์อัตโนมัติ (Browser Cookies Fallback Engine)**
+* **การเปลี่ยนแปลง**: เพิ่มตรรกะค้นหาและอ่านข้อมูล Cookies จากโฟลเดอร์เก็บข้อมูลโปรไฟล์ผู้ใช้ของเบราว์เซอร์ยอดนิยมบนเครื่อง Windows (เช่น Chrome, Edge, Firefox, Opera) ลงในฟังก์ชัน `extract_info_with_fallback` และ `download_url_with_fallback` ของ **[app.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/app.py)**
+* **ผลลัพธ์**: ป้องกันและแก้ปัญหาการดาวน์โหลดถูกบล็อกหรือจำกัดความเร็วจากระบบภายนอก (เช่น ข้อจำกัดบอตของ YouTube) โดยระบบจะลองสลับนำคุกกี้จากเบราว์เซอร์ต่างๆ มาช่วยผ่านสิทธิ์การเข้าถึงของผู้ใช้จริง หากไม่สำเร็จจะสลับหาเบราว์เซอร์ถัดไป (Fallback Loop) จนกว่าจะโหลดเสร็จสิ้น
+
+### 3. **ถอดสถาปัตยกรรม Native GUI เดิมออก (Native GUI Removal)**
+* **การเปลี่ยนแปลง**: นำไฟล์และส่วนติดต่อระบบ Native Python GUI ออกจากคลังโค้ดทั้งหมด (ลบ `gui_app.py`, `create_logo.py`, `logo.png`)
+* **ผลลัพธ์**: มุ่งเน้นการพัฒนาแอปพลิเคชันในรูปแบบ Local Web App (Flask backend + UI browser) เต็มตัว ทำให้จัดการเรื่อง Layout CSS ได้สวยงาม มีไดนามิกสีสันสไตล์ Retro และง่ายต่อการปรับขนาดหน้าจอบนอุปกรณ์ต่างๆ
+
+### 4. **เพิ่มชุดภาพโมเดลสัญลักษ์ Phoebe ธีมใหม่ (Aesthetics & Assets Addition)**
+* **การเปลี่ยนแปลง**: เพิ่มภาพกราฟิก Phoebe สุดพรีเมียมชุดใหม่เข้าสู่ระบบ ได้แก่ **[phoebe0.png](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/static/phoebe0.png)**, **[phoebe1.png](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/static/phoebe1.png)** และ **[phoebe2.png](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/static/phoebe2.png)**
+* **ผลลัพธ์**: ออกแบบและตกแต่งหน้าต่างหลักของ UI ให้ดูมีชีวิตชีวา ยกระดับคุณค่าทางอารมณ์และภาพลักษณ์แบบพรีเมียมให้ผู้ใช้งานได้สัมผัสระหว่างรอสถานะดาวน์โหลด
+
+### 5. **การกำหนดค่าเซฟโฟลเดอร์ Windows อัตโนมัติ (Windows Shell Explorer Registry)**
+* **การเปลี่ยนแปลง**: ใช้สิทธิ์ไลบรารี `winreg` เข้าถึง Registry เพื่อหาที่ตั้งโฟลเดอร์ Downloads จริงของระบบ Windows ของแต่ละคอมพิวเตอร์โดยตรง แทนที่จะใช้วิธีฮาร์ดโค้ดพาธตายตัว
+* **ผลลัพธ์**: ผู้ใช้งานทั่วไปใช้งานได้ทันทีโดยไม่ต้องไปสืบค้นหาตำแหน่งบันทึกไฟล์ตั้งแต่เริ่มเปิดใช้งานโปรแกรมครั้งแรก
+
+---
+
+## 🗺️ แผนภาพสถาปัตยกรรมระบบ (System Architecture)
+
+แผนภาพแสดงการประสานการทำงานระหว่าง Client, Flask Backend และแกนประมวลผล yt-dlp/FFmpeg:
 
 ```mermaid
 graph TD
@@ -35,8 +61,6 @@ graph TD
     %% Target Sources
     subgraph Target Websites [เว็บไซต์ปลายทาง]
         YT[YouTube API / Streams]
-        TT[TikTok Streams]
-        MA[MissAV Stream / M3U8]
         OTHER[1,000+ Video/Audio Sites]
     end
 
@@ -59,85 +83,43 @@ graph TD
 
 ---
 
-## 🧩 ส่วนประกอบสำคัญของระบบ (Key Components)
-
-### 1. **Client Browser Interface (Frontend)**
-- **Retro-Pixel UX/UI:** พัฒนาด้วย HTML5, CSS3 (Vanilla CSS) และ Bootstrap 5 นำเสนอการจัดระบบสีที่มีความเปรียบต่างสูง (Contrast-friendly) และจัดเรียงฟอนต์ให้อ่านง่าย โดยใช้ฟอนต์ Sans-serif ทั่วไปสำหรับคำอธิบายยาวๆ และคงฟอนต์ `VT323` สำหรับข้อมูลตัวเลขและหัวข้อหลัก
-- **EventSource & SSE:** เบราว์เซอร์ใช้ JavaScript `EventSource` ในการเชื่อมต่อท่อส่งข้อมูลแบบทางเดียว (Server-Sent Events) เพื่อแสดงความคืบหน้าการทำงานเรียบลำดับ เช่น เปอร์เซ็นต์การดาวน์โหลด, ความเร็วอินเทอร์เน็ต (Speed), และเวลาที่เหลือ (ETA) โดยไม่ต้องรีเฟรชหน้าจอ
-
-### 2. **Flask Local Server (Backend Controller)**
-- **Middleware Check:** คอยดักจับ Request บนเครื่องโลคอลเพื่อตรวจสอบว่ามี `ffmpeg.exe` หรือไม่ หากไม่มี จะเปลี่ยนเส้นทาง (Redirect) ไปหน้าติดตั้ง `/setup` ทันที
-- **Multi-threaded Worker:** เมื่อผู้ใช้สั่งดาวน์โหลด ไฟล์ดาวน์โหลดจะถูกส่งไปรันบนโปรเซส Thread แยกเบื้องหลัง เพื่อให้หน้าเว็บสามารถสตรีมข้อมูลสถานะได้โดยไม่ทำให้หน้าระบบค้าง
-- **Session Manager:** สร้างรหัส ID เฉพาะกิจ (UUID) เพื่อแยกพื้นที่การดาวน์โหลดของแต่ละ Request ในรูปโฟลเดอร์แยก ป้องกันปัญหาไฟล์ซ้ำหรือการดาวน์โหลดชนกัน
-- **Graceful Shutdown:** ระบบรองรับคำสั่งปิดตัวเองผ่าน Route `/shutdown` ซึ่งจะไปฆ่าการทำงานของโปรเซสหลักในแรม เพื่อคืนพอร์ต `5000` ทันทีที่ผู้ใช้กดปุ่ม Close App
-
-### 3. **Downloader Engine (Core Processing)**
-- **yt-dlp (Dynamic Core):** แกนกลางที่ใช้ดึงที่อยู่ไฟล์มัลติมีเดีย รองรับการดึงข้อมูลจากเว็บไซต์ยอดนิยมกว่า 1,000 แห่ง และมีสคริปต์อัปเดตเวอร์ชันใหม่จาก PyPI อัตโนมัติ โดยระบบจะทำการโหลดแกนตัวใหม่ผ่าน `bin/yt-dlp-update` เสมอหากผู้ใช้กดปุ่มอัปเดต
-- **FFmpeg Engine:** ใช้ตัดต่อ รวมสัญญาณภาพ HD/4K และเสียงเข้าด้วยกัน แปลงไฟล์เป็น MP3 ตามบิตเรตที่กำหนด (128k, 192k, 320k) รวมถึงการฝังซับไตเติล (Subtitles Embed)
-
----
-
-## ลำดับการดาวน์โหลดแบบมีสถานะเรียลไทม์ (Live Download Stream Flow)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    Browser->>Flask: HTTP POST: ร้องขอเตรียมดาวน์โหลด (/prepare_download)
-    Flask->>Browser: ส่งหน้าดาวน์โหลดพร้อมรหัสดาวน์โหลดเฉพาะตัว (download_id)
-    Browser->>Flask: HTTP POST: เริ่มต้นดาวน์โหลด (/download_start)
-    Flask->>Flask: สั่งสร้าง Thread แยกเพื่อรัน yt-dlp ในเบื้องหลัง
-    Flask->>Browser: ตอบกลับ JSON สัญญาณเริ่มต้นทำงาน
-    Browser->>Flask: เชื่อมต่อท่อส่งข้อมูลสตรีมสถานะ (/download_progress/download_id)
-    loop ทุกๆ 0.5 วินาที
-        Flask->>Browser: สตรีมสถานะปัจจุบัน (เปอร์เซ็นต์, ความเร็ว, ETA)
-        Note over Browser: อัปเดตหลอดประมวลผลบนหน้าจอสดๆ
-    end
-    Flask->>Browser: ส่งสถานะ "completed" เมื่อทำทุกอย่างเสร็จสิ้น
-    Browser->>Browser: ปิดการเชื่อมต่อท่อสถานะ (SSE Close)
-    Note over Browser: แสดงตัวเลือกและปุ่มเปิดโฟลเดอร์
-    Browser->>Flask: HTTP POST: ร้องขอเปิดโฟลเดอร์เก็บไฟล์ (/open_folder)
-    Flask->>Browser: สั่งระบบเปิดหน้าต่างโฟลเดอร์ปลายทาง (os.startfile)
-```
-
----
-
-## วิธีการติดตั้งเพื่อพัฒนาและทดสอบ (Development Guide)
+## 📦 วิธีการติดตั้งเพื่อพัฒนาและทดสอบ (Development Guide)
 
 ### 1. **สิ่งที่ต้องเตรียม (Prerequisites)**
-- Python เวอร์ชัน 3.8 หรือสูงกว่า
-- บัญชีใช้งาน Git
+* Python เวอร์ชัน 3.8 หรือสูงกว่า
+* ตัวแปลงสัญญาณ FFmpeg (หากรันครั้งแรก ระบบมี Middleware แนะนำดาวน์โหลดและตั้งค่าพาธลงโฟลเดอร์ `bin/` อัตโนมัติ)
 
-### 2. **ขั้นตอนการเริ่มรันระบบโลคอล**
+### 2. **ขั้นตอนการรันเพื่อทดสอบโลคอล**
 ```bash
 # 1. โคลนคลังโค้ดลงมาในเครื่อง
 git clone https://github.com/ling-gwdgw2/downloading-mp3-mp4.git
 cd downloading-mp3-mp4
 
-# 2. สร้าง Virtual Environment
+# 2. สร้างสภาพแวดล้อมจำลอง (Virtual Environment)
 python -m venv .venv
 .venv\Scripts\activate
 
-# 3. ติดตั้งไลบรารีที่จำเป็น
+# 3. ติดตั้งไลบรารีจำเป็น
 pip install -r requirements.txt
 
 # 4. เริ่มรันแอปพลิเคชัน
 python app.py
 ```
-*ตัวเซิร์ฟเวอร์จะเริ่มทำงานที่ http://127.0.0.1:5000 และจะเปิดเว็บเบราว์เซอร์ขึ้นมาโดยอัตโนมัติ*
+*ตัวระบบโลคอลจะเริ่มทำงานที่ http://127.0.0.1:5000 และจะเปิดเว็บเบราว์เซอร์หน้าจอดาวน์โหลดหลักขึ้นมาให้โดยอัตโนมัติ*
 
 ---
 
-## ขั้นตอนการคอมไพล์เป็นไฟล์เดี่ยวและตัวติดตั้ง (Packaging Guide)
+## 🛠️ ขั้นตอนการคอมไพล์เป็นไฟล์เดี่ยวและตัวติดตั้ง (Packaging Guide)
 
 ### 1. **คอมไพล์ด้วย PyInstaller**
-เราใช้สคริปต์ [build_exe.py](build_exe.py) ในการควบคุมพารามิเตอร์ของ PyInstaller ทั้งหมด (รวมถึงการแนบเทมเพลต HTML/CSS และไลบรารีดักจับคุกกี้ `curl_cffi`):
+เราใช้สคริปต์คอมไพล์เฉพาะ **[build_exe.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/build_exe.py)** ในการควบคุมพารามิเตอร์ของ PyInstaller ทั้งหมด (แนบเทมเพลตและไลบรารีแกน `curl_cffi`):
 ```bash
 python build_exe.py
 ```
-ผลลัพธ์ไฟล์เดี่ยวจะปรากฏขึ้นที่โฟลเดอร์ **`dist/YouTubeDownloader.exe`** โดยรันแบบซ่อนหน้าจอคอนโซลดำ (`--noconsole`)
+ผลลัพธ์ไฟล์เดี่ยวสำเร็จรูปจะปรากฏขึ้นที่โฟลเดอร์ **`dist/YouTubeDownloader.exe`** แบบซ่อนหน้าจอคอนโซลดำ (`--noconsole`)
 
 ### 2. **สร้างตัวติดตั้ง Windows ด้วย Inno Setup**
-1. ดาวน์โหลดและติดตั้ง **Inno Setup Compiler**
-2. เปิดไฟล์สคริปต์ [setup.iss](setup.iss) ผ่านโปรแกรม
-3. กดปุ่ม **Compile** (คีย์ลัด F9) เพื่อคอมไพล์โฟลเดอร์ `dist/` ออกมาเป็นไฟล์ติดตั้งตัวเดียว
-4. ตัวติดตั้งสำเร็จรูปจะถูกบันทึกไว้ในโฟลเดอร์ **`installer_output/YouTubeDownloaderSetup.exe`** เพื่อนำไปแจกจ่ายและติดตั้งบนคอมพิวเตอร์เครื่องอื่นๆ ได้ทันที
+1. เปิดโปรแกรม **Inno Setup Compiler**
+2. เปิดไฟล์สคริปต์ **[setup.iss](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/setup.iss)** ผ่านโปรแกรม
+3. กดปุ่ม **Compile** (คีย์ลัด F9) เพื่อรวมโฟลเดอร์ `dist/` ออกมาเป็นไฟล์ติดตั้งตัวเดียว
+4. ตัวติดตั้งสำเร็จรูปจะถูกบันทึกไว้ในโฟลเดอร์ **`installer_output/YouTubeDownloaderSetup.exe`**
