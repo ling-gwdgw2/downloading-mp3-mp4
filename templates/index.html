@@ -349,25 +349,51 @@
                             <div>
                                 <label
                                     class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">เลือกประเภทไฟล์</label>
-                                <div class="grid grid-cols-3 gap-2">
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
                                     <button @click="selectFormat('mp3')"
                                         :class="selectedFormat === 'mp3' ? 'bg-[#59cccc] text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
-                                        class="py-3 px-4 rounded-xl border font-bold text-sm flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
                                         <i class="fa-solid fa-file-audio text-lg"></i>
                                         <span>Audio MP3</span>
                                     </button>
+                                    <button @click="selectFormat('m4a')"
+                                        :class="selectedFormat === 'm4a' ? 'bg-[#ff7597] text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
+                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        <i class="fa-solid fa-circle-play text-lg"></i>
+                                        <span>M4A Original</span>
+                                    </button>
+                                    <button @click="selectFormat('flac')"
+                                        :class="selectedFormat === 'flac' ? 'bg-indigo-600 text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
+                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        <i class="fa-solid fa-music text-lg"></i>
+                                        <span>Lossless FLAC</span>
+                                    </button>
                                     <button @click="selectFormat('wav')"
                                         :class="selectedFormat === 'wav' ? 'bg-slate-700 text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
-                                        class="py-3 px-4 rounded-xl border font-bold text-sm flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
                                         <i class="fa-solid fa-wave-square text-lg"></i>
-                                        <span>Hi-Res WAV</span>
+                                        <span>Lossless WAV</span>
                                     </button>
                                     <button @click="selectFormat('mp4')"
                                         :class="selectedFormat === 'mp4' ? 'bg-[#cceeed] text-slate-700 border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
-                                        class="py-3 px-4 rounded-xl border font-bold text-sm flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all col-span-2 md:col-span-1">
                                         <i class="fa-solid fa-file-video text-lg"></i>
                                         <span>Video MP4</span>
                                     </button>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Audio Source Analyzer Info Box -->
+                            <div x-show="activeSong.audio_codec" class="bg-slate-50 border border-slate-200/60 p-3.5 rounded-2xl flex flex-col space-y-1.5" x-cloak>
+                                <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                                    <i class="fa-solid fa-microscope text-amber-500 animate-pulse"></i>
+                                    <span>ผลการวิเคราะห์เสียงต้นฉบับ (Audio Source Analyzer)</span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 font-semibold leading-relaxed">
+                                    ประเภทต้นฉบับ: <span class="text-miku-600 font-extrabold uppercase" x-text="activeSong.audio_codec"></span> 
+                                    <span x-show="activeSong.audio_bitrate"> (~<span x-text="activeSong.audio_bitrate"></span> kbps)</span>
+                                </div>
+                                <div class="text-[11px] text-slate-600 font-bold leading-normal border-t border-slate-200/60 pt-1.5" x-text="activeSong.audio_recommendation">
                                 </div>
                             </div>
 
@@ -382,6 +408,33 @@
                                             class="py-2.5 px-3 rounded-xl border-2 font-bold text-xs text-center transition-all"
                                             x-text="qual"></button>
                                     </template>
+                                </div>
+
+                                <!-- Video Container Options -->
+                                <div x-show="selectedFormat === 'mp4'" class="mt-4" x-cloak>
+                                    <label
+                                        class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">เลือกคอนเทนเนอร์วิดีโอ (Video Container)</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <button @click="videoContainer = 'mp4'"
+                                            :class="videoContainer === 'mp4' ? 'border-miku-500 bg-miku-50 text-miku-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+                                            class="py-2.5 px-3 rounded-xl border-2 font-bold text-xs text-center transition-all">
+                                            MP4 (มาตรฐาน)
+                                        </button>
+                                        <button @click="videoContainer = 'mkv'"
+                                            :class="videoContainer === 'mkv' ? 'border-miku-500 bg-miku-50 text-miku-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+                                            class="py-2.5 px-3 rounded-xl border-2 font-bold text-xs text-center transition-all">
+                                            MKV (ยืดหยุ่นสูง)
+                                        </button>
+                                        <button @click="videoContainer = 'webm'"
+                                            :class="videoContainer === 'webm' ? 'border-miku-500 bg-miku-50 text-miku-700' : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+                                            class="py-2.5 px-3 rounded-xl border-2 font-bold text-xs text-center transition-all">
+                                            WebM (บีบอัดสูง)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2.5 text-[10px] text-slate-400 bg-slate-50 p-2.5 rounded-xl border border-slate-100/70 font-medium">
+                                    <i class="fa-solid fa-circle-info text-amber-500"></i> แนะนำ: เลือก <strong>M4A Original</strong> หรือ <strong>MP3 320kbps</strong> เพื่อความรวดเร็วในการดาวน์โหลดและคุณภาพเสียงที่ดีที่สุด การดาวน์โหลดเป็น WAV/FLAC ไม่สามารถเพิ่มคุณภาพจากต้นทางของ YouTube ที่เป็นไฟล์บีบอัดได้
                                 </div>
                             </div>
 
@@ -486,18 +539,32 @@
                     <!-- Subtitles and Update Engine actions -->
                     <div
                         class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs font-bold text-slate-700 border-t border-slate-100">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="subtitlesCheck" x-model="subtitlesEnabled"
-                                class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
-                            <label for="subtitlesCheck" class="cursor-pointer select-none">ดาวน์โหลดและฝังซับไตเติล
-                                (หากมี)</label>
+                        <div class="flex flex-col space-y-1">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="subtitlesCheck" x-model="subtitlesEnabled"
+                                    class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
+                                <label for="subtitlesCheck" class="cursor-pointer select-none">ดาวน์โหลดและฝังซับไตเติล (หากมี)</label>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
+                                <i class="fa-solid fa-microchip"></i> Engine: <span class="text-slate-600" x-text="engineVersion">Loading...</span>
+                                <template x-if="engineIsUpdated">
+                                    <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Updated</span>
+                                </template>
+                            </div>
                         </div>
                         <div class="flex items-center gap-2">
+                            <template x-if="engineIsUpdated">
+                                <button @click="revertEngine()" :disabled="isUpdatingEngine"
+                                    class="bg-rose-50 hover:bg-rose-100 text-rose-600 py-2 px-3 rounded-xl border border-rose-200 transition-all active:scale-95 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                    <span>คืนค่าเริ่มต้น</span>
+                                </button>
+                            </template>
                             <button @click="updateEngine()" :disabled="isUpdatingEngine"
                                 class="bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white py-2 px-4 rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-1.5">
                                 <i class="fa-solid fa-arrows-rotate"
                                     :class="isUpdatingEngine ? 'animate-spin' : ''"></i>
-                                <span>อัปเดต</span>
+                                <span x-text="needsEngineUpdate ? 'อัปเดตใหม่' : 'อัปเดต'">อัปเดต</span>
                             </button>
                         </div>
                     </div>
@@ -699,7 +766,10 @@
                     duration: '4:37',
                     cover: 'https://placehold.co/400x400/223c40/ffffff?text=Miku+Music+10th',
                     videoUrl: 'https://www.youtube.com/watch?v=o1jAMSGi_Xg',
-                    resolutions: []
+                    resolutions: [],
+                    audio_codec: '',
+                    audio_bitrate: '',
+                    audio_recommendation: ''
                 },
 
                 // Local user converted music database
@@ -735,6 +805,10 @@
                 downloadSpeed: '',
                 downloadEta: '',
                 downloadSize: '',
+                engineVersion: 'Loading...',
+                engineIsUpdated: false,
+                needsEngineUpdate: false,
+                videoContainer: 'mp4',
 
                 init() {
                     this.triggerToast("ยินดีต้อนรับสู่ Phoebe Loader");
@@ -744,6 +818,7 @@
                         .then(data => {
                             this.saveFolder = data.save_folder;
                         });
+                    this.checkEngineStatus();
                 },
 
                 async selectFolder() {
@@ -792,6 +867,7 @@
                                 this.updateStatusText = `อัปเกรดไม่สำเร็จ: ${data.error}`;
                             } else {
                                 this.updateStatusText = data.message;
+                                this.checkEngineStatus();
                             }
                             this.isUpdatingEngine = false;
                         })
@@ -799,6 +875,43 @@
                             this.updateStatusText = "การเชื่อมต่อขัดข้อง";
                             this.isUpdatingEngine = false;
                         });
+                },
+
+                checkEngineStatus() {
+                    fetch('/engine_status')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data.error) {
+                                this.engineVersion = data.current_version;
+                                this.engineIsUpdated = data.is_updated;
+                                this.needsEngineUpdate = data.needs_update;
+                            }
+                        })
+                        .catch(err => console.error("Error loading engine status:", err));
+                },
+
+                revertEngine() {
+                    if (this.isUpdatingEngine) return;
+                    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการคืนค่าโปรแกรมประมวลผลกลับเป็นรุ่นเริ่มต้น?")) {
+                        playCuteSound('pop');
+                        this.isUpdatingEngine = true;
+                        this.updateStatusText = "กำลังล้างการอัปเดต...";
+                        fetch('/revert_engine', { method: 'POST' })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.error) {
+                                    this.updateStatusText = `คืนค่าล้มเหลว: ${data.error}`;
+                                } else {
+                                    this.updateStatusText = data.message;
+                                    this.checkEngineStatus();
+                                }
+                                this.isUpdatingEngine = false;
+                            })
+                            .catch(err => {
+                                this.updateStatusText = "การเชื่อมต่อขัดข้อง";
+                                this.isUpdatingEngine = false;
+                            });
+                    }
                 },
 
                 toggleLogs() {
@@ -859,29 +972,31 @@
                         }
                     });
                 },
-
                 get availableQualities() {
                     if (this.selectedFormat === 'mp3') {
                         return ['320kbps', '256kbps', '192kbps', '128kbps'];
+                    } else if (this.selectedFormat === 'm4a') {
+                        return ['Original AAC (Fast)'];
+                    } else if (this.selectedFormat === 'flac') {
+                        return ['Lossless FLAC'];
                     } else if (this.selectedFormat === 'wav') {
                         return ['Lossless WAV'];
                     } else {
                         // Video resolutions (mp4)
                         if (this.activeSong && this.activeSong.resolutions && this.activeSong.resolutions.length > 0) {
-                            const vQuals = this.activeSong.resolutions.filter(q => q.endsWith('p'));
+                            const vQuals = this.activeSong.resolutions.filter(q => q.includes('p'));
                             if (vQuals.length > 0) {
                                 return vQuals;
                             }
                         }
                         // Default fallback
-                        return ['2160p', '1080p', '720p', '480p'];
+                        return ['2160p (4K)', '1080p (Full HD)', '720p (HD)', '480p'];
                     }
                 },
-
                 // ANALYZE ACTION: Fetch metadata from the backend
                 processInput() {
                     if (!this.urlInput.trim()) {
-                        this.triggerToast("กรุณากรอกลิงก์วิดีโอหรือเสียงที่ต้องการดาวน์โหลดค่ะ ♪");
+                        this.triggerToast("กรุณากรอกลิงก์หรือคำค้นหาที่ต้องการดาวน์โหลดค่ะ ♪");
                         return;
                     }
 
@@ -890,65 +1005,69 @@
                     const isUrl = this.urlInput.includes('http://') || this.urlInput.includes('https://') || (this.urlInput.includes('.') && !this.urlInput.includes(' '));
                     if (isUrl) {
                         this.triggerToast("กำลังวิเคราะห์ลิงก์วิดีโอ...");
-                        this.isFetchingInfo = true;
-
-                        const formData = new FormData();
-                        formData.append('url', this.urlInput);
-
-                        fetch('/info', {
-                            method: 'POST',
-                            body: formData
-                        })
-                            .then(res => {
-                                if (!res.ok) throw new Error("วิเคราะห์ลิงก์ไม่สำเร็จ");
-                                return res.json();
-                            })
-                            .then(data => {
-                                if (data.error) {
-                                    this.triggerToast("ล้มเหลว: " + data.error);
-                                    return;
-                                }
-                                this.activeSong = {
-                                    title: data.title,
-                                    channel: data.uploader,
-                                    platform: this.urlInput.includes('soundcloud') ? 'SOUNDCLOUD' : (this.urlInput.includes('facebook') ? 'FACEBOOK' : (this.urlInput.includes('vimeo') ? 'VIMEO' : 'YOUTUBE')),
-                                    duration: data.duration,
-                                    cover: data.thumbnail || 'https://placehold.co/400x400/223c40/ffffff?text=Music',
-                                    videoUrl: data.url,
-                                    resolutions: data.resolutions || []
-                                };
-
-                                // Auto switch format to best available resolution
-                                if (data.resolutions && data.resolutions.length > 0) {
-                                    const hasVideo = data.resolutions.some(q => q.endsWith('p'));
-                                    if (hasVideo) {
-                                        this.selectedFormat = 'mp4';
-                                        // Pick best resolution
-                                        if (data.resolutions.includes('2160p')) this.selectedQuality = '2160p';
-                                        else if (data.resolutions.includes('1080p')) this.selectedQuality = '1080p';
-                                        else if (data.resolutions.includes('720p')) this.selectedQuality = '720p';
-                                        else {
-                                            const videoQuals = data.resolutions.filter(q => q.endsWith('p'));
-                                            this.selectedQuality = videoQuals[0] || '720p';
-                                        }
-                                    } else {
-                                        this.selectedFormat = 'mp3';
-                                        this.selectedQuality = '320kbps';
-                                    }
-                                }
-
-                                playCuteSound('success');
-                                this.triggerToast("วิเคราะห์ลิงก์สำเร็จ!");
-                            })
-                            .catch(err => {
-                                this.triggerToast("เกิดข้อผิดพลาดในการดึงข้อมูลลิงก์");
-                            })
-                            .finally(() => {
-                                this.isFetchingInfo = false;
-                            });
                     } else {
-                        this.triggerToast("กรุณากรอกลิงก์ที่ถูกต้อง (เช่น ลิงก์ YouTube หรือ SoundCloud) น้าาา ♪");
+                        this.triggerToast("กำลังค้นหาคลิปวิดีโอบน YouTube...");
                     }
+                    this.isFetchingInfo = true;
+
+                    const formData = new FormData();
+                    formData.append('url', this.urlInput);
+
+                    fetch('/info', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error("วิเคราะห์ข้อมูลไม่สำเร็จ");
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (data.error) {
+                                this.triggerToast("ล้มเหลว: " + data.error);
+                                return;
+                            }
+                            this.activeSong = {
+                                title: data.title,
+                                channel: data.uploader,
+                                platform: this.urlInput.includes('soundcloud') ? 'SOUNDCLOUD' : (this.urlInput.includes('facebook') ? 'FACEBOOK' : (this.urlInput.includes('vimeo') ? 'VIMEO' : 'YOUTUBE')),
+                                duration: data.duration,
+                                cover: data.thumbnail || 'https://placehold.co/400x400/223c40/ffffff?text=Music',
+                                videoUrl: data.url,
+                                resolutions: data.resolutions || [],
+                                audio_codec: data.audio_codec || '',
+                                audio_bitrate: data.audio_bitrate || '',
+                                audio_recommendation: data.audio_recommendation || ''
+                            };
+
+                            // Auto switch format to best available resolution
+                            if (data.resolutions && data.resolutions.length > 0) {
+                                const hasVideo = data.resolutions.some(q => q.includes('p'));
+                                if (hasVideo) {
+                                    this.selectedFormat = 'mp4';
+                                    // Pick best resolution
+                                    if (data.resolutions.includes('2160p (4K)')) this.selectedQuality = '2160p (4K)';
+                                    else if (data.resolutions.includes('1440p (2K)')) this.selectedQuality = '1440p (2K)';
+                                    else if (data.resolutions.includes('1080p (Full HD)')) this.selectedQuality = '1080p (Full HD)';
+                                    else if (data.resolutions.includes('720p (HD)')) this.selectedQuality = '720p (HD)';
+                                    else {
+                                        const videoQuals = data.resolutions.filter(q => q.includes('p'));
+                                        this.selectedQuality = videoQuals[0] || '720p (HD)';
+                                    }
+                                } else {
+                                    this.selectedFormat = 'mp3';
+                                    this.selectedQuality = '320kbps';
+                                }
+                            }
+
+                            playCuteSound('success');
+                            this.triggerToast("วิเคราะห์ข้อมูลสำเร็จ!");
+                        })
+                        .catch(err => {
+                            this.triggerToast("เกิดข้อผิดพลาดในการดึงข้อมูล");
+                        })
+                        .finally(() => {
+                            this.isFetchingInfo = false;
+                        });
                 },
 
                 // START PREMIUM AUDIO CONVERSION
@@ -969,15 +1088,17 @@
                     let formatType = 'mp4_720';
                     if (this.selectedFormat === 'mp3') {
                         formatType = 'mp3';
+                    } else if (this.selectedFormat === 'm4a') {
+                        formatType = 'm4a';
+                    } else if (this.selectedFormat === 'flac') {
+                        formatType = 'flac';
                     } else if (this.selectedFormat === 'wav') {
                         formatType = 'wav';
                     } else { // mp4
-                        if (this.selectedQuality.includes('1080')) {
-                            formatType = 'mp4_1080';
-                        } else if (this.selectedQuality.includes('2160')) {
-                            formatType = 'mp4_2160';
-                        } else if (this.selectedQuality.includes('720')) {
-                            formatType = 'mp4_720';
+                        // Extract numeric height from selectedQuality (e.g. "2160p (4K)" -> "2160")
+                        const match = this.selectedQuality.match(/(\d+)/);
+                        if (match) {
+                            formatType = 'mp4_' + match[1];
                         } else {
                             formatType = 'mp4_720';
                         }
@@ -995,6 +1116,7 @@
                     formData.append('bitrate', bitrateVal);
                     formData.append('subtitles', this.subtitlesEnabled ? 'true' : 'false');
                     formData.append('download_id', this.downloadId);
+                    formData.append('video_container', this.videoContainer);
 
                     fetch('/download_start', {
                         method: 'POST',
@@ -1048,6 +1170,11 @@
 
                                     playCuteSound('success');
                                     this.triggerToast("ดาวน์โหลดไฟล์เสร็จสมบูรณ์เรียบร้อยแล้วค่ะ! ✨💿");
+                                } else if (progress.status === 'cancelled') {
+                                    source.close();
+                                    this.isConverting = false;
+                                    this.downloadProgress = 0;
+                                    this.triggerToast("ยกเลิกการดาวน์โหลดเรียบร้อยแล้วค่ะ 🌸");
                                 } else if (progress.status === 'error') {
                                     source.close();
                                     this.isConverting = false;

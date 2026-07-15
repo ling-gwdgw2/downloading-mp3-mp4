@@ -39,13 +39,27 @@ logging.basicConfig(
 logging.info("Application starting up...")
 logging.info(f"App path: {app_path}")
 
-# Dynamic Engine Loading
+# Dynamic Engine Loading with Safe Fallback
 update_path = os.path.join(app_path, 'bin', 'yt-dlp-update')
+loaded_dynamic = False
 if os.path.exists(update_path):
     sys.path.insert(0, update_path)
-    logging.info(f"Dynamically loaded updated yt-dlp engine from: {update_path}")
+    try:
+        import yt_dlp
+        loaded_dynamic = True
+        logging.info(f"Dynamically loaded updated yt-dlp engine from: {update_path} (Version: {yt_dlp.version.__version__})")
+    except Exception as e:
+        logging.error(f"Failed to import dynamically updated yt-dlp: {e}. Cleaning and falling back to built-in...")
+        if update_path in sys.path:
+            sys.path.remove(update_path)
+        try:
+            shutil.rmtree(update_path, ignore_errors=True)
+        except Exception:
+            pass
 
-import yt_dlp
+if not loaded_dynamic:
+    import yt_dlp
+    logging.info(f"Loaded built-in yt-dlp engine (Version: {yt_dlp.version.__version__})")
 # pyrefly: ignore [missing-import]
 from curl_cffi import requests as curl_requests
 
@@ -173,8 +187,7 @@ if os.path.exists(os.path.join(BIN_FOLDER, 'ffmpeg.exe')):
 # Middleware to check FFmpeg requirements
 @app.before_request
 def check_ffmpeg():
-    # Exempt setup, shutdown, logs and static files
-    if request.path.startswith('/setup') or request.path.startswith('/static') or request.path == '/shutdown' or request.path == '/api/logs' or request.path == '/update_engine':
+    if request.path.startswith('/setup') or request.path.startswith('/static') or request.path == '/shutdown' or request.path == '/api/logs' or request.path == '/update_engine' or request.path == '/engine_status' or request.path == '/revert_engine':
         return
         
     ffmpeg_path = os.path.join(BIN_FOLDER, 'ffmpeg.exe')
@@ -384,12 +397,16 @@ def get_info():
                 'url': url
             })
 
-        is_missav = 'missav.' in url
-        target_url = url
+        target_url = urls[0]
+        # Check if keyword search query
+        if not target_url.startswith('http://') and not target_url.startswith('https://'):
+            target_url = f"ytsearch1:{target_url}"
+
+        is_missav = 'missav.' in target_url
         custom_title = None
 
         if is_missav:
-            m3u8_url, custom_title = extract_missav(url)
+            m3u8_url, custom_title = extract_missav(target_url)
             if not m3u8_url:
                 return jsonify({'error': 'Failed to extract video from MissAV.'}), 400
             target_url = m3u8_url
@@ -401,21 +418,26 @@ def get_info():
         }
         if is_missav:
             from urllib.parse import urlparse
-            ydl_opts['referer'] = f"https://{urlparse(url).netloc}/"
+            ydl_opts['referer'] = f"https://{urlparse(target_url).netloc}/"
 
         info = extract_info_with_fallback(target_url, ydl_opts)
             
-        # Check if playlist
+        # Check if playlist or search results
         if info.get('_type') == 'playlist':
             entries = list(info.get('entries', []))
-            return jsonify({
-                'title': f"Playlist: {info.get('title', 'Playlist')}",
-                'thumbnail': entries[0].get('thumbnail') if entries and entries[0] else '',
-                'duration': f"{len(entries)} items",
-                'uploader': info.get('uploader', 'Unknown'),
-                'resolutions': ['720p', '1080p', 'mp3'],
-                'url': url
-            })
+            if target_url.startswith('ytsearch1:') and entries and entries[0]:
+                # Search results, extract first entry and treat as single video
+                info = entries[0]
+                url = info.get('webpage_url') or f"https://www.youtube.com/watch?v={info.get('id')}"
+            else:
+                return jsonify({
+                    'title': f"Playlist: {info.get('title', 'Playlist')}",
+                    'thumbnail': entries[0].get('thumbnail') if entries and entries[0] else '',
+                    'duration': f"{len(entries)} items",
+                    'uploader': info.get('uploader', 'Unknown'),
+                    'resolutions': ['2160p (4K)', '1080p (Full HD)', '720p (HD)', '480p', 'mp3'],
+                    'url': url
+                })
 
         # Extract available resolutions
         formats = info.get('formats', [])
@@ -424,11 +446,62 @@ def get_info():
             if f.get('vcodec') != 'none' and f.get('height'):
                 resolutions.add(f.get('height'))
         
+        # Sort resolutions in descending order
+        sorted_heights = sorted(list(resolutions), reverse=True)
+        
         available_qualities = []
-        if 2160 in resolutions: available_qualities.append('2160p')
-        if 1080 in resolutions: available_qualities.append('1080p')
-        if 720 in resolutions: available_qualities.append('720p')
+        for h in sorted_heights:
+            if h == 2160:
+                available_qualities.append('2160p (4K)')
+            elif h == 1440:
+                available_qualities.append('1440p (2K)')
+            elif h == 1080:
+                available_qualities.append('1080p (Full HD)')
+            elif h == 720:
+                available_qualities.append('720p (HD)')
+            elif h >= 360:
+                available_qualities.append(f'{h}p')
+        
+        # Ensure we always have at least some video options or default fallbacks if none detected
+        if not any(q.endswith('p') or '(' in q for q in available_qualities):
+            available_qualities.extend(['1080p (Full HD)', '720p (HD)', '480p'])
+            
         available_qualities.append('mp3')
+
+        # Extract audio stream details
+        best_audio_codec = None
+        max_audio_bitrate = 0
+        best_audio_ext = None
+        
+        for f in formats:
+            codec = f.get('acodec')
+            if codec and codec != 'none':
+                bitrate = f.get('abr') or f.get('tbr') or 0
+                if bitrate > max_audio_bitrate:
+                    max_audio_bitrate = int(bitrate)
+                    best_audio_codec = codec.split('.')[0]
+                    best_audio_ext = f.get('ext')
+                    
+        # Fallback if no audio codec details found
+        if not best_audio_codec:
+            best_audio_codec = "aac"
+            max_audio_bitrate = 128
+            best_audio_ext = "m4a"
+            
+        # Formulate smart download recommendations
+        recommendation = ""
+        codec_lower = best_audio_codec.lower()
+        if 'opus' in codec_lower:
+            recommendation = "💡 เสียงต้นฉบับบน YouTube เป็น Opus คุณภาพสูง แนะนำให้เลือก M4A Original เพื่อดาวน์โหลดเร็วและไม่เสียคุณภาพ หรือเลือก MP3 320kbps / Lossless FLAC เพื่อแปลงเป็นฟอร์แมตยอดนิยม"
+        elif 'mp4a' in codec_lower or 'aac' in codec_lower:
+            if max_audio_bitrate >= 192:
+                recommendation = f"💡 เสียงต้นฉบับเป็น AAC คุณภาพสูง ({max_audio_bitrate} kbps) แนะนำให้เลือก M4A Original หรือ MP3 320kbps เพื่อคงคุณภาพความละเอียดดนตรีไว้ครบถ้วน"
+            else:
+                recommendation = f"💡 เสียงต้นฉบับเป็น AAC ความละเอียดปกติ ({max_audio_bitrate} kbps) แนะนำให้เลือก M4A Original เพื่อบันทึกเสียงสดต้นฉบับได้ทันทีโดยไม่ต้องแปลงสัญญาณใหม่ หรือเลือก MP3 192kbps"
+        elif 'mp3' in codec_lower:
+            recommendation = f"💡 เสียงต้นฉบับเป็น MP3 ({max_audio_bitrate} kbps) แนะนำให้ดาวน์โหลดเป็น MP3 320kbps หรือ M4A Original เพื่อให้ได้เสียงที่คมชัดที่สุดตามคุณภาพดั้งเดิม"
+        else:
+            recommendation = f"💡 เสียงต้นฉบับเป็นฟอร์แมต {best_audio_codec.upper()} แนะนำให้ดาวน์โหลดเป็น M4A Original หรือ MP3 320kbps เพื่อการประมวลผลและการใช้งานที่เสถียรที่สุด"
 
         return jsonify({
             'title': custom_title if custom_title else info.get('title'),
@@ -436,7 +509,10 @@ def get_info():
             'duration': info.get('duration_string', ''),
             'uploader': info.get('uploader', 'Unknown'),
             'resolutions': available_qualities,
-            'url': url
+            'url': url,
+            'audio_codec': best_audio_codec,
+            'audio_bitrate': max_audio_bitrate if max_audio_bitrate > 0 else None,
+            'audio_recommendation': recommendation
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -457,6 +533,7 @@ def download_start():
     bitrate = request.form.get('bitrate', '192')
     subtitles = request.form.get('subtitles', 'false')
     download_id = request.form.get('download_id')
+    video_container = request.form.get('video_container', 'mp4')
 
     if not url or not download_id:
         return jsonify({'error': 'Missing parameters'}), 400
@@ -471,13 +548,13 @@ def download_start():
     import threading
     threading.Thread(
         target=run_download_thread,
-        args=(download_id, url, format_type, bitrate, subtitles),
+        args=(download_id, url, format_type, bitrate, subtitles, video_container),
         daemon=True
     ).start()
 
     return jsonify({'status': 'started'})
 
-def run_download_thread(download_id, url, format_type, bitrate, subtitles):
+def run_download_thread(download_id, url, format_type, bitrate, subtitles, video_container='mp4'):
     try:
         save_dir = config.get('save_folder')
         os.makedirs(save_dir, exist_ok=True)
@@ -530,12 +607,19 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                     }
             return hook
 
+        def make_postprocessor_hook(d_id):
+            def hook(d):
+                if d_id in cancelled_downloads:
+                    raise Exception("Download cancelled by user")
+            return hook
+
         output_template = os.path.join(save_dir, '%(title)s.%(ext)s')
         ydl_opts = {
             'outtmpl': output_template,
             'quiet': True,
             'nocache': True,
             'progress_hooks': [make_progress_hook(download_id)],
+            'postprocessor_hooks': [make_postprocessor_hook(download_id)],
             'retries': 10,
             'fragment_retries': 10
         }
@@ -558,6 +642,22 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                         'preferredquality': bitrate,
                     }],
                 })
+            elif format_type == 'm4a':
+                ydl_opts.update({
+                    'format': 'bestaudio[ext=m4a]/bestaudio/best',
+                    'postprocessors': [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': 'm4a',
+                    }],
+                })
+            elif format_type == 'flac':
+                ydl_opts.update({
+                    'format': 'bestaudio/best',
+                    'postprocessors': [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': 'flac',
+                    }],
+                })
             elif format_type == 'wav':
                 ydl_opts.update({
                     'format': 'bestaudio/best',
@@ -566,19 +666,19 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                         'preferredcodec': 'wav',
                     }],
                 })
-            elif format_type == 'mp4_1080':
+            elif format_type.startswith('mp4_'):
+                try:
+                    height = int(format_type.split('_')[1])
+                except (IndexError, ValueError):
+                    height = 720
                 ydl_opts.update({
-                    'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best[height<=1080]/best',
-                    'merge_output_format': 'mp4'
-                })
-            elif format_type == 'mp4_2160':
-                ydl_opts.update({
-                    'format': 'bestvideo[height<=2160]+bestaudio/best[height<=2160]/best[height<=2160]/best',
-                    'merge_output_format': 'mp4'
+                    'format': f'bestvideo[height<={height}]+bestaudio/best[height<={height}]/best[height<={height}]/best',
+                    'merge_output_format': video_container
                 })
             else:
                 ydl_opts.update({
                     'format': 'best[ext=mp4][height<=720]/best[height<=720]/best',
+                    'merge_output_format': video_container
                 })
                 
             download_url_with_fallback(ydl_opts, urls[0])
@@ -604,6 +704,7 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                     'quiet': True,
                     'nocache': True,
                     'progress_hooks': [make_progress_hook(download_id)],
+                    'postprocessor_hooks': [make_postprocessor_hook(download_id)],
                     'retries': 10,
                     'fragment_retries': 10
                 }
@@ -634,6 +735,22 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                             'preferredquality': bitrate,
                         }],
                     })
+                elif format_type == 'm4a':
+                    ydl_opts.update({
+                        'format': 'bestaudio[ext=m4a]/bestaudio/best',
+                        'postprocessors': [{
+                            'key': 'FFmpegExtractAudio',
+                            'preferredcodec': 'm4a',
+                        }],
+                    })
+                elif format_type == 'flac':
+                    ydl_opts.update({
+                        'format': 'bestaudio/best',
+                        'postprocessors': [{
+                            'key': 'FFmpegExtractAudio',
+                            'preferredcodec': 'flac',
+                        }],
+                    })
                 elif format_type == 'wav':
                     ydl_opts.update({
                         'format': 'bestaudio/best',
@@ -642,19 +759,19 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
                             'preferredcodec': 'wav',
                         }],
                     })
-                elif format_type == 'mp4_1080':
+                elif format_type.startswith('mp4_'):
+                    try:
+                        height = int(format_type.split('_')[1])
+                    except (IndexError, ValueError):
+                        height = 720
                     ydl_opts.update({
-                        'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best[height<=1080]/best',
-                        'merge_output_format': 'mp4'
-                    })
-                elif format_type == 'mp4_2160':
-                    ydl_opts.update({
-                        'format': 'bestvideo[height<=2160]+bestaudio/best[height<=2160]/best[height<=2160]/best',
-                        'merge_output_format': 'mp4'
+                        'format': f'bestvideo[height<={height}]+bestaudio/best[height<={height}]/best[height<={height}]/best',
+                        'merge_output_format': video_container
                     })
                 else: # mp4_720
                     ydl_opts.update({
                         'format': 'best[ext=mp4][height<=720]/best[height<=720]/best',
+                        'merge_output_format': video_container
                     })
                 
                 download_url_with_fallback(ydl_opts, final_url)
@@ -667,10 +784,17 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles):
             'eta': '00:00'
         }
     except Exception as e:
-        download_progress[download_id] = {
-            'status': 'error',
-            'message': str(e)
-        }
+        err_msg = str(e)
+        if "cancelled by user" in err_msg or "Download cancelled by user" in err_msg:
+            download_progress[download_id] = {
+                'status': 'cancelled',
+                'message': 'การดาวน์โหลดถูกยกเลิกโดยผู้ใช้งาน'
+            }
+        else:
+            download_progress[download_id] = {
+                'status': 'error',
+                'message': err_msg
+            }
 
 @app.route('/download_progress/<download_id>')
 def download_progress_stream(download_id):
@@ -685,7 +809,7 @@ def download_progress_stream(download_id):
             
             yield f"data: {json.dumps(state)}\n\n"
             
-            if state['status'] in ['completed', 'error']:
+            if state['status'] in ['completed', 'error', 'cancelled']:
                 break
     return Response(generate(), mimetype='text/event-stream')
 
@@ -701,6 +825,43 @@ def shutdown():
     import threading
     threading.Thread(target=kill_process).start()
     return jsonify({'message': 'Server shutting down...'})
+
+@app.route('/engine_status', methods=['GET'])
+def engine_status():
+    try:
+        import json
+        current_version = yt_dlp.version.__version__
+        is_updated = os.path.exists(os.path.join(app_path, 'bin', 'yt-dlp-update'))
+        
+        # Check latest version on PyPI
+        latest_version = current_version
+        try:
+            req = urllib.request.Request("https://pypi.org/pypi/yt-dlp/json", headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=5) as res:
+                pypi_data = json.loads(res.read().decode('utf-8'))
+                latest_version = pypi_data['info']['version']
+        except Exception:
+            pass # Network issue or offline, fallback to current_version
+            
+        return jsonify({
+            'current_version': current_version,
+            'latest_version': latest_version,
+            'is_updated': is_updated,
+            'needs_update': current_version != latest_version
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/revert_engine', methods=['POST'])
+def revert_engine():
+    try:
+        update_path = os.path.join(app_path, 'bin', 'yt-dlp-update')
+        if os.path.exists(update_path):
+            shutil.rmtree(update_path, ignore_errors=True)
+            return jsonify({'message': 'ล้างการอัปเดตและคืนค่าเป็นเครื่องยนต์เริ่มต้นเรียบร้อยแล้ว กรุณาเริ่มโปรแกรมใหม่เพื่อใช้การตั้งค่านี้'})
+        return jsonify({'message': 'คุณกำลังใช้งานเครื่องยนต์เริ่มต้นอยู่แล้ว'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/update_engine', methods=['POST'])
 def update_engine():
