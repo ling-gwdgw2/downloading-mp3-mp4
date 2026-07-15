@@ -6,7 +6,7 @@
 
 ## 🛠️ 1. การปรับแต่งโค้ดฝั่งหลังบ้าน (Cross-Platform Code Optimizations)
 
-เพื่อให้แอปพลิเคชันในไฟล์ **[app.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/app.py)** สามารถทำงานได้บน macOS และ Linux โดยไม่เกิดเออร์เรอร์ ต้องปรับแก้โค้ดระบบตรวจจับดังนี้:
+เพื่อให้แอปพลิเคชันในไฟล์ **app.py** สามารถทำงานได้บน macOS และ Linux โดยไม่เกิดเออร์เรอร์ ต้องปรับแก้โค้ดระบบตรวจจับดังนี้:
 
 ### A. ตรวจหาโฟลเดอร์ Downloads อัตโนมัติในแต่ละ OS
 บน Windows เราดึงผ่าน Registry แต่สำหรับ macOS และ Linux เราต้องดึงพาธตามมาตรฐานระบบ:
@@ -77,9 +77,16 @@ def check_ffmpeg_path():
    ```
 
 ### B. การคอมไพล์เป็นแอปพลิเคชัน Mac (`.app`)
-เราใช้สคริปต์อัตโนมัติ **[build_unix.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/build_unix.py)** ที่สร้างขึ้นในการคอมไพล์บน macOS:
+ใช้ PyInstaller บน macOS ในการบีบอัดหน้าเว็บและสคริปต์ให้รันโดยตรง:
 ```bash
-python build_unix.py
+# ติดตั้ง PyInstaller บน Mac
+pip install pyinstaller
+
+# คอมไพล์เป็น Mac Bundle Package (.app)
+pyinstaller --noconsole --name="YouTubeDownloader" \
+  --add-data "templates:templates" \
+  --add-data "static:static" \
+  app.py
 ```
 *ระบบจะสร้างไฟล์แอปชื่อ **`YouTubeDownloader.app`** ภายในโฟลเดอร์ `dist/` ซึ่งผู้ใช้ macOS สามารถดับเบิ้ลคลิกเพื่อเริ่มต้นรันเครื่องแม่ข่ายโลคอลและแสดงหน้าต่างเบราว์เซอร์ได้ทันที*
 
@@ -108,9 +115,13 @@ python build_unix.py
    ```
 
 ### B. การคอมไพล์เป็นไฟล์ Binary เดี่ยว (ELF Format)
-เราใช้สคริปต์อัตโนมัติ **[build_unix.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/build_unix.py)** ในการคอมไพล์บนลินุกซ์:
+คอมไพล์โค้ดให้อยู่ในรูปไฟล์ Binary รันง่ายบนเครื่องเซิร์ฟเวอร์หรือเดสก์ท็อปลินุกซ์:
 ```bash
-python build_unix.py
+# รันคอมไพล์บนระบบลินุกซ์
+pyinstaller --noconsole --name="youtube-downloader-linux" \
+  --add-data "templates:templates" \
+  --add-data "static:static" \
+  app.py
 ```
 ผลลัพธ์จะได้ไฟล์ไบนารีเดี่ยวชื่อ **`youtube-downloader-linux`** ในโฟลเดอร์ `dist/`
 
