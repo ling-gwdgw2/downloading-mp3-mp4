@@ -77,16 +77,9 @@ def check_ffmpeg_path():
    ```
 
 ### B. การคอมไพล์เป็นแอปพลิเคชัน Mac (`.app`)
-ใช้ PyInstaller บน macOS ในการบีบอัดหน้าเว็บและสคริปต์ให้รันโดยตรง:
+เราใช้สคริปต์อัตโนมัติ **[build_unix.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/build_unix.py)** ที่สร้างขึ้นในการคอมไพล์บน macOS:
 ```bash
-# ติดตั้ง PyInstaller บน Mac
-pip install pyinstaller
-
-# คอมไพล์เป็น Mac Bundle Package (.app)
-pyinstaller --noconsole --name="YouTubeDownloader" \
-  --add-data "templates:templates" \
-  --add-data "static:static" \
-  app.py
+python build_unix.py
 ```
 *ระบบจะสร้างไฟล์แอปชื่อ **`YouTubeDownloader.app`** ภายในโฟลเดอร์ `dist/` ซึ่งผู้ใช้ macOS สามารถดับเบิ้ลคลิกเพื่อเริ่มต้นรันเครื่องแม่ข่ายโลคอลและแสดงหน้าต่างเบราว์เซอร์ได้ทันที*
 
@@ -115,13 +108,9 @@ pyinstaller --noconsole --name="YouTubeDownloader" \
    ```
 
 ### B. การคอมไพล์เป็นไฟล์ Binary เดี่ยว (ELF Format)
-คอมไพล์โค้ดให้อยู่ในรูปไฟล์ Binary รันง่ายบนเครื่องเซิร์ฟเวอร์หรือเดสก์ท็อปลินุกซ์:
+เราใช้สคริปต์อัตโนมัติ **[build_unix.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/build_unix.py)** ในการคอมไพล์บนลินุกซ์:
 ```bash
-# รันคอมไพล์บนระบบลินุกซ์
-pyinstaller --noconsole --name="youtube-downloader-linux" \
-  --add-data "templates:templates" \
-  --add-data "static:static" \
-  app.py
+python build_unix.py
 ```
 ผลลัพธ์จะได้ไฟล์ไบนารีเดี่ยวชื่อ **`youtube-downloader-linux`** ในโฟลเดอร์ `dist/`
 
