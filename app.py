@@ -430,13 +430,27 @@ def get_info():
                 info = entries[0]
                 url = info.get('webpage_url') or f"https://www.youtube.com/watch?v={info.get('id')}"
             else:
+                playlist_videos = []
+                for idx, entry in enumerate(entries):
+                    if entry:
+                        playlist_videos.append({
+                            'index': idx,
+                            'id': entry.get('id'),
+                            'title': entry.get('title') or f"Video #{idx+1}",
+                            'uploader': entry.get('uploader') or 'Unknown',
+                            'duration': entry.get('duration'),
+                            'thumbnail': entry.get('thumbnail') or '',
+                            'url': entry.get('webpage_url') or f"https://www.youtube.com/watch?v={entry.get('id')}"
+                        })
                 return jsonify({
                     'title': f"Playlist: {info.get('title', 'Playlist')}",
                     'thumbnail': entries[0].get('thumbnail') if entries and entries[0] else '',
                     'duration': f"{len(entries)} items",
                     'uploader': info.get('uploader', 'Unknown'),
                     'resolutions': ['2160p (4K)', '1080p (Full HD)', '720p (HD)', '480p', 'mp3'],
-                    'url': url
+                    'url': url,
+                    'is_playlist': True,
+                    'playlist_videos': playlist_videos
                 })
 
         # Extract available resolutions

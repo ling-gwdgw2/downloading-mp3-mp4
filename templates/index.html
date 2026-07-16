@@ -438,6 +438,35 @@
                                 </div>
                             </div>
 
+                            <!-- Playlist Checklist -->
+                            <div x-show="playlistVideos.length > 0" class="mt-4 bg-slate-50 p-4 rounded-2xl border border-slate-100/70" x-cloak>
+                                <div class="flex items-center justify-between mb-3">
+                                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">เลือกคลิปที่จะดาวน์โหลด (<span x-text="selectedPlaylistIndices.length + '/' + playlistVideos.length"></span> คลิป)</label>
+                                    <div class="flex gap-2">
+                                        <button @click="toggleSelectAllPlaylist(true)" class="text-[10px] text-miku-600 hover:text-miku-700 font-bold bg-white border border-slate-200 px-2.5 py-1 rounded-lg">เลือกทั้งหมด</button>
+                                        <button @click="toggleSelectAllPlaylist(false)" class="text-[10px] text-rose-500 hover:text-rose-600 font-bold bg-white border border-slate-200 px-2.5 py-1 rounded-lg">ไม่เลือกเลย</button>
+                                    </div>
+                                </div>
+                                
+                                <input type="text" x-model="playlistSearch" placeholder="ค้นหาชื่อคลิปในเพลย์ลิสต์..." class="w-full bg-white text-xs border border-slate-200 rounded-xl px-3 py-2.5 mb-3 focus:outline-none focus:ring-1 focus:ring-miku-300">
+
+                                <div class="max-h-60 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                                    <template x-for="video in getFilteredPlaylistVideos()" :key="video.index">
+                                        <label class="flex items-start gap-3 bg-white p-2.5 rounded-xl border border-slate-100 hover:border-miku-200 cursor-pointer transition-all select-none">
+                                            <input type="checkbox" :value="video.index" x-model="selectedPlaylistIndices" class="rounded text-miku-500 focus:ring-miku-400 mt-1 w-4 h-4 border-slate-300">
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-xs font-bold text-slate-700 truncate" x-text="video.title"></div>
+                                                <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5 font-semibold">
+                                                    <span x-text="video.uploader"></span>
+                                                    <span>•</span>
+                                                    <span x-text="formatDuration(video.duration)"></span>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+
                             <!-- Conversion triggering -->
                             <div class="pt-2">
                                 <button @click="startDownloadConversion()" :disabled="isConverting"
@@ -815,6 +844,9 @@
                 engineIsUpdated: false,
                 needsEngineUpdate: false,
                 videoContainer: 'mp4',
+                playlistVideos: [],
+                selectedPlaylistIndices: [],
+                playlistSearch: '',
 
                 init() {
                     this.triggerToast("ยินดีต้อนรับสู่ Phoebe Loader");
@@ -965,6 +997,28 @@
                     this.triggerToast(`เปลี่ยนแท็บสำเร็จ: ${tab.toUpperCase()}`);
                 },
 
+                toggleSelectAllPlaylist(select) {
+                    playCuteSound('click');
+                    if (select) {
+                        this.selectedPlaylistIndices = this.playlistVideos.map(v => v.index);
+                    } else {
+                        this.selectedPlaylistIndices = [];
+                    }
+                },
+                getFilteredPlaylistVideos() {
+                    if (!this.playlistSearch.trim()) {
+                        return this.playlistVideos;
+                    }
+                    const q = this.playlistSearch.toLowerCase();
+                    return this.playlistVideos.filter(v => v.title.toLowerCase().includes(q));
+                },
+                formatDuration(sec) {
+                    if (!sec) return '00:00';
+                    const m = Math.floor(sec / 60);
+                    const s = sec % 60;
+                    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                },
+
                 selectFormat(format) {
                     playCuteSound('click');
                     this.selectedFormat = format;
@@ -1032,6 +1086,11 @@
                                 this.triggerToast("ล้มเหลว: " + data.error);
                                 return;
                             }
+                            // Reset playlist variables
+                            this.playlistVideos = [];
+                            this.selectedPlaylistIndices = [];
+                            this.playlistSearch = '';
+
                             this.activeSong = {
                                 title: data.title,
                                 channel: data.uploader,
@@ -1044,6 +1103,11 @@
                                 audio_bitrate: data.audio_bitrate || '',
                                 audio_recommendation: data.audio_recommendation || ''
                             };
+
+                            if (data.is_playlist && data.playlist_videos) {
+                                this.playlistVideos = data.playlist_videos;
+                                this.selectedPlaylistIndices = data.playlist_videos.map(v => v.index);
+                            }
 
                             // Auto switch format to best available resolution
                             if (data.resolutions && data.resolutions.length > 0) {
@@ -1116,8 +1180,20 @@
                     else if (this.selectedQuality.includes('256')) bitrateVal = '256';
                     else if (this.selectedQuality.includes('128')) bitrateVal = '128';
 
+                    let targetUrl = this.activeSong.videoUrl;
+                    if (this.playlistVideos.length > 0) {
+                        const selectedVideos = this.playlistVideos.filter(v => this.selectedPlaylistIndices.includes(v.index));
+                        if (selectedVideos.length === 0) {
+                            this.triggerToast("กรุณาเลือกอย่างน้อย 1 คลิปเพื่อดาวน์โหลดค่ะ ♪");
+                            this.isConverting = false;
+                            this.downloadProgress = 0;
+                            return;
+                        }
+                        targetUrl = selectedVideos.map(v => v.url).join(',');
+                    }
+
                     const formData = new FormData();
-                    formData.append('url', this.activeSong.videoUrl);
+                    formData.append('url', targetUrl);
                     formData.append('format_type', formatType);
                     formData.append('bitrate', bitrateVal);
                     formData.append('subtitles', this.subtitlesEnabled ? 'true' : 'false');
