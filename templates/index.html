@@ -545,6 +545,11 @@
                                     class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
                                 <label for="subtitlesCheck" class="cursor-pointer select-none">ดาวน์โหลดและฝังซับไตเติล (หากมี)</label>
                             </div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <input type="checkbox" id="metadataCheck" x-model="embedMetadataEnabled"
+                                    class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
+                                <label for="metadataCheck" class="cursor-pointer select-none">ฝังปกและข้อมูลเพลงอัตโนมัติ (ID3/M4A)</label>
+                            </div>
                             <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
                                 <i class="fa-solid fa-microchip"></i> Engine: <span class="text-slate-600" x-text="engineVersion">Loading...</span>
                                 <template x-if="engineIsUpdated">
@@ -797,6 +802,7 @@
                 isFetchingInfo: false,
                 saveFolder: '',
                 subtitlesEnabled: false,
+                embedMetadataEnabled: true,
                 isUpdatingEngine: false,
                 updateStatusText: '',
                 logsOpen: false,
@@ -1117,6 +1123,7 @@
                     formData.append('subtitles', this.subtitlesEnabled ? 'true' : 'false');
                     formData.append('download_id', this.downloadId);
                     formData.append('video_container', this.videoContainer);
+                    formData.append('embed_metadata', this.embedMetadataEnabled ? 'true' : 'false');
 
                     fetch('/download_start', {
                         method: 'POST',

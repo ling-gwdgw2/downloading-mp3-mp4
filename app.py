@@ -534,6 +534,7 @@ def download_start():
     subtitles = request.form.get('subtitles', 'false')
     download_id = request.form.get('download_id')
     video_container = request.form.get('video_container', 'mp4')
+    embed_metadata = request.form.get('embed_metadata', 'false')
 
     if not url or not download_id:
         return jsonify({'error': 'Missing parameters'}), 400
@@ -548,13 +549,77 @@ def download_start():
     import threading
     threading.Thread(
         target=run_download_thread,
-        args=(download_id, url, format_type, bitrate, subtitles, video_container),
+        args=(download_id, url, format_type, bitrate, subtitles, video_container, embed_metadata),
         daemon=True
     ).start()
 
     return jsonify({'status': 'started'})
 
-def run_download_thread(download_id, url, format_type, bitrate, subtitles, video_container='mp4'):
+def embed_metadata_to_file(file_path, title, artist, thumbnail_url):
+    try:
+        if not os.path.exists(file_path):
+            return
+            
+        cover_bytes = None
+        if thumbnail_url:
+            try:
+                req = urllib.request.Request(thumbnail_url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    cover_bytes = response.read()
+            except Exception as e:
+                logging.warning(f"Failed to download cover art from {thumbnail_url}: {e}")
+
+        ext = os.path.splitext(file_path)[1].lower()
+        if ext == '.mp3':
+            from mutagen.mp3 import MP3, HeaderNotFoundError
+            from mutagen.id3 import ID3, APIC, TIT2, TPE1, error
+            audio = None
+            tags = None
+            try:
+                audio = MP3(file_path, ID3=ID3)
+                try:
+                    audio.add_tags()
+                except Exception:
+                    pass
+                tags = audio.tags
+            except HeaderNotFoundError:
+                try:
+                    audio = ID3(file_path)
+                    tags = audio
+                except Exception:
+                    audio = ID3()
+                    tags = audio
+            
+            if tags is not None:
+                if title:
+                    tags.add(TIT2(encoding=3, text=title))
+                if artist:
+                    tags.add(TPE1(encoding=3, text=artist))
+                if cover_bytes:
+                    tags.add(APIC(
+                        encoding=3,
+                        mime='image/jpeg',
+                        type=3,
+                        desc=u'Cover',
+                        data=cover_bytes
+                    ))
+                audio.save(file_path)
+                logging.info(f"Successfully tagged MP3 file: {file_path}")
+        elif ext in ['.m4a', '.mp4']:
+            from mutagen.mp4 import MP4, MP4Cover
+            audio = MP4(file_path)
+            if title:
+                audio["\xa9nam"] = title
+            if artist:
+                audio["\xa9ART"] = artist
+            if cover_bytes:
+                audio["covr"] = [MP4Cover(cover_bytes, imageformat=MP4Cover.FORMAT_JPEG)]
+            audio.save()
+            logging.info(f"Successfully tagged M4A file: {file_path}")
+    except Exception as e:
+        logging.error(f"Error in embed_metadata_to_file for {file_path}: {e}", exc_info=True)
+
+def run_download_thread(download_id, url, format_type, bitrate, subtitles, video_container='mp4', embed_metadata='false'):
     try:
         save_dir = config.get('save_folder')
         os.makedirs(save_dir, exist_ok=True)
@@ -611,6 +676,24 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
             def hook(d):
                 if d_id in cancelled_downloads:
                     raise Exception("Download cancelled by user")
+                if d.get('status') == 'finished' and embed_metadata == 'true':
+                    filename = d.get('filepath') or d.get('filename')
+                    if not filename:
+                        info_temp = d.get('info_dict', {})
+                        filename = info_temp.get('filepath') or info_temp.get('_filename')
+                    
+                    if filename and os.path.exists(filename):
+                        ext = os.path.splitext(filename)[1].lower()
+                        if ext in ['.mp3', '.m4a', '.mp4', '.mkv', '.webm', '.flac', '.wav']:
+                            info = d.get('info_dict', {})
+                            title = info.get('title')
+                            artist = info.get('uploader') or info.get('artist')
+                            
+                            thumbnail = info.get('thumbnail')
+                            if not thumbnail and info.get('thumbnails'):
+                                thumbnail = info.get('thumbnails')[-1].get('url')
+                                
+                            embed_metadata_to_file(filename, title, artist, thumbnail)
             return hook
 
         output_template = os.path.join(save_dir, '%(title)s.%(ext)s')
