@@ -160,6 +160,30 @@ download_progress = {}
 
 cancelled_downloads = set()
 
+import time
+last_ping_time = time.time()
+
+def auto_shutdown_monitor():
+    global last_ping_time
+    import time
+    time.sleep(15)
+    while True:
+        time.sleep(3)
+        if time.time() - last_ping_time > 8:
+            logging.info("Auto-Shutdown: No browser heartbeat ping detected. Shutting down server gracefully...")
+            with _progress_lock:
+                for d_id in list(download_progress.keys()):
+                    if download_progress[d_id].get('status') in ['starting', 'downloading', 'processing']:
+                        cancelled_downloads.add(d_id)
+            time.sleep(1.5)
+            try:
+                cleanup_temp_files()
+            except Exception:
+                pass
+            os._exit(0)
+
+_threading.Thread(target=auto_shutdown_monitor, daemon=True).start()
+
 def _schedule_cleanup(download_id, delay=10):
     """Remove stale download entries after delay seconds to prevent memory leak."""
     import time
@@ -1198,6 +1222,13 @@ def shutdown():
     import threading
     threading.Thread(target=kill_process).start()
     return jsonify({'message': 'Server shutting down...'})
+
+@app.route('/api/ping', methods=['POST'])
+def ping():
+    global last_ping_time
+    import time
+    last_ping_time = time.time()
+    return jsonify({'status': 'ok'})
 
 @app.route('/engine_status', methods=['GET'])
 def engine_status():

@@ -792,6 +792,80 @@
                 toastMessage: '',
                 toastTimeout: null,
 
+                // Multi-Language System
+                currentLang: 'th',
+                locales: {
+                    th: {
+                        welcome: "ยินดีต้อนรับสู่ Phoebe Loader",
+                        heroBadge: "ตัวดาวน์โหลดความละเอียดสูง",
+                        heroTitle: "ดาวน์โหลดเพลงและวิดีโอฟรี",
+                        heroDesc: "ดาวน์โหลดเพลงความละเอียดสูงสุด 320kbps หรือวิดีโอ Full HD / 4K จาก YouTube และแพลตฟอร์มอื่นๆ ได้ฟรีรวดเร็วทันใจ!",
+                        inputPlaceholder: "วางลิงก์ YouTube, SoundCloud, Facebook หรือ Spotify...",
+                        btnAnalyze: "วิเคราะห์ลิงก์",
+                        btnAnalyzing: "กำลังวิเคราะห์...",
+                        panelTitle: "แผงควบคุมการดาวน์โหลด",
+                        selectFormat: "เลือกประเภทไฟล์",
+                        langChangedToast: "เปลี่ยนภาษาสำเร็จแล้วค่ะ! 🌸",
+                        emptyInput: "กรุณากรอกลิงก์หรือคำค้นหาที่ต้องการดาวน์โหลดค่ะ ♪",
+                        analyzingLink: "กำลังวิเคราะห์ลิงก์วิดีโอ...",
+                        searchingYouTube: "กำลังค้นหาคลิปวิดีโอบน YouTube...",
+                        analyzeSuccess: "วิเคราะห์ข้อมูลสำเร็จ!",
+                        analyzeFail: "เกิดข้อผิดพลาดในการดึงข้อมูล"
+                    },
+                    en: {
+                        welcome: "Welcome to Phoebe Loader",
+                        heroBadge: "High-Quality Downloader",
+                        heroTitle: "Download High Quality Audio/Video Free",
+                        heroDesc: "Download high quality audio up to 320kbps or Full HD / 4K videos from YouTube and other platforms quickly and for free!",
+                        inputPlaceholder: "Paste YouTube, SoundCloud, Facebook, or Spotify link...",
+                        btnAnalyze: "Analyze Link",
+                        btnAnalyzing: "Analyzing...",
+                        panelTitle: "Download Control Panel",
+                        selectFormat: "Select File Format",
+                        langChangedToast: "Language changed successfully! 🌸",
+                        emptyInput: "Please enter a link or search query to download ♪",
+                        analyzingLink: "Analyzing video link...",
+                        searchingYouTube: "Searching video on YouTube...",
+                        analyzeSuccess: "Analyzed successfully!",
+                        analyzeFail: "Error fetching metadata"
+                    },
+                    lo: {
+                        welcome: "ຍິນດີຕ້ອນຮັບສູ່ Phoebe Loader",
+                        heroBadge: "ຕົວດາວໂຫລດຄວາມລະອຽດສູງ",
+                        heroTitle: "ດາວໂຫລດເພງແລະວິດີໂອຟຣີ",
+                        heroDesc: "ດາວໂຫລດເພງຄວາມລະອຽດສູງສຸດ 320kbps ຫຼື ວິດີໂອ Full HD / 4K ຈາກ YouTube ແລະ ແພລດຟອມອື່ນໆ ໄດ້ຟຣີໄວທັນໃຈ!",
+                        inputPlaceholder: "ວາງລິ້ງ YouTube, SoundCloud, Facebook ຫຼື Spotify...",
+                        btnAnalyze: "ວິເຄາະລິ້ງ",
+                        btnAnalyzing: "ກຳລັງວິເຄາະ...",
+                        panelTitle: "ແພງຄວບຄຸມການດາວໂຫລດ",
+                        selectFormat: "ເລືອກປະເພດໄຟລ໌",
+                        langChangedToast: "ປ່ຽນພາສາສຳເລັດແລ້ວ! 🌸",
+                        emptyInput: "ກະລຸນາປ້ອນລິ້ງ ຫຼື ຄຳຄົ້ນຫາທີ່ຕ້ອງການດາວໂຫລດ ♪",
+                        analyzingLink: "ກຳລັງວິເຄາະລິ້ງວິດີໂອ...",
+                        searchingYouTube: "ກຳລັງຄົ້ນຫາຄລິບວິດີໂອເທິງ YouTube...",
+                        analyzeSuccess: "ວິເຄາະຂໍ້ມູນສຳເລັດ!",
+                        analyzeFail: "ເກີດຂໍ้ຜິດພາດໃນການດຶງຂໍ້ມູນ"
+                    }
+                },
+
+                t(key) {
+                    const lang = this.currentLang || 'th';
+                    if (this.locales && this.locales[lang] && this.locales[lang][key]) {
+                        return this.locales[lang][key];
+                    }
+                    if (this.locales && this.locales['th'] && this.locales['th'][key]) {
+                        return this.locales['th'][key];
+                    }
+                    return key;
+                },
+
+                changeLang(lang) {
+                    this.currentLang = lang;
+                    localStorage.setItem('phoebe_lang', lang);
+                    playCuteSound('click');
+                    this.triggerToast(this.t('langChangedToast'));
+                },
+
                 // Active song processing details
                 activeSong: {
                     title: 'Melt (メルト)',
@@ -849,7 +923,11 @@
                 playlistSearch: '',
 
                 init() {
-                    this.triggerToast("ยินดีต้อนรับสู่ Phoebe Loader");
+                    const savedLang = localStorage.getItem('phoebe_lang');
+                    if (savedLang) {
+                        this.currentLang = savedLang;
+                    }
+                    this.triggerToast(this.t('welcome'));
                     // Load save folder path
                     fetch('/settings')
                         .then(res => res.json())
@@ -857,6 +935,11 @@
                             this.saveFolder = data.save_folder;
                         });
                     this.checkEngineStatus();
+
+                    // Browser Heartbeat Ping System (send every 3 seconds)
+                    setInterval(() => {
+                        fetch('/api/ping', { method: 'POST' }).catch(err => console.error("Heartbeat error:", err));
+                    }, 3000);
                 },
 
                 async selectFolder() {
