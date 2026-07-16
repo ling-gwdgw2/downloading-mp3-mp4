@@ -114,3 +114,8 @@ python build_exe.py
 2. เปิดไฟล์สคริปต์ **[setup.iss](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/setup.iss)** ผ่านโปรแกรม
 3. กดปุ่ม **Compile** (คีย์ลัด F9) เพื่อรวมโฟลเดอร์ `dist/` ออกมาเป็นไฟล์ติดตั้งตัวเดียว
 4. ตัวติดตั้งสำเร็จรูปจะถูกบันทึกไว้ในโฟลเดอร์ **`installer_output/YouTubeDownloaderSetup.exe`**
+
+---
+
+## 🔑 Code Signing Attribution
+Free code signing for this project is generously provided by the **[SignPath Foundation](https://signpath.org)**.
