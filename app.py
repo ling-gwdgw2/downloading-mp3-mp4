@@ -1167,10 +1167,34 @@ def shutdown():
     def kill_process():
         import time
         import os
-        import signal
-        time.sleep(1.0)
-        os.kill(os.getpid(), signal.SIGTERM)
+        import logging
+        logging.info("Initiating clean shutdown sequence...")
         
+        # 1. Cancel all active downloads to terminate yt-dlp threads
+        active_count = 0
+        with _progress_lock:
+            for d_id in list(download_progress.keys()):
+                if download_progress[d_id].get('status') in ['starting', 'downloading', 'processing']:
+                    cancelled_downloads.add(d_id)
+                    active_count += 1
+        
+        if active_count > 0:
+            logging.info(f"Cancellation requested for {active_count} active downloads. Waiting for release...")
+        
+        # 2. Wait for yt-dlp threads to abort and release file locks
+        time.sleep(1.5)
+        
+        # 3. Clean up stale temporary files (.part, .ytdl, etc.)
+        try:
+            cleanup_temp_files()
+            logging.info("Clean shutdown: Stale temporary files cleaned successfully.")
+        except Exception as e:
+            logging.error(f"Error during clean shutdown file cleanup: {e}")
+            
+        logging.info("Shutdown sequence complete. Exiting process.")
+        # Exit cleanly
+        os._exit(0)
+
     import threading
     threading.Thread(target=kill_process).start()
     return jsonify({'message': 'Server shutting down...'})
