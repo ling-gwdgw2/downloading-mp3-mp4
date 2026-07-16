@@ -53,7 +53,6 @@ Name: "thai"; MessagesFile: "compiler:Languages\Thai.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "startupicon"; Description: "เปิดโปรแกรมอัตโนมัติเมื่อเริ่มระบบ Windows (Start automatically on boot)"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 Source: "dist\YouTubeDownloader.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -62,7 +61,6 @@ Source: "dist\bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: startupicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent runasoriginaluser
