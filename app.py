@@ -110,7 +110,7 @@ def extract_info_with_fallback(target_url, ydl_opts):
                 return ydl.extract_info(target_url, download=False)
         except Exception as e:
             if browser is not None:
-                logging.warning(f"Failed to fetch info using cookies from browser '{browser}': {e}. Trying next fallback...")
+                logging.info(f"Could not load cookies from '{browser}' ({e}). Trying next fallback...")
                 last_err = e
                 continue
             else:
@@ -152,7 +152,7 @@ def download_url_with_fallback(ydl_opts, target_url):
                 return
         except Exception as e:
             if browser is not None:
-                logging.warning(f"Failed to download using cookies from browser '{browser}': {e}. Trying next fallback...")
+                logging.info(f"Could not load cookies from '{browser}' ({e}). Trying next fallback...")
                 last_err = e
                 continue
             else:
