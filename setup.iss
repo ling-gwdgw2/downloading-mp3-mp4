@@ -12,11 +12,14 @@ AppId={{E66E1C40-7A04-4F8C-8F75-15CE849DC2A8}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-; Install to user's Local AppData directory. 
-; This avoids permission issues when writing downloaded videos to the application directory.
-DefaultDirName={localappdata}\{#MyAppName}
+AppPublisherURL=https://github.com/ling-gwdgw2/downloading-mp3-mp4
+AppSupportURL=https://github.com/ling-gwdgw2/downloading-mp3-mp4/issues
+AppUpdatesURL=https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases
+
+; Install to standard user programs directory (Microsoft Standard for User-level installs)
+DefaultDirName={localappdata}\Programs\{#MyAppName}
 DisableProgramGroupPage=yes
-; "lowest" means it does not require Administrator privileges to install
+; "lowest" means it does not require Administrator privileges to install (standard user install)
 PrivilegesRequired=lowest
 OutputDir=installer_output
 OutputBaseFilename=PhoebeDownloaderSetup
@@ -24,6 +27,11 @@ SetupIconFile=logo.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+
+; Version metadata for Windows Add/Remove Programs panel
+VersionInfoVersion={#MyAppVersion}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription=Phoebe Video & Audio Downloader Installer
 
 ; 64-bit system requirements enforcement
 ArchitecturesAllowed=x64
@@ -33,8 +41,12 @@ ArchitecturesInstallIn64BitMode=x64
 CloseApplications=yes
 CloseApplicationsFilter={#MyAppExeName}
 
+; Uncomment this and configure in Inno Setup settings once you have a digital certificate
+; SignTool=signtool sign /f mycert.pfx /p password /tr http://timestamp.digicert.com /td sha256 $f
+
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "thai"; MessagesFile: "compiler:Languages\Thai.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
