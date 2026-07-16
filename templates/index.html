@@ -1056,7 +1056,7 @@
                 // ANALYZE ACTION: Fetch metadata from the backend
                 processInput() {
                     if (!this.urlInput.trim()) {
-                        this.triggerToast("กรุณากรอกลิงก์หรือคำค้นหาที่ต้องการดาวน์โหลดค่ะ ♪");
+                        this.triggerToast(this.t('emptyInput'));
                         return;
                     }
 
@@ -1064,9 +1064,9 @@
 
                     const isUrl = this.urlInput.includes('http://') || this.urlInput.includes('https://') || (this.urlInput.includes('.') && !this.urlInput.includes(' '));
                     if (isUrl) {
-                        this.triggerToast("กำลังวิเคราะห์ลิงก์วิดีโอ...");
+                        this.triggerToast(this.t('analyzingLink'));
                     } else {
-                        this.triggerToast("กำลังค้นหาคลิปวิดีโอบน YouTube...");
+                        this.triggerToast(this.t('searchingYouTube'));
                     }
                     this.isFetchingInfo = true;
                     // Reset playlist variables immediately upon search/fetch
@@ -1082,7 +1082,7 @@
                         body: formData
                     })
                         .then(res => {
-                            if (!res.ok) throw new Error("วิเคราะห์ข้อมูลไม่สำเร็จ");
+                            if (!res.ok) throw new Error(this.t('analyzeFail'));
                             return res.json();
                         })
                         .then(data => {
@@ -1130,10 +1130,10 @@
                             }
 
                             playCuteSound('success');
-                            this.triggerToast("วิเคราะห์ข้อมูลสำเร็จ!");
+                            this.triggerToast(this.t('analyzeSuccess'));
                         })
                         .catch(err => {
-                            this.triggerToast("เกิดข้อผิดพลาดในการดึงข้อมูล");
+                            this.triggerToast(this.t('analyzeFail'));
                         })
                         .finally(() => {
                             this.isFetchingInfo = false;

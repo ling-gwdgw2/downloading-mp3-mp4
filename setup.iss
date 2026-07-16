@@ -50,6 +50,7 @@ CloseApplicationsFilter={#MyAppExeName}
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile: "license_agreement_en.txt"
 Name: "thai"; MessagesFile: "compiler:Languages\Thai.isl"; LicenseFile: "license_agreement_th.txt"
+Name: "lao"; MessagesFile: "compiler:Default.isl"; LicenseFile: "license_agreement_lo.txt"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked

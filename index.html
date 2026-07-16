@@ -577,27 +577,34 @@
         <div class="logo">
             <i class="fa-solid fa-cloud-arrow-down"></i> PHOEBE DOWNLOADER
         </div>
-        <ul class="nav-links">
-            <li><a href="#features">ฟีเจอร์</a></li>
-            <li><a href="#changelog">บันทึกแพทช์</a></li>
-            <li><a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" class="github-nav-btn" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></li>
-        </ul>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <ul class="nav-links">
+                <li><a href="#features" class="i18n-features">ฟีเจอร์</a></li>
+                <li><a href="#changelog" class="i18n-changelog">บันทึกแพทช์</a></li>
+                <li><a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" class="github-nav-btn" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></li>
+            </ul>
+            <select id="landingLangSelector" onchange="changeLanguage(this.value)" style="background: rgba(255,255,255,0.75); border: 1px solid rgba(234, 179, 8, 0.25); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 700; color: #422006; outline: none; cursor: pointer; font-family: inherit;">
+                <option value="th">ภาษาไทย (TH)</option>
+                <option value="en">English (EN)</option>
+                <option value="lo">ພາສາລາວ (LO)</option>
+            </select>
+        </div>
     </header>
 
     <main>
         <!-- 🚀 HERO AREA -->
         <section class="hero">
             <div class="hero-info">
-                <div class="badge">Version 2.1.0 Released</div>
-                <h1 class="hero-title">แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ HD</span> สไตล์ Retro-Pixel</h1>
-                <p class="hero-desc">
+                <div class="badge i18n-badge">Version 2.1.0 Released</div>
+                <h1 class="hero-title i18n-title">แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ HD</span> สไตล์ Retro-Pixel</h1>
+                <p class="hero-desc i18n-desc">
                     ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียวด้วยความเร็วสูงสุด ทำงานเป็น Local Web Server เบาและเร็วเป็นพิเศษ พร้อมสตรีมมิ่งติดตามสถานะสดแบบวินาทีต่อวินาที (Real-time Progress Tracker)
                 </p>
                 <div class="download-actions">
-                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.1.0/PhoebeDownloaderSetup.exe" class="btn-main btn-download" target="_blank">
+                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.1.0/PhoebeDownloaderSetup.exe" class="btn-main btn-download i18n-btn-download" target="_blank">
                         <i class="fa-brands fa-windows"></i> ดาวน์โหลดสำหรับ Windows (.exe)
                     </a>
-                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/blob/main/Linux_mac.md" class="btn-main btn-secondary" target="_blank">
+                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/blob/main/Linux_mac.md" class="btn-main btn-secondary i18n-btn-secondary" target="_blank">
                         <i class="fa-brands fa-apple"></i> macOS / Linux Guide
                     </a>
                 </div>
@@ -611,12 +618,12 @@
                             <div class="mockup-dot"></div>
                             <div class="mockup-dot"></div>
                         </div>
-                        <div class="mockup-title">PHOEBE ENGINE ACTIVE</div>
+                        <div class="mockup-title i18n-mockup-title">PHOEBE ENGINE ACTIVE</div>
                     </div>
                     <div class="mockup-content">
                         <!-- Use generated phoebe model picture -->
                         <img src="static/phoebe0.png" alt="Phoebe Model Mascot" class="phoebe-model-img">
-                        <div style="font-family: 'VT323', monospace; font-size: 24px; color: var(--primary-pink); letter-spacing: 1px;">
+                        <div style="font-family: 'VT323', monospace; font-size: 24px; color: var(--primary-pink); letter-spacing: 1px;" class="i18n-mockup-status">
                             STATUS: WAITING URL...
                         </div>
                     </div>
@@ -627,8 +634,8 @@
         <!-- 💎 FEATURES SECTION -->
         <section class="features" id="features">
             <div class="section-header">
-                <span class="section-tag">คุณสมบัติระบบ</span>
-                <h2 class="section-title">ฟีเจอร์เด่นระดับโปรแกรมดาวน์โหลดระดับโลก</h2>
+                <span class="section-tag i18n-features-tag">คุณสมบัติระบบ</span>
+                <h2 class="section-title i18n-features-title">ฟีเจอร์เด่นระดับโปรแกรมดาวน์โหลดระดับโลก</h2>
             </div>
             
             <div class="features-grid">
@@ -637,8 +644,8 @@
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-music"></i>
                     </div>
-                    <h3 class="feature-title">แปลงไฟล์ MP3 บิตเรตสูง</h3>
-                    <p class="feature-desc">แปลงไฟล์เสียงได้รวดเร็วทันใจ เลือกบิตเรตได้ตามใจตั้งแต่ 128kbps, 192kbps จนถึงเสียงคมชัดระดับพรีเมียม 320kbps ด้วยแกนประมวลผล FFmpeg</p>
+                    <h3 class="feature-title i18n-feat1-title">แปลงไฟล์ MP3 บิตเรตสูง</h3>
+                    <p class="feature-desc i18n-feat1-desc">แปลงไฟล์เสียงได้รวดเร็วทันใจ เลือกบิตเรตได้ตามใจตั้งแต่ 128kbps, 192kbps จนถึงเสียงคมชัดระดับพรีเมียม 320kbps ด้วยแกนประมวลผล FFmpeg</p>
                 </div>
                 
                 <!-- Card 2 -->
@@ -646,8 +653,8 @@
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-cookie-bite"></i>
                     </div>
-                    <h3 class="feature-title">แก้ทางบล็อกอัจฉริยะ</h3>
-                    <p class="feature-desc">ระบบ Browser Cookies Fallback ตรวจหาและดึงคุกกี้สิทธิ์การเข้าชมจากเบราว์เซอร์หลัก (Chrome, Edge, Firefox, Opera) ป้องกันการถูกปฏิเสธดาวน์โหลดจากบอตได้อย่างมั่นใจ</p>
+                    <h3 class="feature-title i18n-feat2-title">แก้ทางบล็อกอัจฉริยะ</h3>
+                    <p class="feature-desc i18n-feat2-desc">ระบบ Browser Cookies Fallback ตรวจหาและดึงคุกกี้สิทธิ์การเข้าชมจากเบราว์เซอร์หลัก (Chrome, Edge, Firefox, Opera) ป้องกันการถูกปฏิเสธดาวน์โหลดจากบอตได้อย่างมั่นใจ</p>
                 </div>
                 
                 <!-- Card 3 -->
@@ -655,8 +662,8 @@
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-circle-notch"></i>
                     </div>
-                    <h3 class="feature-title">ติดตามสถานะแบบเรียลไทม์</h3>
-                    <p class="feature-desc">ด้วยระบบ Server-Sent Events (SSE) หน้าจอจะแสดงอัตราความเร็ว (Speed), แถบหลอดเปอร์เซ็นต์โหลด (Progress Bar), และเวลาที่เหลือ (ETA) แบบเรียลไทม์เสถียร 100%</p>
+                    <h3 class="feature-title i18n-feat3-title">ติดตามสถานะแบบเรียลไทม์</h3>
+                    <p class="feature-desc i18n-feat3-desc">ด้วยระบบ Server-Sent Events (SSE) หน้าจอจะแสดงอัตราความเร็ว (Speed), แถบหลอดเปอร์เซ็นต์โหลด (Progress Bar), และเวลาที่เหลือ (ETA) แบบเรียลไทม์เสถียร 100%</p>
                 </div>
             </div>
         </section>
@@ -664,31 +671,31 @@
         <!-- 📋 PATCH NOTES SECTION -->
         <section class="changelog" id="changelog">
             <div class="section-header">
-                <span class="section-tag">บันทึกประวัติการพัฒนา</span>
-                <h2 class="section-title">แพทช์การอัปเดต (Update Patch Notes)</h2>
+                <span class="section-tag i18n-changelog-tag">บันทึกประวัติการพัฒนา</span>
+                <h2 class="section-title i18n-changelog-title">แพทช์การอัปเดต (Update Patch Notes)</h2>
             </div>
             
             <div class="changelog-card">
                 <div class="changelog-meta">
                     <span class="version-badge">PATCH v2.1.0</span>
-                    <span class="release-date">ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026</span>
+                    <span class="release-date i18n-release-date">ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026</span>
                 </div>
                 
                 <div class="changelog-group">
-                    <h4 class="changelog-group-title"><i class="fa-solid fa-circle-plus"></i> ฟีเจอร์และระบบใหม่ (New Features)</h4>
+                    <h4 class="changelog-group-title i18n-patch-new-title"><i class="fa-solid fa-circle-plus"></i> ฟีเจอร์และระบบใหม่ (New Features)</h4>
                     <ul class="changelog-list">
-                        <li>**Single-Page UI Consolidation**: ยุบหน้ารายละเอียดการทำงาน มารวมกับหน้าต่างค้นหาหลักให้เสร็จสรรพในหน้าจอเดียว ไหลลื่น ไม่โหลดเปลี่ยนหน้าจอให้กวนใจ</li>
-                        <li>**Browser Cookies Fallback Integration**: ค้นหาโฟลเดอร์เก็บคุกกี้เบราว์เซอร์อัตโนมัติบนคอมพิวเตอร์ และทำระบบสลับทำงานเมื่อดาวน์โหลดวิดีโอบางประเภทติดขัด</li>
-                        <li>**Phoebe Visual Identity Addition**: นำเข้าและประดับชุดตัวแสดงผลสัญลักษ์ Phoebe (โมเดลการ์ตูน phoebe0/1/2) สร้างอรรถรสภาพสไตล์อนิเมะเรโทร</li>
+                        <li class="i18n-patch-new-li1">**Single-Page UI Consolidation**: ยุบหน้ารายละเอียดการทำงาน มารวมกับหน้าต่างค้นหาหลักให้เสร็จสรรพในหน้าจอเดียว ไหลลื่น ไม่โหลดเปลี่ยนหน้าจอให้กวนใจ</li>
+                        <li class="i18n-patch-new-li2">**Browser Cookies Fallback Integration**: ค้นหาโฟลเดอร์เก็บคุกกี้เบราว์เซอร์อัตโนมัติบนคอมพิวเตอร์ และทำระบบสลับทำงานเมื่อดาวน์โหลดวิดีโอบางประเภทติดขัด</li>
+                        <li class="i18n-patch-new-li3">**Phoebe Visual Identity Addition**: นำเข้าและประดับชุดตัวแสดงผลสัญลักษ์ Phoebe (โมเดลการ์ตูน phoebe0/1/2) สร้างอรรถรสภาพสไตล์อนิเมะเรโทร</li>
                     </ul>
                 </div>
                 
                 <div class="changelog-group">
-                    <h4 class="changelog-group-title"><i class="fa-solid fa-wrench"></i> การปรับปรุงประสิทธิภาพและแก้ไขบั๊ก (Improvements & Bug Fixes)</h4>
+                    <h4 class="changelog-group-title i18n-patch-fix-title"><i class="fa-solid fa-wrench"></i> การปรับปรุงประสิทธิภาพและแก้ไขบั๊ก (Improvements & Bug Fixes)</h4>
                     <ul class="changelog-list">
-                        <li>**Windows Shell Registry Integration**: ปรับเปลี่ยนพาธบันทึกไฟล์ดาวน์โหลดเริ่มต้น ให้ตรวจสอบจากที่อยู่โฟลเดอร์เซฟจริงผ่าน Windows System Explorer Registry</li>
-                        <li>**Code Cleanup**: ถอดระบบ GUI แบบ Native Python (`gui_app.py`, `create_logo.py`) ออก เพื่อลดขนาดตัวแอปหลังคอมไพล์ลงกว่า 40%</li>
-                        <li>**Local Logging System**: เพิ่มตัวเก็บประวัติเออร์เรอร์ลงไฟล์ `app.log` ภายในเครื่อง คลีนและตรวจสอบจุดติดขัดได้ทันที</li>
+                        <li class="i18n-patch-fix-li1">**Windows Shell Registry Integration**: ปรับเปลี่ยนพาธบันทึกไฟล์ดาวน์โหลดเริ่มต้น ให้ตรวจสอบจากที่อยู่โฟลเดอร์เซฟจริงผ่าน Windows System Explorer Registry</li>
+                        <li class="i18n-patch-fix-li2">**Code Cleanup**: ถอดระบบ GUI แบบ Native Python (`gui_app.py`, `create_logo.py`) ออก เพื่อลดขนาดตัวแอปหลังคอมไพล์ลงกว่า 40%</li>
+                        <li class="i18n-patch-fix-li3">**Local Logging System**: เพิ่มตัวเก็บประวัติเออร์เรอร์ลงไฟล์ `app.log` ภายในเครื่อง คลีนและตรวจสอบจุดติดขัดได้ทันที</li>
                     </ul>
                 </div>
             </div>
@@ -698,14 +705,14 @@
         <section class="changelog" id="disclaimer" style="margin-top: 0; padding-top: 20px;">
             <div class="changelog-card" style="border-color: rgba(255, 0, 127, 0.35); box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);">
                 <div class="changelog-group">
-                    <h4 class="changelog-group-title" style="color: var(--primary-pink);">
+                    <h4 class="changelog-group-title i18n-disclaimer-title" style="color: var(--primary-pink);">
                         <i class="fa-solid fa-triangle-exclamation"></i> ข้อตกลงการใช้งานและคำเตือนทางกฎหมาย (Disclaimer)
                     </h4>
                     <ul class="changelog-list" style="margin-top: 15px;">
-                        <li><strong>เพื่อการใช้งานส่วนตัวเท่านั้น (Personal Use Only):</strong> ซอฟต์แวร์นี้สร้างขึ้นเพื่อวัตถุประสงค์ในการศึกษา การค้นคว้าวิจัย และการทำสำเนาสำรองข้อมูลมัลติมีเดียส่วนบุคคล (Personal Backup) เท่านั้น ห้ามนำไปใช้เพื่อแสวงหาผลประโยชน์ทางการค้าหรือธุรกิจโดยเด็ดขาด</li>
-                        <li><strong>การเคารพสิทธิ์ในทรัพย์สินทางปัญญา (Copyright Respect):</strong> ผู้ใช้งานจะต้องรับผิดชอบต่อกฎหมายลิขสิทธิ์ด้วยตนเอง โปรดดาวน์โหลดเฉพาะวิดีโอหรือไฟล์เสียงที่ได้รับสิทธิ์ตามกฎหมาย หรือได้รับอนุญาตจากเจ้าของลิขสิทธิ์อย่างเป็นทางการเท่านั้น และห้ามนำไฟล์ที่ดาวน์โหลดไปแจกจ่ายสู่สาธารณะโดยไม่ได้รับสิทธิ์</li>
-                        <li><strong>ข้อตกลงการใช้บริการแพลตฟอร์ม (Terms of Service):</strong> การดาวน์โหลดไฟล์จาก YouTube และ Spotify อาจขัดต่อข้อตกลงการใช้งาน (Terms of Service) ของทางแพลตฟอร์มนั้นๆ ผู้ใช้งานยอมรับและรับทราบถึงข้อกำหนดและความเสี่ยงในส่วนนี้ด้วยตนเอง</li>
-                        <li><strong>การปฏิเสธความรับผิดชอบ (No Liability):</strong> ผู้พัฒนาโปรแกรมจะไม่รับผิดชอบต่อการละเมิดกฎหมาย การดำเนินคดีทางลิขสิทธิ์ หรือความเสียหายใดๆ ทั้งสิ้นที่เกิดจากการใช้งานโปรแกรมนี้ที่ผิดวัตถุประสงค์ของผู้ใช้ปลายทาง</li>
+                        <li class="i18n-disc-li1"><strong>เพื่อการใช้งานส่วนตัวเท่านั้น (Personal Use Only):</strong> ซอฟต์แวร์นี้สร้างขึ้นเพื่อวัตถุประสงค์ในการศึกษา การค้นคว้าวิจัย และการทำสำเนาสำรองข้อมูลมัลติมีเดียส่วนบุคคล (Personal Backup) เท่านั้น ห้ามนำไปใช้เพื่อแสวงหาผลประโยชน์ทางการค้าหรือธุรกิจโดยเด็ดขาด</li>
+                        <li class="i18n-disc-li2"><strong>การเคารพสิทธิ์ในทรัพย์สินทางปัญญา (Copyright Respect):</strong> ผู้ใช้งานจะต้องรับผิดชอบต่อกฎหมายลิขสิทธิ์ด้วยตนเอง โปรดดาวน์โหลดเฉพาะวิดีโอหรือไฟล์เสียงที่ได้รับสิทธิ์ตามกฎหมาย หรือได้รับอนุญาตจากเจ้าของลิขสิทธิ์อย่างเป็นทางการเท่านั้น และห้ามนำไฟล์ที่ดาวน์โหลดไปแจกจ่ายสู่สาธารณะโดยไม่ได้รับสิทธิ์</li>
+                        <li class="i18n-disc-li3"><strong>ข้อตกลงการใช้บริการแพลตฟอร์ม (Terms of Service):</strong> การดาวน์โหลดไฟล์จาก YouTube และ Spotify อาจขัดต่อข้อตกลงการใช้งาน (Terms of Service) ของทางแพลตฟอร์มนั้นๆ ผู้ใช้งานยอมรับและรับทราบถึงข้อกำหนดและความเสี่ยงในส่วนนี้ด้วยตนเอง</li>
+                        <li class="i18n-disc-li4"><strong>การปฏิเสธความรับผิดชอบ (No Liability):</strong> ผู้พัฒนาโปรแกรมจะไม่รับผิดชอบต่อการละเมิดกฎหมาย การดำเนินคดีทางลิขสิทธิ์ หรือความเสียหายใดๆ ทั้งสิ้นที่เกิดจากการใช้งานโปรแกรมนี้ที่ผิดวัตถุประสงค์ของผู้ใช้ปลายทาง</li>
                     </ul>
                 </div>
             </div>
@@ -716,16 +723,161 @@
     <footer>
         <div class="footer-logo">PHOEBE DOWNLOADER PROJECT</div>
         <ul class="footer-links">
-            <li><a href="#features">ฟีเจอร์เด่น</a></li>
-            <li><a href="#changelog">ประวัติแพทช์</a></li>
-            <li><a href="#disclaimer">ข้อตกลงและคำเตือน</a></li>
+            <li><a href="#features" class="i18n-footer-feat">ฟีเจอร์เด่น</a></li>
+            <li><a href="#changelog" class="i18n-footer-change">ประวัติแพทช์</a></li>
+            <li><a href="#disclaimer" class="i18n-footer-disc">ข้อตกลงและคำเตือน</a></li>
             <li><a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" target="_blank">Repository บน GitHub</a></li>
         </ul>
         <div class="copyright">
-            <p>© 2026 Developed under MIT License. All assets designed for premium retro pixel aesthetic.</p>
-            <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">Free code signing is generously provided by the <a href="https://signpath.org" target="_blank" style="color: var(--primary-cyan); text-decoration: underline;">SignPath Foundation</a>.</p>
+            <p class="i18n-footer-copy">© 2026 Developed under MIT License. All assets designed for premium retro pixel aesthetic.</p>
+            <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);" class="i18n-footer-signpath">Free code signing is generously provided by the <a href="https://signpath.org" target="_blank" style="color: var(--primary-cyan); text-decoration: underline;">SignPath Foundation</a>.</p>
         </div>
     </footer>
 
+    <!-- i18n Javascript translation script -->
+    <script>
+        const landingLocales = {
+            th: {
+                "i18n-features": "ฟีเจอร์",
+                "i18n-changelog": "บันทึกแพทช์",
+                "i18n-badge": "Version 2.1.0 Released",
+                "i18n-title": "แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ HD</span> สไตล์ Retro-Pixel",
+                "i18n-desc": "ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียวด้วยความเร็วสูงสุด ทำงานเป็น Local Web Server เบาและเร็วเป็นพิเศษ พร้อมสตรีมมิ่งติดตามสถานะสดแบบวินาทีต่อวินาที (Real-time Progress Tracker)",
+                "i18n-btn-download": '<i class="fa-brands fa-windows"></i> ดาวน์โหลดสำหรับ Windows (.exe)',
+                "i18n-btn-secondary": '<i class="fa-brands fa-apple"></i> macOS / Linux Guide',
+                "i18n-mockup-title": "PHOEBE ENGINE ACTIVE",
+                "i18n-mockup-status": "STATUS: WAITING URL...",
+                "i18n-features-tag": "คุณสมบัติระบบ",
+                "i18n-features-title": "ฟีเจอร์เด่นระดับโปรแกรมดาวน์โหลดระดับโลก",
+                "i18n-feat1-title": "แปลงไฟล์ MP3 บิตเรตสูง",
+                "i18n-feat1-desc": "แปลงไฟล์เสียงได้รวดเร็วทันใจ เลือกบิตเรตได้ตามใจตั้งแต่ 128kbps, 192kbps จนถึงเสียงคมชัดระดับพรีเมียม 320kbps ด้วยแกนประมวลผล FFmpeg",
+                "i18n-feat2-title": "แก้ทางบล็อกอัจฉริยะ",
+                "i18n-feat2-desc": "ระบบ Browser Cookies Fallback ตรวจหาและดึงคุกกี้สิทธิ์การเข้าชมจากเบราว์เซอร์หลัก (Chrome, Edge, Firefox, Opera) ป้องกันการถูกปฏิเสธดาวน์โหลดจากบอตได้อย่างมั่นใจ",
+                "i18n-feat3-title": "ติดตามสถานะแบบเรียลไทม์",
+                "i18n-feat3-desc": "ด้วยระบบ Server-Sent Events (SSE) หน้าจอจะแสดงอัตราความเร็ว (Speed), แถบหลอดเปอร์เซ็นต์โหลด (Progress Bar), และเวลาที่เหลือ (ETA) แบบเรียลไทม์เสถียร 100%",
+                "i18n-changelog-tag": "บันทึกประวัติการพัฒนา",
+                "i18n-changelog-title": "แพทช์การอัปเดต (Update Patch Notes)",
+                "i18n-release-date": "ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026",
+                "i18n-patch-new-title": '<i class="fa-solid fa-circle-plus"></i> ฟีเจอร์และระบบใหม่ (New Features)',
+                "i18n-patch-new-li1": "**Single-Page UI Consolidation**: ยุบหน้ารายละเอียดการทำงาน มารวมกับหน้าต่างค้นหาหลักให้เสร็จสรรพในหน้าจอเดียว ไหลลื่น ไม่โหลดเปลี่ยนหน้าจอให้กวนใจ",
+                "i18n-patch-new-li2": "**Browser Cookies Fallback Integration**: ค้นหาโฟลเดอร์เก็บคุกกี้เบราว์เซอร์อัตโนมัติบนคอมพิวเตอร์ และทำระบบสลับทำงานเมื่อดาวน์โหลดวิดีโอบางประเภทติดขัด",
+                "i18n-patch-new-li3": "**Phoebe Visual Identity Addition**: นำเข้าและประดับชุดตัวแสดงผลสัญลักษ์ Phoebe (โมเดลการ์ตูน phoebe0/1/2) สร้างอรรถรสภาพสไตล์อนิเมะเรโทร",
+                "i18n-patch-fix-title": '<i class="fa-solid fa-wrench"></i> การปรับปรุงประสิทธิภาพและแก้ไขบั๊ก (Improvements & Bug Fixes)',
+                "i18n-patch-fix-li1": "**Windows Shell Registry Integration**: ปรับเปลี่ยนพาธบันทึกไฟล์ดาวน์โหลดเริ่มต้น ให้ตรวจสอบจากที่อยู่โฟลเดอร์เซฟจริงผ่าน Windows System Explorer Registry",
+                "i18n-patch-fix-li2": "**Code Cleanup**: ถอดระบบ GUI แบบ Native Python (`gui_app.py`, `create_logo.py`) ออก เพื่อลดขนาดตัวแอปหลังคอมไพล์ลงกว่า 40%",
+                "i18n-patch-fix-li3": "**Local Logging System**: เพิ่มตัวเก็บประวัติเออร์เรอร์ลงไฟล์ `app.log` ภายในเครื่อง คลีนและตรวจสอบจุดติดขัดได้ทันที",
+                "i18n-disclaimer-title": '<i class="fa-solid fa-triangle-exclamation"></i> ข้อตกลงการใช้งานและคำเตือนทางกฎหมาย (Disclaimer)',
+                "i18n-disc-li1": "<strong>เพื่อการใช้งานส่วนตัวเท่านั้น (Personal Use Only):</strong> ซอฟต์แวร์นี้สร้างขึ้นเพื่อวัตถุประสงค์ในการศึกษา การค้นคว้าวิจัย และการทำสำเนาสำรองข้อมูลมัลติมีเดียส่วนบุคคล (Personal Backup) เท่านั้น ห้ามนำไปใช้เพื่อแสวงหาผลประโยชน์ทางการค้าหรือธุรกิจโดยเด็ดขาด",
+                "i18n-disc-li2": "<strong>การเคารพสิทธิ์ในทรัพย์สินทางปัญญา (Copyright Respect):</strong> ผู้ใช้งานจะต้องรับผิดชอบต่อกฎหมายลิขสิทธิ์ด้วยตนเอง โปรดดาวน์โหลดเฉพาะวิดีโอหรือไฟล์เสียงที่ได้รับสิทธิ์ตามกฎหมาย หรือได้รับอนุญาตจากเจ้าของลิขสิทธิ์อย่างเป็นทางการเท่านั้น และห้ามนำไฟล์ที่ดาวน์โหลดไปแจกจ่ายสู่สาธารณะโดยไม่ได้รับสิทธิ์",
+                "i18n-disc-li3": "<strong>ข้อตกลงการใช้บริการแพลตฟอร์ม (Terms of Service):</strong> การดาวน์โหลดไฟล์จาก YouTube และ Spotify อาจขัดต่อข้อตกลงการใช้งาน (Terms of Service) ของทางแพลตฟอร์มนั้นๆ ผู้ใช้งานยอมรับและรับทราบถึงข้อกำหนดและความเสี่ยงในส่วนนี้ด้วยตนเอง",
+                "i18n-disc-li4": "<strong>การปฏิเสธความรับผิดชอบ (No Liability):</strong> ผู้พัฒนาโปรแกรมจะไม่รับผิดชอบต่อการละเมิดกฎหมาย การดำเนินคดีทางลิขสิทธิ์ หรือความเสียหายใดๆ ทั้งสิ้นที่เกิดจากการใช้งานโปรแกรมนี้ที่ผิดวัตถุประสงค์ของผู้ใช้ปลายทาง",
+                "i18n-footer-feat": "ฟีเจอร์เด่น",
+                "i18n-footer-change": "ประวัติแพทช์",
+                "i18n-footer-disc": "ข้อตกลงและคำเตือน",
+                "i18n-footer-copy": "© 2026 Developed under MIT License. All assets designed for premium retro pixel aesthetic.",
+                "i18n-footer-signpath": 'Free code signing is generously provided by the <a href="https://signpath.org" target="_blank" style="color: var(--primary-cyan); text-decoration: underline;">SignPath Foundation</a>.'
+            },
+            en: {
+                "i18n-features": "Features",
+                "i18n-changelog": "Changelog",
+                "i18n-badge": "Version 2.1.0 Released",
+                "i18n-title": "Retro-Pixel Style <span>MP3 & HD Video</span> Downloader",
+                "i18n-desc": "Download, convert, and archive media files in one click at maximum speed. Runs as a lightweight local web server with a real-time progress tracker and cute retro interface.",
+                "i18n-btn-download": '<i class="fa-brands fa-windows"></i> Download for Windows (.exe)',
+                "i18n-btn-secondary": '<i class="fa-brands fa-apple"></i> macOS / Linux Guide',
+                "i18n-mockup-title": "PHOEBE ENGINE ACTIVE",
+                "i18n-mockup-status": "STATUS: WAITING URL...",
+                "i18n-features-tag": "System Features",
+                "i18n-features-title": "World-Class Media Downloader Features",
+                "i18n-feat1-title": "High Bitrate MP3 Conversion",
+                "i18n-feat1-desc": "Convert audio files quickly and select custom bitrates from 128kbps, 192kbps up to premium 320kbps using FFmpeg processing.",
+                "i18n-feat2-title": "Smart Anti-Blocking",
+                "i18n-feat2-desc": "Browser Cookies Fallback system automatically extracts cookies from major browsers (Chrome, Edge, Firefox, Opera) to bypass bot protection.",
+                "i18n-feat3-title": "Real-time Progress Tracker",
+                "i18n-feat3-desc": "Powered by Server-Sent Events (SSE), displays speed, progress percentage bar, and ETA in real-time with 100% stability.",
+                "i18n-changelog-tag": "Development Log",
+                "i18n-changelog-title": "Update Patch Notes",
+                "i18n-release-date": "Released on: July 2026",
+                "i18n-patch-new-title": '<i class="fa-solid fa-circle-plus"></i> New Features',
+                "i18n-patch-new-li1": "**Single-Page UI Consolidation**: Merged all operation details into the main search panel on a single fluid interface.",
+                "i18n-patch-new-li2": "**Browser Cookies Fallback Integration**: Scans browser cookies automatically and falls back to them if downloads are blocked.",
+                "i18n-patch-new-li3": "**Phoebe Visual Identity Addition**: Added Phoebe mascot visual layouts (phoebe0/1/2 cartoon assets) for retro anime theme.",
+                "i18n-patch-fix-title": '<i class="fa-solid fa-wrench"></i> Improvements & Bug Fixes',
+                "i18n-patch-fix-li1": "**Windows Shell Registry Integration**: Customizes default file save path dynamically from Windows System Registry.",
+                "i18n-patch-fix-li2": "**Code Cleanup**: Removed Native Python GUI systems (`gui_app.py`, `create_logo.py`) to reduce compile size by 40%.",
+                "i18n-patch-fix-li3": "**Local Logging System**: Logs system events locally in `app.log` for easy troubleshooting.",
+                "i18n-disclaimer-title": '<i class="fa-solid fa-triangle-exclamation"></i> Terms of Use & Legal Disclaimer',
+                "i18n-disc-li1": "<strong>Personal Use Only:</strong> This software is built solely for educational, research, and personal archiving/backup purposes. Using this software for commercial purposes or business monetization is strictly prohibited.",
+                "i18n-disc-li2": "<strong>Respect for Intellectual Property:</strong> Users are solely responsible for copyright compliance. Download only authorized files and do not distribute files without proper permission.",
+                "i18n-disc-li3": "<strong>Platform Terms of Service:</strong> Downloading media from external platforms may violate their Terms of Service. Users assume all associated risks.",
+                "i18n-disc-li4": "<strong>Disclaimer of Liability:</strong> Developers shall not be held liable for copyright infringement or damages arising from misuse of this tool.",
+                "i18n-footer-feat": "Features",
+                "i18n-footer-change": "Patch History",
+                "i18n-footer-disc": "Terms & Disclaimer",
+                "i18n-footer-copy": "© 2026 Developed under MIT License. All assets designed for premium retro pixel aesthetic.",
+                "i18n-footer-signpath": 'Free code signing is generously provided by the <a href="https://signpath.org" target="_blank" style="color: var(--primary-cyan); text-decoration: underline;">SignPath Foundation</a>.'
+            },
+            lo: {
+                "i18n-features": "ຟີເຈີ",
+                "i18n-changelog": "ບັນທຶກແພດຊ໌",
+                "i18n-badge": "Version 2.1.0 Released",
+                "i18n-title": "ແອັບດາວໂຫລດເພງ <span>MP3 & ວິດີໂອ HD</span> ສະໄຕລ໌ Retro-Pixel",
+                "i18n-desc": "ດາວໂຫລດ, ແປງໄຟລ໌ ແລະ ເກັບກຳຂໍ້ມູນສື່ໄດ້ໃນຄລິກດຽວດ້ວຍຄວາມໄວສູງສຸດ. ເຮັດວຽກເປັນ Local Web Server ນ້ຳໜັກເບົາ ແລະ ໄວເປັນພິເສດ ພ້ອມລະບົບຕິດຕາມສະຖານະສົດ.",
+                "i18n-btn-download": '<i class="fa-brands fa-windows"></i> ດາວໂຫລດສຳລັບ Windows (.exe)',
+                "i18n-btn-secondary": '<i class="fa-brands fa-apple"></i> macOS / Linux Guide',
+                "i18n-mockup-title": "PHOEBE ENGINE ACTIVE",
+                "i18n-mockup-status": "STATUS: WAITING URL...",
+                "i18n-features-tag": "ຄຸນສົມບັດລະບົບ",
+                "i18n-features-title": "ຟີເຈີເດັ່ນລະດັບໂປຣແກຣມດາວໂຫລດລະດັບໂລກ",
+                "i18n-feat1-title": "ແປງໄຟລ໌ MP3 ບິດເຣດສູງ",
+                "i18n-feat1-desc": "ແປງໄຟລ໌ສຽງໄດ້ໄວທັນໃຈ ເລືອກບິດເຣດໄດ້ຕາມໃຈຕັ້ງແຕ່ 128kbps, 192kbps ຈົນຮອດສຽງຄົມຊັດລະດັບພຣີມຽມ 320kbps ດ້ວຍແກນປະມວນຜົນ FFmpeg",
+                "i18n-feat2-title": "ແກ້ທາງບລັອກອັດສະລິຍະ",
+                "i18n-feat2-desc": "ລະບົບ Browser Cookies Fallback ກວດຫາ ແລະ ດຶງຄຸກກີ້ສິດການເຂົ້າຊົມຈາກເບຣົາເຊີຫຼັກ (Chrome, Edge, Firefox, Opera) ປ້ອງກັນການຖືກປະຕິເສດດາວໂຫລດໄດ້ຢ່າງໝັ້ນໃຈ",
+                "i18n-feat3-title": "ຕິດຕາມສະຖານະແບບລຽວໄທມ໌",
+                "i18n-feat3-desc": "ດ້ວຍລະບົບ Server-Sent Events (SSE) ໜ້າຈໍຈະສະແດງອັດຕາຄວາມໄວ (Speed), ແຖບເປີເຊັນໂຫລດ (Progress Bar), ແລະ ເວລາທີ່ເຫຼືອ (ETA) ແບບລຽວໄທມ໌ຄົງທີ່ 100%",
+                "i18n-changelog-tag": "ບັນທຶກປະຫວັດການພັດທະນາ",
+                "i18n-changelog-title": "ແພດຊ໌ການອັບເດດ (Update Patch Notes)",
+                "i18n-release-date": "ປ່ອຍອັບເດດເມື່ອ: ກໍລະກົດ 2026",
+                "i18n-patch-new-title": '<i class="fa-solid fa-circle-plus"></i> ຟີເຈີ ແລະ ລະບົບໃໝ່',
+                "i18n-patch-new-li1": "**Single-Page UI Consolidation**: ຍຸບໜ້າລາຍລະອຽດການເຮັດວຽກ ມາລວມກັບໜ້າຕ່າງຄົ້ນຫາຫຼັກໃຫ້ສຳເລັດໃນໜ້າຈໍດຽວ",
+                "i18n-patch-new-li2": "**Browser Cookies Fallback Integration**: ຄົ້ນຫາໂຟນເດີເກັບຄຸກກີ້ເບຣົາເຊີອັດຕະໂນມັດ ແລະ ສະຫຼັບເຮັດວຽກເມື່ອດາວໂຫລດຕິດຂັດ",
+                "i18n-patch-new-li3": "**Phoebe Visual Identity Addition**: ນຳເຂົ້າ ແລະ ປະດັບຊຸດຕົວສະແດງຜົນ Phoebe (ໂມເດວການກາຕູນ phoebe0/1/2)",
+                "i18n-patch-fix-title": '<i class="fa-solid fa-wrench"></i> ການປັບປຸງປະສິດທິພາບ ແລະ ແກ້ໄຂບັກ',
+                "i18n-patch-fix-li1": "**Windows Shell Registry Integration**: ປັບປ່ຽນໂຟນເດີບັນທຶກໄຟລ໌ເລີ່ມຕົ້ນ ໃຫ້ກວດສອບຈາກ Windows System Registry",
+                "i18n-patch-fix-li2": "**Code Cleanup**: ຖອດລະບົບ GUI ແບບ Native Python ອອກ ເພື່ອຫຼຸດຂະໜາດຕົວແອັບລົງ 40%",
+                "i18n-patch-fix-li3": "**Local Logging System**: ເກັບບັນທຶກປະຫວັດເອີເຣີລົງໄຟລ໌ `app.log` ພາຍໃນເຄື່ອງ",
+                "i18n-disclaimer-title": '<i class="fa-solid fa-triangle-exclamation"></i> ຂໍ້ຕົກລົງການນຳໃຊ້ ແລະ ຄຳເຕືອນທາງກົດໝາຍ',
+                "i18n-disc-li1": "<strong>ເພື່ອການນຳໃຊ້ສ່ວນຕົວເທົ່ານັ້ນ (Personal Use Only):</strong> ຊອບແວນີ້ຖືກສ້າງຂຶ້ນເພື່ອຈຸດປະສົງໃນການສຶກສາ ແລະ ສຳຮອງຂໍ້ມູນສ່ວນບຸກຄົນເທົ່ານັ້ນ ຫ້າມນຳໄປໃຊ້ເພື່ອການຄ້າ",
+                "i18n-disc-li2": "<strong>ການເຄົາລົບສິດໃນຊັບສິນທາງປັນຍາ:</strong> ຜູ້ໃຊ້ງານຈະຕ້ອງຮັບຜິດຊອບຕໍ່ກົດໝາຍລິຂະສິດດ້ວຍຕົນເອງ ດາວໂຫລດສະເພาະໄຟລ໌ທີ່ໄດ້ຮັບອະນຸຍາດເທົ່ານັ້ນ",
+                "i18n-disc-li3": "<strong>ຂໍ້ຕົກລົງການໃຊ້ບໍລິການແພລດຟອມ:</strong> ການດາວໂຫລດໄຟລ໌ຈາກ YouTube ແລະ Spotify ອາດຂັດຕໍ່ຂໍ້ຕົກລົງການໃຊ້ບໍລິການຂອງແພລດຟອມນັ້ນໆ",
+                "i18n-disc-li4": "<strong>ການປະຕິເສດຄວາມຮັບຜິດຊອບ:</strong> ຜູ້ພັດທະນາໂປຣແກຣມຈະບໍ່ຮັບຜິດຊອບຕໍ່ການລະເມີດກົດໝາຍ ຫຼື ຄວາມເສຍຫາຍໃດໆ ຈາກການນຳໃຊ້ທີ່ຜິດຈຸດປະສົງ",
+                "i18n-footer-feat": "ຟີເຈີເດັ່ນ",
+                "i18n-footer-change": "ປະຫວັດແພດຊ໌",
+                "i18n-footer-disc": "ຂໍ້ຕົກລົງ ແລະ ຄຳເຕືອນ",
+                "i18n-footer-copy": "© 2026 Developed under MIT License. All assets designed for premium retro pixel aesthetic.",
+                "i18n-footer-signpath": 'Free code signing is generously provided by the <a href="https://signpath.org" target="_blank" style="color: var(--primary-cyan); text-decoration: underline;">SignPath Foundation</a>.'
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('phoebe_landing_lang', lang);
+            document.getElementById('landingLangSelector').value = lang;
+            
+            // Loop through all translation keys
+            const keys = Object.keys(landingLocales[lang]);
+            keys.forEach(key => {
+                const els = document.querySelectorAll('.' + key);
+                els.forEach(el => {
+                    el.innerHTML = landingLocales[lang][key];
+                });
+            });
+        }
+
+        // Initialize language
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('phoebe_landing_lang') || 'th';
+            changeLanguage(savedLang);
+        });
+    </script>
 </body>
 </html>
