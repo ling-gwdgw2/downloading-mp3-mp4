@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phoebe Video & Audio Downloader - ดาวน์โหลดโปรแกรมสำหรับ Windows, Mac & Linux</title>
-    <!-- Google Fonts: Outfit & VT323 for Retro-Future Premium Aesthetic -->
+    <!-- Google Fonts: Plus Jakarta Sans & Quicksand to match the App style -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Quicksand:wght@500;600;700&family=VT323&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons for visual enhancement -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         /* --------------------------------------------------
-           🎨 CORE CSS CONFIGURATION & DESIGN SYSTEM (Dark Future Theme)
+           🎨 CORE CSS CONFIGURATION & DESIGN SYSTEM (Phoebe Gold Theme)
            -------------------------------------------------- */
         :root {
-            --bg-color: #0b0c10;
-            --bg-card: rgba(22, 24, 37, 0.7);
-            --border-glow: rgba(0, 242, 254, 0.15);
-            --primary-cyan: #00f2fe;
-            --primary-pink: #ff007f;
-            --text-main: #f5f6fa;
-            --text-muted: #a0a5c0;
-            --neon-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
-            --neon-pink-shadow: 0 0 15px rgba(ff, 0, 127, 0.4);
+            --bg-color: #fefcf3; /* Warm vanilla cream background */
+            --bg-card: rgba(255, 255, 255, 0.85); /* Milky white semi-transparent card */
+            --border-glow: rgba(234, 179, 8, 0.18); /* Warm yellow border */
+            --primary-cyan: #eab308; /* Phoebe golden yellow (#eab308) */
+            --primary-pink: #f59e0b; /* Phoebe golden orange (#f59e0b) */
+            --text-main: #334155; /* Slate-700 dark text */
+            --text-muted: #64748b; /* Slate-500 muted text */
+            --neon-shadow: 0 4px 20px rgba(234, 179, 8, 0.15); /* Warm shadow */
+            --neon-pink-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); /* Warm orange shadow */
             --glass-backdrop: blur(12px);
         }
 
@@ -35,7 +35,7 @@
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Quicksand', 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             overflow-x: hidden;
@@ -48,12 +48,12 @@
             width: 500px;
             height: 500px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 242, 254, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+            background: radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
             z-index: -1;
             pointer-events: none;
         }
         .glow-blob-1 { top: -100px; right: -100px; }
-        .glow-blob-2 { bottom: 10%; left: -200px; background: radial-gradient(circle, rgba(255, 0, 127, 0.06) 0%, rgba(0, 0, 0, 0) 70%); }
+        .glow-blob-2 { bottom: 10%; left: -200px; background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, rgba(0, 0, 0, 0) 70%); }
 
         /* --------------------------------------------------
            📌 NAVIGATION BAR
@@ -64,9 +64,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(11, 12, 16, 0.7);
+            background: rgba(254, 252, 243, 0.85);
             backdrop-filter: var(--glass-backdrop);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(234, 179, 8, 0.12);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -111,8 +111,8 @@
         }
 
         .github-nav-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(234, 179, 8, 0.06);
+            border: 1px solid rgba(234, 179, 8, 0.25);
             padding: 10px 20px;
             border-radius: 50px;
             color: var(--text-main) !important;
@@ -123,10 +123,10 @@
         }
 
         .github-nav-btn:hover {
-            background: var(--text-main) !important;
-            color: #0b0c10 !important;
-            border-color: var(--text-main);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            background: var(--primary-cyan) !important;
+            color: #422006 !important;
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
             transform: translateY(-2px);
         }
 
@@ -153,11 +153,11 @@
         .badge {
             align-self: flex-start;
             padding: 6px 16px;
-            background: rgba(0, 242, 254, 0.1);
-            border: 1px solid rgba(0, 242, 254, 0.3);
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
             border-radius: 50px;
             font-size: 14px;
-            color: var(--primary-cyan);
+            color: #a16207;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -169,6 +169,7 @@
             font-weight: 800;
             line-height: 1.15;
             letter-spacing: -1px;
+            color: #1e293b;
         }
 
         .hero-title span {
@@ -205,24 +206,24 @@
         }
 
         .btn-download {
-            background: linear-gradient(45deg, var(--primary-cyan), #00b8ff);
-            color: #0b0c10;
+            background: linear-gradient(45deg, var(--primary-cyan), var(--primary-pink));
+            color: #422006;
             box-shadow: var(--neon-shadow);
         }
 
         .btn-download:hover {
             transform: translateY(-4px);
-            box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+            box-shadow: 0 0 25px rgba(234, 179, 8, 0.45);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(234, 179, 8, 0.2);
             color: var(--text-main);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.95);
             transform: translateY(-2px);
         }
 
@@ -241,7 +242,7 @@
             border: 1px solid var(--border-glow);
             border-radius: 24px;
             padding: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), var(--neon-shadow);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), var(--neon-shadow);
             backdrop-filter: var(--glass-backdrop);
             position: relative;
             z-index: 10;
@@ -252,7 +253,7 @@
             justify-content: space-between;
             align-items: center;
             padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
             margin-bottom: 16px;
         }
 
@@ -265,7 +266,7 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.5);
         }
         .mockup-dot:nth-child(1) { background: #ff5f56; }
         .mockup-dot:nth-child(2) { background: #ffbd2e; }
@@ -280,8 +281,8 @@
 
         .mockup-content {
             border-radius: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(254, 252, 243, 0.6);
+            border: 1px solid rgba(234, 179, 8, 0.15);
             padding: 24px;
             text-align: center;
             position: relative;
