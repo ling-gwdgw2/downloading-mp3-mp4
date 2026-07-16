@@ -27,6 +27,7 @@ SetupIconFile=logo.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+LicenseFile=license_agreement.txt
 
 ; Enforce Windows 10 or newer (Since Python 3.9+ and modern yt-dlp drops Windows 7/8 support)
 MinVersion=10.0
