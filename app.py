@@ -378,6 +378,187 @@ def extract_missav(url):
         logging.error(f"MissAV extraction error: {e}", exc_info=True)
         return None, None
 
+def parse_spotify_playlist(url):
+    import base64
+    if 'nd=1' not in url:
+        if '?' in url:
+            url += '&nd=1'
+        else:
+            url += '?nd=1'
+            
+    playlist_id_match = re.search(r'/playlist/([a-zA-Z0-9]+)', url)
+    if not playlist_id_match:
+        raise Exception("Invalid Spotify playlist URL")
+    playlist_id = playlist_id_match.group(1)
+    
+    req = urllib.request.Request(url, headers={
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    })
+    
+    with urllib.request.urlopen(req, timeout=15) as response:
+        html = response.read().decode('utf-8')
+        
+    script_match = re.search(r'<script[^>]*id="initialState"[^>]*>([\s\S]*?)</script>', html)
+    if not script_match:
+        raise Exception("Failed to extract Spotify metadata - initialState not found")
+        
+    encoded_data = script_match.group(1).strip()
+    decoded_bytes = base64.b64decode(encoded_data)
+    data = json.loads(decoded_bytes.decode('utf-8'))
+    
+    playlist_key = f"spotify:playlist:{playlist_id}"
+    items_dict = data.get("entities", {}).get("items", {})
+    if playlist_key not in items_dict:
+        raise Exception("Playlist not found in Spotify metadata")
+        
+    playlist_data = items_dict[playlist_key]
+    playlist_name = playlist_data.get("name", "Spotify Playlist")
+    
+    images_items = playlist_data.get("images", {}).get("items", [])
+    playlist_thumbnail = ""
+    if images_items:
+        sources = images_items[0].get("sources", [])
+        if sources:
+            playlist_thumbnail = max(sources, key=lambda x: x.get("width", 0)).get("url", "")
+            
+    content = playlist_data.get("content", {})
+    items = content.get("items", [])
+    
+    playlist_videos = []
+    for idx, item in enumerate(items):
+        item_v2 = item.get("itemV2", {})
+        if not item_v2:
+            continue
+        track_data = item_v2.get("data", {})
+        if not track_data or track_data.get("__typename") != "Track":
+            continue
+            
+        track_name = track_data.get("name", "Unknown Track")
+        
+        artists_items = track_data.get("artists", {}).get("items", [])
+        artist_names = ", ".join([a.get("profile", {}).get("name", "") for a in artists_items if a.get("profile")])
+        if not artist_names:
+            artist_names = "Unknown Artist"
+            
+        album_name = track_data.get("albumOfTrack", {}).get("name", "Unknown Album")
+        
+        cover_sources = track_data.get("albumOfTrack", {}).get("coverArt", {}).get("sources", [])
+        cover_url = ""
+        if cover_sources:
+            cover_url = max(cover_sources, key=lambda x: x.get("width", 0)).get("url", "")
+            
+        duration_dict = track_data.get("duration", {})
+        duration_ms = 0
+        if isinstance(duration_dict, dict):
+            duration_ms = duration_dict.get("totalMilliseconds") or duration_dict.get("milliseconds") or 0
+        elif isinstance(duration_dict, (int, float)):
+            duration_ms = int(duration_dict)
+        duration_secs = duration_ms // 1000
+        
+        payload = {
+            'title': track_name,
+            'artist': artist_names,
+            'cover': cover_url
+        }
+        payload_str = json.dumps(payload)
+        encoded_payload = base64.b64encode(payload_str.encode('utf-8')).decode('utf-8')
+        virtual_url = f"spotify_track:{encoded_payload}"
+        
+        playlist_videos.append({
+            'index': idx,
+            'id': f"spotify_{idx}",
+            'title': f"{track_name} - {artist_names}",
+            'uploader': artist_names,
+            'duration': duration_secs,
+            'thumbnail': cover_url,
+            'url': virtual_url
+        })
+        
+    return {
+        'title': f"Spotify Playlist: {playlist_name}",
+        'thumbnail': playlist_thumbnail,
+        'duration': f"{len(playlist_videos)} items",
+        'uploader': "Spotify",
+        'resolutions': ['mp3', 'm4a', 'flac', 'wav'],
+        'url': url,
+        'is_playlist': True,
+        'playlist_videos': playlist_videos
+    }
+
+def parse_spotify_track(url):
+    import base64
+    if 'nd=1' not in url:
+        if '?' in url:
+            url += '&nd=1'
+        else:
+            url += '?nd=1'
+            
+    track_id_match = re.search(r'/track/([a-zA-Z0-9]+)', url)
+    if not track_id_match:
+        raise Exception("Invalid Spotify track URL")
+    track_id = track_id_match.group(1)
+    
+    req = urllib.request.Request(url, headers={
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    })
+    
+    with urllib.request.urlopen(req, timeout=15) as response:
+        html = response.read().decode('utf-8')
+        
+    script_match = re.search(r'<script[^>]*id="initialState"[^>]*>([\s\S]*?)</script>', html)
+    if not script_match:
+        raise Exception("Failed to extract Spotify metadata - initialState not found")
+        
+    encoded_data = script_match.group(1).strip()
+    decoded_bytes = base64.b64decode(encoded_data)
+    data = json.loads(decoded_bytes.decode('utf-8'))
+    
+    track_key = f"spotify:track:{track_id}"
+    items_dict = data.get("entities", {}).get("items", {})
+    if track_key not in items_dict:
+        raise Exception("Track not found in Spotify metadata")
+        
+    track_data = items_dict[track_key]
+    track_name = track_data.get("name", "Unknown Track")
+    
+    artists_items = track_data.get("artists", {}).get("items", [])
+    artist_names = ", ".join([a.get("profile", {}).get("name", "") for a in artists_items if a.get("profile")])
+    if not artist_names:
+        artist_names = "Unknown Artist"
+        
+    album_name = track_data.get("albumOfTrack", {}).get("name", "Unknown Album")
+    
+    cover_sources = track_data.get("albumOfTrack", {}).get("coverArt", {}).get("sources", [])
+    cover_url = ""
+    if cover_sources:
+        cover_url = max(cover_sources, key=lambda x: x.get("width", 0)).get("url", "")
+        
+    duration_dict = track_data.get("duration", {})
+    duration_ms = 0
+    if isinstance(duration_dict, dict):
+        duration_ms = duration_dict.get("totalMilliseconds") or duration_dict.get("milliseconds") or 0
+    elif isinstance(duration_dict, (int, float)):
+        duration_ms = int(duration_dict)
+    duration_secs = duration_ms // 1000
+    
+    payload = {
+        'title': track_name,
+        'artist': artist_names,
+        'cover': cover_url
+    }
+    payload_str = json.dumps(payload)
+    encoded_payload = base64.b64encode(payload_str.encode('utf-8')).decode('utf-8')
+    virtual_url = f"spotify_track:{encoded_payload}"
+    
+    return {
+        'title': f"{track_name} - {artist_names}",
+        'thumbnail': cover_url,
+        'duration': f"{duration_secs // 60}:{duration_secs % 60:02d}" if duration_secs > 0 else "",
+        'uploader': artist_names,
+        'resolutions': ['mp3', 'm4a', 'flac', 'wav'],
+        'url': virtual_url
+    }
+
 @app.route('/info', methods=['POST'])
 def get_info():
     url = request.form.get('url')
@@ -398,6 +579,13 @@ def get_info():
             })
 
         target_url = urls[0]
+        if 'spotify.com/playlist/' in target_url:
+            spotify_info = parse_spotify_playlist(target_url)
+            return jsonify(spotify_info)
+        elif 'spotify.com/track/' in target_url:
+            spotify_info = parse_spotify_track(target_url)
+            return jsonify(spotify_info)
+
         # Check if keyword search query
         if not target_url.startswith('http://') and not target_url.startswith('https://'):
             target_url = f"ytsearch1:{target_url}"
@@ -580,7 +768,9 @@ def embed_metadata_to_file(file_path, title, artist, thumbnail_url):
         cover_bytes = None
         if thumbnail_url:
             try:
-                req = urllib.request.Request(thumbnail_url, headers={'User-Agent': 'Mozilla/5.0'})
+                req = urllib.request.Request(thumbnail_url, headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                })
                 with urllib.request.urlopen(req, timeout=10) as response:
                     cover_bytes = response.read()
             except Exception as e:
@@ -646,10 +836,13 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
         # Check if first URL is a playlist
         is_playlist = False
         if len(urls) == 1:
-            ydl_opts_check = {'quiet': True, 'extract_flat': True, 'nocache': True}
-            check_info = extract_info_with_fallback(urls[0], ydl_opts_check)
-            if check_info.get('_type') == 'playlist':
-                is_playlist = True
+            if urls[0].startswith("spotify_track:"):
+                is_playlist = False
+            else:
+                ydl_opts_check = {'quiet': True, 'extract_flat': True, 'nocache': True}
+                check_info = extract_info_with_fallback(urls[0], ydl_opts_check)
+                if check_info.get('_type') == 'playlist':
+                    is_playlist = True
 
         def make_progress_hook(d_id):
             def hook(d):
@@ -689,7 +882,7 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                     }
             return hook
 
-        def make_postprocessor_hook(d_id):
+        def make_postprocessor_hook(d_id, override_title=None, override_artist=None, override_cover=None):
             def hook(d):
                 if d_id in cancelled_downloads:
                     raise Exception("Download cancelled by user")
@@ -703,10 +896,10 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                         ext = os.path.splitext(filename)[1].lower()
                         if ext in ['.mp3', '.m4a', '.mp4', '.mkv', '.webm', '.flac', '.wav']:
                             info = d.get('info_dict', {})
-                            title = info.get('title')
-                            artist = info.get('uploader') or info.get('artist')
+                            title = override_title or info.get('title')
+                            artist = override_artist or info.get('uploader') or info.get('artist')
                             
-                            thumbnail = info.get('thumbnail')
+                            thumbnail = override_cover or info.get('thumbnail')
                             if not thumbnail and info.get('thumbnails'):
                                 thumbnail = info.get('thumbnails')[-1].get('url')
                                 
@@ -790,6 +983,25 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                 is_missav = 'missav.' in target_url
                 final_url = target_url
                 custom_title = None
+                
+                override_title = None
+                override_artist = None
+                override_cover = None
+
+                if target_url.startswith("spotify_track:"):
+                    import base64
+                    try:
+                        encoded_payload = target_url.split("spotify_track:")[1]
+                        decoded_str = base64.b64decode(encoded_payload).decode('utf-8')
+                        payload = json.loads(decoded_str)
+                        override_title = payload.get('title')
+                        override_artist = payload.get('artist')
+                        override_cover = payload.get('cover')
+                        final_url = f"ytsearch1:{override_artist} - {override_title}"
+                        custom_title = override_title
+                    except Exception as e:
+                        logging.error(f"Failed to decode Spotify track payload: {e}")
+                        final_url = target_url
 
                 if is_missav:
                     m3u8_url, custom_title = extract_missav(target_url)
@@ -798,13 +1010,17 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                     final_url = m3u8_url
 
                 output_template = os.path.join(save_dir, '%(title)s.%(ext)s')
+                if custom_title:
+                    safe_title = re.sub(r'[\\/*?:"<>|]', "", custom_title)
+                    safe_title = safe_title[:100].strip()
+                    output_template = os.path.join(save_dir, f"{safe_title}.%(ext)s")
                 
                 ydl_opts = {
                     'outtmpl': output_template,
                     'quiet': True,
                     'nocache': True,
                     'progress_hooks': [make_progress_hook(download_id)],
-                    'postprocessor_hooks': [make_postprocessor_hook(download_id)],
+                    'postprocessor_hooks': [make_postprocessor_hook(download_id, override_title, override_artist, override_cover)],
                     'retries': 10,
                     'fragment_retries': 10
                 }
@@ -812,11 +1028,6 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                 if is_missav:
                     from urllib.parse import urlparse
                     ydl_opts['referer'] = f"https://{urlparse(target_url).netloc}/"
-                    if custom_title:
-                        safe_title = re.sub(r'[\\/*?:"<>|]', "", custom_title)
-                        safe_title = safe_title[:100].strip()
-                        output_template = os.path.join(save_dir, f"{safe_title}.%(ext)s")
-                        ydl_opts['outtmpl'] = output_template
 
                 if subtitles == 'true':
                     ydl_opts.update({
