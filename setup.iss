@@ -27,7 +27,6 @@ SetupIconFile=logo.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-LicenseFile=license_agreement.txt
 
 ; Enforce Windows 10 or newer (Since Python 3.9+ and modern yt-dlp drops Windows 7/8 support)
 MinVersion=10.0
@@ -49,8 +48,8 @@ CloseApplicationsFilter={#MyAppExeName}
 ; SignTool=signtool sign /f mycert.pfx /p password /tr http://timestamp.digicert.com /td sha256 $f
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "thai"; MessagesFile: "compiler:Languages\Thai.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile: "license_agreement_en.txt"
+Name: "thai"; MessagesFile: "compiler:Languages\Thai.isl"; LicenseFile: "license_agreement_th.txt"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked

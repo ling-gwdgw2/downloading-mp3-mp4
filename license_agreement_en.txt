@@ -1,0 +1,22 @@
+======================================================================
+         Terms of Use & Legal Disclaimer (Phoebe Downloader)
+======================================================================
+
+Please read this Terms of Use and Legal Disclaimer carefully before installing the program.
+By installing or using this software, you agree to all the terms and conditions below:
+
+1. Personal Use Only
+   This software is built solely for educational, research, and personal archiving/backup purposes. Using this software for commercial purposes or business monetization is strictly prohibited.
+
+2. Respect for Intellectual Property Rights (Copyright)
+   Users are solely responsible for compliance with copyright laws. Please download only videos or audio files that you are legally authorized to access or for which you have explicit permission from the copyright owner. You must not distribute, resell, or publicly share the downloaded files without proper authorization.
+
+3. Platform Terms of Service
+   Downloading media from external platforms (such as YouTube, Spotify, and others) may violate the Terms of Service (ToS) of those platforms. The user acknowledges and accepts all associated risks of using the software in relation to third-party terms.
+
+4. Disclaimer of Liability
+   The developers and maintainers of this software registry shall not be held liable for any copyright infringements, civil or criminal lawsuits, or any damages arising from the misuse of this software by the end users.
+
+======================================================================
+  Phoebe Downloader is distributed under GNU AGPLv3 License.
+======================================================================
