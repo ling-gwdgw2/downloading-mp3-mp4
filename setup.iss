@@ -25,6 +25,14 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 
+; 64-bit system requirements enforcement
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
+
+; Automatically close running instances before installing to prevent file locking
+CloseApplications=yes
+CloseApplicationsFilter={#MyAppExeName}
+
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
@@ -41,3 +49,7 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent runasoriginaluser
+
+[UninstallDelete]
+; Completely clean up logs, configurations, and downloaded engine updates on uninstall
+Type: filesandordirs; Name: "{app}"
