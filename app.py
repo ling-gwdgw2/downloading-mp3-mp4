@@ -77,15 +77,11 @@ def get_windows_downloads_path():
     except Exception:
         return os.path.normpath(os.path.join(os.path.expanduser('~'), 'Downloads'))
 
-def extract_info_with_fallback(target_url, ydl_opts):
-    if 'youtube.com' not in target_url and 'youtu.be' not in target_url:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            return ydl.extract_info(target_url, download=False)
-            
-    detected_browsers = []
+def _detect_browsers():
+    """Shared browser detection for cookie fallback. Returns list of browser names + None sentinel."""
+    detected = []
     local_appdata = os.environ.get('LOCALAPPDATA', '')
     appdata = os.environ.get('APPDATA', '')
-    
     browsers_to_check = [
         ('chrome', os.path.join(local_appdata, 'Google', 'Chrome', 'User Data')),
         ('edge', os.path.join(local_appdata, 'Microsoft', 'Edge', 'User Data')),
@@ -94,17 +90,26 @@ def extract_info_with_fallback(target_url, ydl_opts):
     ]
     for name, path in browsers_to_check:
         if path and os.path.exists(path):
-            detected_browsers.append(name)
-    detected_browsers.append(None)
-    
+            detected.append(name)
+    detected.append(None)  # Sentinel: try without cookies last
+    return detected
+
+def _is_youtube_url(target_url):
+    """Check if URL requires YouTube cookie fallback."""
+    return 'youtube.com' in target_url or 'youtu.be' in target_url or target_url.startswith('ytsearch')
+
+def extract_info_with_fallback(target_url, ydl_opts):
+    if not _is_youtube_url(target_url):
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            return ydl.extract_info(target_url, download=False)
+
     last_err = None
-    for browser in detected_browsers:
+    for browser in _detect_browsers():
         opts = ydl_opts.copy()
         if browser:
             opts['cookiesfrombrowser'] = (browser,)
         else:
             opts.pop('cookiesfrombrowser', None)
-            
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 return ydl.extract_info(target_url, download=False)
@@ -118,35 +123,18 @@ def extract_info_with_fallback(target_url, ydl_opts):
     raise last_err
 
 def download_url_with_fallback(ydl_opts, target_url):
-    is_yt = 'youtube.com' in target_url or 'youtu.be' in target_url or target_url.startswith('ytsearch')
-    if not is_yt:
+    if not _is_youtube_url(target_url):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([target_url])
             return
 
-    detected_browsers = []
-    local_appdata = os.environ.get('LOCALAPPDATA', '')
-    appdata = os.environ.get('APPDATA', '')
-    
-    browsers_to_check = [
-        ('chrome', os.path.join(local_appdata, 'Google', 'Chrome', 'User Data')),
-        ('edge', os.path.join(local_appdata, 'Microsoft', 'Edge', 'User Data')),
-        ('firefox', os.path.join(appdata, 'Mozilla', 'Firefox', 'Profiles')),
-        ('opera', os.path.join(appdata, 'Opera Software', 'Opera Stable')),
-    ]
-    for name, path in browsers_to_check:
-        if path and os.path.exists(path):
-            detected_browsers.append(name)
-    detected_browsers.append(None)
-    
     last_err = None
-    for browser in detected_browsers:
+    for browser in _detect_browsers():
         opts = ydl_opts.copy()
         if browser:
             opts['cookiesfrombrowser'] = (browser,)
         else:
             opts.pop('cookiesfrombrowser', None)
-            
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
                 ydl.download([target_url])
@@ -166,9 +154,21 @@ config = {
 }
 
 # Global dictionary to track active download states
+import threading as _threading
+_progress_lock = _threading.Lock()
 download_progress = {}
 
 cancelled_downloads = set()
+
+def _schedule_cleanup(download_id, delay=10):
+    """Remove stale download entries after delay seconds to prevent memory leak."""
+    import time
+    def _cleanup():
+        time.sleep(delay)
+        with _progress_lock:
+            download_progress.pop(download_id, None)
+        cancelled_downloads.discard(download_id)
+    _threading.Thread(target=_cleanup, daemon=True).start()
 
 def format_bytes(b):
     if b is None or b == 0:
@@ -883,6 +883,8 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                     }
             return hook
 
+        _tagged_files = set()  # Prevent duplicate tagging per download session
+
         def make_postprocessor_hook(d_id, override_title=None, override_artist=None, override_cover=None):
             def hook(d):
                 if d_id in cancelled_downloads:
@@ -893,9 +895,10 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                         info_temp = d.get('info_dict', {})
                         filename = info_temp.get('filepath') or info_temp.get('_filename')
                     
-                    if filename and os.path.exists(filename):
+                    if filename and os.path.exists(filename) and filename not in _tagged_files:
                         ext = os.path.splitext(filename)[1].lower()
                         if ext in ['.mp3', '.m4a', '.mp4', '.mkv', '.webm', '.flac', '.wav']:
+                            _tagged_files.add(filename)
                             info = d.get('info_dict', {})
                             title = override_title or info.get('title')
                             artist = override_artist or info.get('uploader') or info.get('artist')
@@ -1120,6 +1123,7 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
             'speed': 'Done',
             'eta': '00:00'
         }
+        _schedule_cleanup(download_id, delay=10)
     except Exception as e:
         err_msg = str(e)
         if "cancelled by user" in err_msg or "Download cancelled by user" in err_msg:
@@ -1128,17 +1132,23 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                 'message': 'การดาวน์โหลดถูกยกเลิกโดยผู้ใช้งาน'
             }
         else:
+            # Sanitize error message: remove local paths and stack traces
+            safe_msg = re.sub(r'[A-Z]:\\[\w\\. ]+', '[path]', err_msg)
             download_progress[download_id] = {
                 'status': 'error',
-                'message': err_msg
+                'message': safe_msg
             }
+        _schedule_cleanup(download_id, delay=10)
 
 @app.route('/download_progress/<download_id>')
 def download_progress_stream(download_id):
     def generate():
-        while True:
-            import time
+        import time
+        max_wait = 600  # Timeout: 10 minutes max to prevent infinite SSE loops
+        elapsed = 0
+        while elapsed < max_wait:
             time.sleep(0.5)
+            elapsed += 0.5
             state = download_progress.get(download_id)
             if not state:
                 yield "data: {\"status\": \"starting\", \"percent\": 0}\n\n"
@@ -1148,6 +1158,8 @@ def download_progress_stream(download_id):
             
             if state['status'] in ['completed', 'error', 'cancelled']:
                 break
+        else:
+            yield 'data: {"status": "error", "message": "Connection timed out after 10 minutes"}\n\n'
     return Response(generate(), mimetype='text/event-stream')
 
 @app.route('/shutdown', methods=['POST'])

@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube & Spotify Downloader - ดาวน์โหลดแอปพลิเคชัน</title>
+    <meta name="description" content="โปรแกรมดาวน์โหลดเพลงและวิดีโอจาก YouTube & Spotify ความละเอียดสูง แปลงไฟล์ MP3/M4A พร้อมเขียนข้อมูลปกและแท็กศิลปินอัตโนมัติ">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --surface-color: rgba(26, 27, 38, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary-glow: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+            --accent-glow: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            --spotify-color: #1db954;
+            --youtube-color: #ff0000;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Sarabun', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Ambient Glow Backgrounds */
+        .ambient-bg {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            top: -200px;
+            right: -100px;
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .ambient-bg-2 {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            bottom: -150px;
+            left: -100px;
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--primary-glow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .github-btn-top {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 99px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .github-btn-top:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .hero-section {
+            max-width: 1200px;
+            margin: 3rem auto 6rem;
+            padding: 0 1.5rem;
+            text-align: center;
+        }
+
+        .badge {
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            color: #d8b4fe;
+            padding: 0.4rem 1.2rem;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 3.5rem;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title span {
+            background: var(--primary-glow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.6;
+        }
+
+        .cta-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+
+        .btn-download {
+            background: var(--primary-glow);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 1rem 2.2rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(168, 85, 247, 0.6);
+        }
+
+        .btn-github {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 1rem 2.2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-github:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* App Interface CSS Mockup */
+        .preview-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(17, 18, 25, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
+            position: relative;
+            backdrop-filter: blur(16px);
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .window-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background-color: #ff5f56; }
+        .dot-yellow { background-color: #ffbd2e; }
+        .dot-green { background-color: #27c93f; }
+
+        .window-title {
+            margin-left: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .preview-body {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 1.5rem;
+            text-align: left;
+            min-height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .preview-body {
+                grid-template-columns: 1fr;
+            }
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Sidebar Mockup */
+        .mock-sidebar {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .mock-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .mock-nav-item.active {
+            background: var(--primary-glow);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Main Panel Mockup */
+        .mock-main {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 3rem 1.5rem;
+            background: rgba(255, 255, 255, 0.01);
+            position: relative;
+        }
+
+        .mock-search-bar {
+            width: 100%;
+            max-width: 550px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.25rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .mock-search-input {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .mock-search-btn {
+            background: var(--primary-glow);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .mock-feature-pill {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mock-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .mock-pill i {
+            color: var(--spotify-color);
+        }
+
+        .mock-pill.youtube i {
+            color: var(--youtube-color);
+        }
+
+        /* Features Grid */
+        .features-section {
+            max-width: 1200px;
+            margin: 6rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 2.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(168, 85, 247, 0.3);
+            box-shadow: 0 20px 40px -15px rgba(168, 85, 247, 0.1);
+        }
+
+        .feature-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(168, 85, 247, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            color: #c084fc;
+        }
+
+        .feature-card.spotify-card .feature-icon-wrapper {
+            background: rgba(29, 185, 84, 0.1);
+            color: #4ade80;
+        }
+
+        .feature-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Changelog Section */
+        .changelog-section {
+            max-width: 800px;
+            margin: 6rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .changelog-card {
+            background: rgba(17, 18, 25, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .changelog-item {
+            border-left: 2px solid rgba(168, 85, 247, 0.3);
+            padding-left: 1.5rem;
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        .changelog-item:last-child {
+            padding-bottom: 0;
+            border-left: 2px solid transparent;
+        }
+
+        .changelog-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #c084fc;
+            border: 2px solid var(--bg-color);
+        }
+
+        .changelog-version {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #d8b4fe;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .changelog-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        .changelog-tag {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            font-size: 0.7rem;
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .changelog-list {
+            margin-top: 0.75rem;
+            list-style-type: none;
+        }
+
+        .changelog-list li {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .changelog-list li::before {
+            content: "✦";
+            color: #c084fc;
+            font-size: 0.8rem;
+            margin-top: 0.1rem;
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: #c084fc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg"></div>
+    <div class="ambient-bg-2"></div>
+
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-cloud-arrow-down"></i> MediaDownloader
+        </div>
+        <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" target="_blank" class="github-btn-top" id="top-github-btn">
+            <i class="fa-brands fa-github"></i> GitHub Repository
+        </a>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="badge">
+                <i class="fa-solid fa-sparkles"></i> อัปเดตล่าสุด v2.0 - รองรับการค้นหาและเขียนปกอัตโนมัติ
+            </div>
+            <h1 class="hero-title">ดาวน์โหลดและเก็บเพลงโปรด<br>ในรูปแบบ <span>MP3 & M4A ของแท้</span></h1>
+            <p class="hero-subtitle">
+                เครื่องมือแปลงไฟล์วิดีโอจาก YouTube ความละเอียดระดับ 4K หรือดึงปกเพลงและข้อมูลแท็กทางการจาก Spotify ฝังลงในไฟล์เพลงของคุณโดยตรงอย่างมีประสิทธิภาพ
+            </p>
+            
+            <div class="cta-group">
+                <a href="dist/YouTubeDownloader.exe" class="btn-download" id="hero-download-btn">
+                    <i class="fa-solid fa-download"></i> ดาวน์โหลดโปรแกรม (.exe)
+                </a>
+                <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" target="_blank" class="btn-github" id="hero-github-btn">
+                    <i class="fa-brands fa-github"></i> ดูซอร์สโค้ดบน GitHub
+                </a>
+            </div>
+
+            <div class="preview-container">
+                <div class="preview-header">
+                    <span class="window-dot dot-red"></span>
+                    <span class="window-dot dot-yellow"></span>
+                    <span class="window-dot dot-green"></span>
+                    <span class="window-title">MediaDownloader Desktop Interface (Mockup)</span>
+                </div>
+                <div class="preview-body">
+                    <div class="mock-sidebar">
+                        <div class="mock-nav-item active">
+                            <i class="fa-solid fa-house"></i> หน้าหลักดาวน์โหลด
+                        </div>
+                        <div class="mock-nav-item">
+                            <i class="fa-solid fa-list-check"></i> Playlist Checklist
+                        </div>
+                        <div class="mock-nav-item">
+                            <i class="fa-solid fa-gear"></i> ตั้งค่าการบันทึก
+                        </div>
+                        <div class="mock-nav-item">
+                            <i class="fa-solid fa-file-lines"></i> บันทึกประวัติ (Logs)
+                        </div>
+                    </div>
+                    <div class="mock-main">
+                        <div class="mock-search-bar">
+                            <span class="mock-search-input">วางลิงก์ YouTube, Playlist หรือเพลง Spotify ที่นี่...</span>
+                            <div class="mock-search-btn">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                        </div>
+                        <div class="mock-feature-pill">
+                            <div class="mock-pill youtube">
+                                <i class="fa-brands fa-youtube"></i> YouTube 4K / MP3
+                            </div>
+                            <div class="mock-pill">
+                                <i class="fa-brands fa-spotify"></i> Spotify Playlists
+                            </div>
+                            <div class="mock-pill">
+                                <i class="fa-solid fa-music"></i> ฝังปกเพลง ID3 Tags
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <div class="section-header">
+                <h2 class="section-title">ฟีเจอร์เด่นระดับพรีเมียม</h2>
+                <p class="section-subtitle">สะดวก รวดเร็ว ปลอดภัย และไร้โฆษณากวนใจ</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card spotify-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-brands fa-spotify"></i>
+                    </div>
+                    <h3 class="feature-card-title">ดาวน์โหลดด้วยลิงก์ Spotify</h3>
+                    <p class="feature-card-desc">
+                        วางลิงก์ Playlist หรือ Track จาก Spotify ระบบจะไปดึงวิดีโอเสียงที่ตรงกันจาก YouTube แล้วฝังข้อมูล Metadata และภาพปกอัลบั้มความละเอียดสูงให้อัตโนมัติ
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <h3 class="feature-card-title">Playlist Checklist</h3>
+                    <p class="feature-card-desc">
+                        สแกนดึงรายการเพลงทั้งหมดใน Playlist แสดงตัวเลือกติ๊กเช็คลิสต์เพื่อให้คุณเลือกดาวน์โหลดเฉพาะเพลงที่คุณชอบได้อย่างอิสระ ไม่ต้องโหลดทั้งหมดให้เปลืองเนื้อที่
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <h3 class="feature-card-title">จัดลำดับความคงทนและข้ามข้อผิดพลาด</h3>
+                    <p class="feature-card-desc">
+                        ปรับปรุงเสถียรภาพดาวน์โหลดแบบ Batch หากมีเพลงใดเกิดความผิดพลาดหรือดาวน์โหลดไม่ได้ ระบบจะทำการบันทึกและข้ามไปโหลดเพลงถัดไปทันทีโดยไม่หยุดทำงานกลางคัน
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="changelog-section">
+            <div class="section-header">
+                <h2 class="section-title">บันทึกการอัปเดตระบบ (Patch Notes)</h2>
+                <p class="section-subtitle">ประวัติการอัพเดทและปรับแต่งฟังก์ชันการทำงานล่าสุด</p>
+            </div>
+            
+            <div class="changelog-card">
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        v2.0.0 <span class="changelog-tag">ล่าสุด</span> <span class="changelog-date">16 กรกฎาคม 2026</span>
+                    </div>
+                    <ul class="changelog-list">
+                        <li>เพิ่มการรองรับการนำลิงก์ Playlist หรือเพลงเดี่ยวจาก Spotify มาค้นหาและดาวน์โหลดอัตโนมัติ</li>
+                        <li>รองรับการสลัก Tag ข้อมูลทางการของ Spotify (ศิลปิน, ชื่อเพลง, อัลบั้ม) พร้อมดึงภาพปกคุณภาพสูง</li>
+                        <li>ปรับระบบสแกน Playlist Checklist ให้มีเสถียรภาพและแสดงสถานะดาวน์โหลดเป็นรายเพลง</li>
+                        <li>ป้องกันการชนกันของการเขียนไฟล์โดยการแก้ไข postprocessor_hooks ไม่ให้เขียนไฟล์ซ้ำหลายรอบ</li>
+                        <li>แก้ไขปัญหา Memory Leak ในระบบหน่วยความจำด้วยการลบ Cache ประวัติดาวน์โหลดที่เกิน 10 วินาที</li>
+                    </ul>
+                </div>
+
+                <div class="changelog-item">
+                    <div class="changelog-version">
+                        v1.5.0 <span class="changelog-date">15 กรกฎาคม 2026</span>
+                    </div>
+                    <ul class="changelog-list">
+                        <li>เพิ่มฟังก์ชันเปลี่ยนไดเรกทอรีเก็บไฟล์ดาวน์โหลดโดยตรงผ่าน Folder Selector และสามารถเปิดไปยังปลายทางจากตัวแอปได้ทันที</li>
+                        <li>เพิ่มระบบ Update Engine สำหรับตรวจสอบและอัปเดตชุดคำสั่งถอดรหัสของ yt-dlp ผ่าน PyPI โดยไม่ต้องรันโปรแกรมใหม่</li>
+                        <li>รองรับการแปลงฟอร์แมตวิดีโอ (MP4, MKV, WebM) และย่านเสียง (MP3, M4A, FLAC, WAV)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 MediaDownloader. สิทธิ์การใช้งานภายใต้ <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/blob/main/LICENSE" target="_blank">GNU AGPLv3 License</a></p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">พัฒนาเพื่อความสะดวกในการสำรองข้อมูลสื่อส่วนบุคคลอย่างมีประสิทธิภาพ</p>
+    </footer>
+
+</body>
+</html>
