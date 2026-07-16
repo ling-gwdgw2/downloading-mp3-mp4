@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Phoebe Downloader"
-#define MyAppVersion "1.4"
+#define MyAppVersion "2.1.0"
 #define MyAppPublisher "LING Rube"
 #define MyAppExeName "YouTubeDownloader.exe"
 
