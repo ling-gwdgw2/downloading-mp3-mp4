@@ -416,6 +416,8 @@ def get_info():
             'no_warnings': True,
             'nocache': True,
         }
+        if 'list=' in target_url or '/playlist' in target_url:
+            ydl_opts['extract_flat'] = True
         if is_missav:
             from urllib.parse import urlparse
             ydl_opts['referer'] = f"https://{urlparse(target_url).netloc}/"
@@ -448,7 +450,7 @@ def get_info():
                     'duration': f"{len(entries)} items",
                     'uploader': info.get('uploader', 'Unknown'),
                     'resolutions': ['2160p (4K)', '1080p (Full HD)', '720p (HD)', '480p', 'mp3'],
-                    'url': url,
+                    'url': target_url,
                     'is_playlist': True,
                     'playlist_videos': playlist_videos
                 })
@@ -529,6 +531,7 @@ def get_info():
             'audio_recommendation': recommendation
         })
     except Exception as e:
+        logging.error(f"Error in get_info for URL {url}: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/prepare_download', methods=['POST'])
