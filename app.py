@@ -118,7 +118,8 @@ def extract_info_with_fallback(target_url, ydl_opts):
     raise last_err
 
 def download_url_with_fallback(ydl_opts, target_url):
-    if 'youtube.com' not in target_url and 'youtu.be' not in target_url:
+    is_yt = 'youtube.com' in target_url or 'youtu.be' in target_url or target_url.startswith('ytsearch')
+    if not is_yt:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([target_url])
             return
@@ -977,7 +978,10 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
             download_url_with_fallback(ydl_opts, urls[0])
         else:
             # Batch URLs
-            for target_url in urls:
+            total_batch = len(urls)
+            completed_batch = 0
+            failed_batch = 0
+            for batch_idx, target_url in enumerate(urls):
                 if download_id in cancelled_downloads:
                     raise Exception("Download cancelled by user")
                 is_missav = 'missav.' in target_url
@@ -1001,11 +1005,13 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                         custom_title = override_title
                     except Exception as e:
                         logging.error(f"Failed to decode Spotify track payload: {e}")
-                        final_url = target_url
+                        failed_batch += 1
+                        continue
 
                 if is_missav:
                     m3u8_url, custom_title = extract_missav(target_url)
                     if not m3u8_url:
+                        failed_batch += 1
                         continue
                     final_url = m3u8_url
 
@@ -1015,6 +1021,16 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                     safe_title = safe_title[:100].strip()
                     output_template = os.path.join(save_dir, f"{safe_title}.%(ext)s")
                 
+                # Update progress to show batch status
+                batch_percent = int((batch_idx / total_batch) * 100)
+                download_progress[download_id] = {
+                    'status': 'downloading',
+                    'percent': max(batch_percent, 1),
+                    'speed': f'Track {batch_idx + 1}/{total_batch}',
+                    'eta': f'{total_batch - batch_idx} remaining',
+                    'size': f'Done: {completed_batch} | Failed: {failed_batch}'
+                }
+
                 ydl_opts = {
                     'outtmpl': output_template,
                     'quiet': True,
@@ -1085,7 +1101,17 @@ def run_download_thread(download_id, url, format_type, bitrate, subtitles, video
                         'merge_output_format': video_container
                     })
                 
-                download_url_with_fallback(ydl_opts, final_url)
+                try:
+                    track_label = override_title or final_url[:80]
+                    logging.info(f"Batch [{batch_idx+1}/{total_batch}] Downloading: {track_label}")
+                    download_url_with_fallback(ydl_opts, final_url)
+                    completed_batch += 1
+                    logging.info(f"Batch [{batch_idx+1}/{total_batch}] Completed: {track_label}")
+                except Exception as track_err:
+                    failed_batch += 1
+                    logging.error(f"Batch [{batch_idx+1}/{total_batch}] Failed: {track_label} - {track_err}")
+                    # Continue to next track instead of stopping the entire batch
+                    continue
         
         # Complete
         download_progress[download_id] = {
