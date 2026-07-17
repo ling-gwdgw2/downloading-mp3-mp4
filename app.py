@@ -160,51 +160,7 @@ download_progress = {}
 
 cancelled_downloads = set()
 
-import time
-last_ping_time = time.time()
 
-def auto_shutdown_monitor():
-    global last_ping_time
-    import time
-    time.sleep(20)
-    while True:
-        start_loop = time.time()
-        time.sleep(5)
-        elapsed = time.time() - start_loop
-        
-        # Detect system suspend/sleep or CPU freeze and reset clock
-        if elapsed > 15:
-            logging.info(f"Auto-Shutdown: System sleep or cpu lag detected (elapsed {elapsed:.1f}s). Resetting heartbeat clock.")
-            last_ping_time = time.time()
-            continue
-            
-        # 90 seconds threshold to prevent background tab throttling false positives
-        if time.time() - last_ping_time > 90:
-            # Prevent shutdown if there are active downloads
-            has_active_downloads = False
-            with _progress_lock:
-                for d_id in list(download_progress.keys()):
-                    if download_progress[d_id].get('status') in ['starting', 'downloading', 'processing']:
-                        has_active_downloads = True
-                        break
-            
-            if has_active_downloads:
-                last_ping_time = time.time()
-                continue
-                
-            logging.info("Auto-Shutdown: No browser heartbeat ping detected for 90 seconds. Shutting down server gracefully...")
-            with _progress_lock:
-                for d_id in list(download_progress.keys()):
-                    if download_progress[d_id].get('status') in ['starting', 'downloading', 'processing']:
-                        cancelled_downloads.add(d_id)
-            time.sleep(1.5)
-            try:
-                cleanup_temp_files()
-            except Exception:
-                pass
-            os._exit(0)
-
-_threading.Thread(target=auto_shutdown_monitor, daemon=True).start()
 
 auto_update_status = {
     'status': 'idle',
@@ -1364,13 +1320,6 @@ def shutdown():
     threading.Thread(target=kill_process).start()
     return jsonify({'message': 'Server shutting down...'})
 
-@app.route('/api/ping', methods=['POST'])
-def ping():
-    global last_ping_time
-    import time
-    last_ping_time = time.time()
-    return jsonify({'status': 'ok'})
-
 @app.route('/engine_status', methods=['GET'])
 def engine_status():
     try:
@@ -1518,6 +1467,21 @@ def cleanup_temp_files():
     except Exception as e:
         logging.error(f"Error during startup cleanup: {e}", exc_info=True)
 
+def disable_close_button():
+    try:
+        import ctypes
+        import time
+        time.sleep(1)
+        hwnd = ctypes.windll.user32.FindWindowW(None, "Phoebe Downloader")
+        if hwnd:
+            hmenu = ctypes.windll.user32.GetSystemMenu(hwnd, False)
+            if hmenu:
+                ctypes.windll.user32.DeleteMenu(hmenu, 0xF060, 0x0)
+                ctypes.windll.user32.DrawMenuBar(hwnd)
+                logging.info("Successfully disabled native Windows close button.")
+    except Exception as e:
+        logging.warning(f"Failed to disable close button: {e}")
+
 if __name__ == '__main__':
     cleanup_temp_files()
 
@@ -1534,27 +1498,16 @@ if __name__ == '__main__':
     # Launch PyWebView desktop GUI window
     import webview
     logging.info("Opening PyWebView desktop window...")
-    webview.create_window(
+    window = webview.create_window(
         'Phoebe Downloader',
         f"http://127.0.0.1:{port}",
         width=1280,
         height=820,
         min_size=(1024, 768)
     )
-    webview.start()
     
-    # Clean shutdown sequence after WebView window is closed
-    logging.info("WebView window closed. Initiating clean shutdown sequence...")
-    with _progress_lock:
-        for d_id in list(download_progress.keys()):
-            if download_progress[d_id].get('status') in ['starting', 'downloading', 'processing']:
-                cancelled_downloads.add(d_id)
-                
-    import time
-    time.sleep(1.5)
-    try:
-        cleanup_temp_files()
-    except Exception:
-        pass
-    logging.info("Clean shutdown completed. Exiting process.")
-    os._exit(0)
+    # Prevent closing via standard window X button or Alt+F4
+    window.events.closing += lambda: False
+    
+    # Start webview loop and disable the close button after window displays
+    webview.start(disable_close_button)

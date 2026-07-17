@@ -876,10 +876,6 @@
                         });
                     this.checkEngineStatus();
 
-                    // Browser Heartbeat Ping System (send every 3 seconds)
-                    setInterval(() => {
-                        fetch('/api/ping', { method: 'POST' }).catch(err => console.error("Heartbeat error:", err));
-                    }, 3000);
 
                     // Poll engine status every 5 seconds if checking or downloading
                     setInterval(() => {
