@@ -1346,6 +1346,18 @@ def engine_status():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/clipboard', methods=['GET'])
+def get_clipboard():
+    try:
+        import tkinter as tk
+        root = tk.Tk()
+        root.withdraw()
+        text = root.clipboard_get()
+        root.destroy()
+        return jsonify({'text': text})
+    except Exception:
+        return jsonify({'text': ''})
+
 @app.route('/revert_engine', methods=['POST'])
 def revert_engine():
     try:

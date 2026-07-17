@@ -239,9 +239,16 @@
                     <div class="bg-white p-2 rounded-2xl shadow-lg flex flex-col md:flex-row gap-2 max-w-3xl">
                         <div class="relative flex-1 flex items-center">
                             <i class="fa-solid fa-link text-slate-400 left-4 absolute"></i>
-                            <input type="text" x-model="urlInput"
+                            <input type="text" x-model="urlInput" @keyup.enter="processInput()"
                                 placeholder="วางลิงก์ YouTube, SoundCloud, Facebook หรือแพลตฟอร์มอื่นๆ..."
-                                class="w-full text-slate-800 text-sm px-10 py-3.5 rounded-xl border border-transparent focus:outline-none focus:border-miku-300 font-semibold placeholder-slate-400 bg-slate-50">
+                                class="w-full text-slate-800 text-sm pl-10 pr-16 py-3.5 rounded-xl border border-transparent focus:outline-none focus:border-miku-300 font-semibold placeholder-slate-400 bg-slate-50">
+                            
+                            <!-- Paste Button -->
+                            <button @click="pasteFromClipboard()"
+                                class="right-3 absolute bg-miku-50 hover:bg-miku-100 text-miku-600 font-bold px-2.5 py-1.5 rounded-lg text-xs transition-all active:scale-95 flex items-center gap-1">
+                                <i class="fa-regular fa-clipboard"></i>
+                                <span>วาง</span>
+                            </button>
                         </div>
                         <div class="flex gap-2">
                             <button @click="processInput()" :disabled="isFetchingInfo"
@@ -1080,6 +1087,19 @@
                         // Default fallback
                         return ['2160p (4K)', '1080p (Full HD)', '720p (HD)', '480p'];
                     }
+                pasteFromClipboard() {
+                    playCuteSound('click');
+                    fetch('/api/clipboard')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.text) {
+                                this.urlInput = data.text;
+                                this.processInput();
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Failed to read clipboard:", err);
+                        });
                 },
                 // ANALYZE ACTION: Fetch metadata from the backend
                 processInput() {
