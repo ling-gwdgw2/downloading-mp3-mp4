@@ -180,17 +180,14 @@ auto_update_status = {
     'message': ''
 }
 
-def auto_update_engine_on_startup():
+def check_engine_updates_on_startup():
     global auto_update_status
-    logging.info("Auto-Update: Checking for yt-dlp engine updates on startup...")
+    logging.info("Engine Update Check: Checking for yt-dlp engine updates on startup...")
     auto_update_status['status'] = 'checking'
     auto_update_status['message'] = 'Checking for engine updates...'
     try:
         import json
         import urllib.request
-        import zipfile
-        import tempfile
-        import shutil
         
         current_version = yt_dlp.version.__version__
         
@@ -201,60 +198,20 @@ def auto_update_engine_on_startup():
             latest_version = pypi_data['info']['version']
             
         if current_version != latest_version:
-            logging.info(f"Auto-Update: Update available (v{latest_version}). Preparing download...")
-            auto_update_status['status'] = 'downloading'
-            auto_update_status['message'] = f'Downloading engine update v{latest_version}...'
-            
-            # Find whl download url
-            urls = pypi_data['urls']
-            whl_url = None
-            for url_info in urls:
-                if url_info['filename'].endswith('.whl'):
-                    whl_url = url_info['url']
-                    break
-                    
-            if not whl_url:
-                raise Exception("No valid wheel package found on PyPI.")
-                
-            temp_dir = tempfile.gettempdir()
-            temp_file_path = os.path.join(temp_dir, "yt_dlp_auto_update.whl")
-            
-            # Download
-            req_dl = urllib.request.Request(whl_url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req_dl, timeout=60) as response_dl:
-                with open(temp_file_path, 'wb') as out_file:
-                    out_file.write(response_dl.read())
-                    
-            # Extract
-            target_dir = os.path.join(app_path, 'bin', 'yt-dlp-update')
-            if not os.path.exists(target_dir):
-                os.makedirs(target_dir)
-                
-            with zipfile.ZipFile(temp_file_path, 'r') as zip_ref:
-                for file in zip_ref.namelist():
-                    if file.startswith('yt_dlp/'):
-                        zip_ref.extract(file, target_dir)
-                        
-            # Cleanup temp file
-            try:
-                os.remove(temp_file_path)
-            except Exception:
-                pass
-                
-            logging.info(f"Auto-Update: Engine successfully updated in background to v{latest_version}. Ready for restart.")
-            auto_update_status['status'] = 'completed'
-            auto_update_status['message'] = f'Engine updated to v{latest_version}. Restart app to apply.'
+            logging.info(f"Engine Update Check: Update available (v{latest_version}). Let user trigger manual update.")
+            auto_update_status['status'] = 'need_update'
+            auto_update_status['message'] = f'Update available: v{latest_version}'
         else:
-            logging.info("Auto-Update: Engine is already the latest version.")
+            logging.info("Engine Update Check: Engine is already the latest version.")
             auto_update_status['status'] = 'up_to_date'
             auto_update_status['message'] = 'Engine is up-to-date.'
             
     except Exception as e:
-        logging.error(f"Auto-Update failed: {e}")
+        logging.error(f"Engine Update Check failed: {e}")
         auto_update_status['status'] = 'error'
-        auto_update_status['message'] = f'Check/Update failed: {str(e)}'
+        auto_update_status['message'] = f'Check failed: {str(e)}'
 
-_threading.Thread(target=auto_update_engine_on_startup, daemon=True).start()
+_threading.Thread(target=check_engine_updates_on_startup, daemon=True).start()
 
 def _schedule_cleanup(download_id, delay=10):
     """Remove stale download entries after delay seconds to prevent memory leak."""
