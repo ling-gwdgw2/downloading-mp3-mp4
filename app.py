@@ -906,26 +906,12 @@ def embed_metadata_to_file(file_path, title, artist, thumbnail_url):
 
         ext = os.path.splitext(file_path)[1].lower()
         if ext == '.mp3':
-            from mutagen.mp3 import MP3, HeaderNotFoundError
-            from mutagen.id3 import ID3, APIC, TIT2, TPE1, error
-            audio = None
-            tags = None
+            from mutagen.id3 import ID3, APIC, TIT2, TPE1
             try:
-                audio = MP3(file_path, ID3=ID3)
                 try:
-                    audio.add_tags()
+                    tags = ID3(file_path)
                 except Exception:
-                    pass
-                tags = audio.tags
-            except HeaderNotFoundError:
-                try:
-                    audio = ID3(file_path)
-                    tags = audio
-                except Exception:
-                    audio = ID3()
-                    tags = audio
-            
-            if tags is not None:
+                    tags = ID3()
                 if title:
                     tags.add(TIT2(encoding=3, text=title))
                 if artist:
@@ -938,19 +924,71 @@ def embed_metadata_to_file(file_path, title, artist, thumbnail_url):
                         desc=u'Cover',
                         data=cover_bytes
                     ))
-                audio.save(file_path)
+                tags.save(file_path)
                 logging.info(f"Successfully tagged MP3 file: {file_path}")
+            except Exception as mp3_err:
+                logging.error(f"Error tagging MP3 {file_path}: {mp3_err}")
+        elif ext == '.flac':
+            from mutagen.flac import FLAC, Picture
+            try:
+                audio = FLAC(file_path)
+                if title:
+                    audio["title"] = title
+                if artist:
+                    audio["artist"] = artist
+                if cover_bytes:
+                    pic = Picture()
+                    pic.data = cover_bytes
+                    pic.type = 3
+                    pic.mime = "image/jpeg"
+                    pic.desc = u"Cover"
+                    audio.clear_pictures()
+                    audio.add_picture(pic)
+                audio.save()
+                logging.info(f"Successfully tagged FLAC file: {file_path}")
+            except Exception as flac_err:
+                logging.error(f"Error tagging FLAC {file_path}: {flac_err}")
+        elif ext == '.wav':
+            from mutagen.wave import WAVE
+            from mutagen.id3 import ID3, APIC, TIT2, TPE1
+            try:
+                audio = WAVE(file_path)
+                try:
+                    audio.add_tags()
+                except Exception:
+                    pass
+                tags = audio.tags
+                if tags is not None:
+                    if title:
+                        tags.add(TIT2(encoding=3, text=title))
+                    if artist:
+                        tags.add(TPE1(encoding=3, text=artist))
+                    if cover_bytes:
+                        tags.add(APIC(
+                            encoding=3,
+                            mime='image/jpeg',
+                            type=3,
+                            desc=u'Cover',
+                            data=cover_bytes
+                        ))
+                    audio.save()
+                    logging.info(f"Successfully tagged WAV file: {file_path}")
+            except Exception as wav_err:
+                logging.error(f"Error tagging WAV {file_path}: {wav_err}")
         elif ext in ['.m4a', '.mp4']:
             from mutagen.mp4 import MP4, MP4Cover
-            audio = MP4(file_path)
-            if title:
-                audio["\xa9nam"] = title
-            if artist:
-                audio["\xa9ART"] = artist
-            if cover_bytes:
-                audio["covr"] = [MP4Cover(cover_bytes, imageformat=MP4Cover.FORMAT_JPEG)]
-            audio.save()
-            logging.info(f"Successfully tagged M4A file: {file_path}")
+            try:
+                audio = MP4(file_path)
+                if title:
+                    audio["\xa9nam"] = title
+                if artist:
+                    audio["\xa9ART"] = artist
+                if cover_bytes and ext == '.m4a':
+                    audio["covr"] = [MP4Cover(cover_bytes, imageformat=MP4Cover.FORMAT_JPEG)]
+                audio.save()
+                logging.info(f"Successfully tagged {ext.upper()} file: {file_path}")
+            except Exception as mp4_err:
+                logging.error(f"Error tagging {ext.upper()} {file_path}: {mp4_err}")
     except Exception as e:
         logging.error(f"Error in embed_metadata_to_file for {file_path}: {e}", exc_info=True)
 
