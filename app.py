@@ -924,7 +924,7 @@ def embed_metadata_to_file(file_path, title, artist, thumbnail_url):
                         desc=u'Cover',
                         data=cover_bytes
                     ))
-                tags.save(file_path)
+                tags.save(file_path, v2_version=3)
                 logging.info(f"Successfully tagged MP3 file: {file_path}")
             except Exception as mp3_err:
                 logging.error(f"Error tagging MP3 {file_path}: {mp3_err}")
