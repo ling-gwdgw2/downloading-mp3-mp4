@@ -1482,13 +1482,41 @@ def cleanup_temp_files():
 
 if __name__ == '__main__':
     cleanup_temp_files()
-    def open_browser(port):
-        import time
-        import webbrowser
-        time.sleep(1.5)
-        webbrowser.open(f"http://127.0.0.1:{port}")
 
     port = 5000
     import threading
-    threading.Thread(target=open_browser, args=(port,), daemon=True).start()
-    app.run(host='127.0.0.1', port=port, debug=False)
+    
+    # Run Flask in background daemon thread
+    flask_thread = threading.Thread(
+        target=lambda: app.run(host='127.0.0.1', port=port, debug=False, use_reloader=False),
+        daemon=True
+    )
+    flask_thread.start()
+    
+    # Launch PyWebView desktop GUI window
+    import webview
+    logging.info("Opening PyWebView desktop window...")
+    webview.create_window(
+        'Phoebe Downloader',
+        f"http://127.0.0.1:{port}",
+        width=1280,
+        height=820,
+        min_size=(1024, 768)
+    )
+    webview.start()
+    
+    # Clean shutdown sequence after WebView window is closed
+    logging.info("WebView window closed. Initiating clean shutdown sequence...")
+    with _progress_lock:
+        for d_id in list(download_progress.keys()):
+            if download_progress[d_id].get('status') in ['starting', 'downloading', 'processing']:
+                cancelled_downloads.add(d_id)
+                
+    import time
+    time.sleep(1.5)
+    try:
+        cleanup_temp_files()
+    except Exception:
+        pass
+    logging.info("Clean shutdown completed. Exiting process.")
+    os._exit(0)

@@ -1,4 +1,5 @@
 yt-dlp
 pyinstaller
 pillow
+pywebview
 

@@ -29,6 +29,7 @@ PyInstaller.__main__.run([
     '--add-data=static;static',
     '--icon=logo.ico',
     '--collect-all=curl_cffi',
+    '--collect-all=webview',
     '--noconsole',
     '--clean',
 ])
