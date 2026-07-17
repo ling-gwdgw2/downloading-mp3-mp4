@@ -802,16 +802,16 @@ def get_info():
         recommendation = ""
         codec_lower = best_audio_codec.lower()
         if 'opus' in codec_lower:
-            recommendation = "💡 เสียงต้นฉบับบน YouTube เป็น Opus คุณภาพสูง แนะนำให้เลือก M4A Original เพื่อดาวน์โหลดเร็วและไม่เสียคุณภาพ หรือเลือก MP3 320kbps / Lossless FLAC เพื่อแปลงเป็นฟอร์แมตยอดนิยม"
+            recommendation = " เสียงต้นฉบับบน YouTube เป็น Opus คุณภาพสูง แนะนำให้เลือก M4A Original เพื่อดาวน์โหลดเร็วและไม่เสียคุณภาพ หรือเลือก MP3 320kbps / Lossless FLAC เพื่อแปลงเป็นฟอร์แมตยอดนิยม"
         elif 'mp4a' in codec_lower or 'aac' in codec_lower:
             if max_audio_bitrate >= 192:
-                recommendation = f"💡 เสียงต้นฉบับเป็น AAC คุณภาพสูง ({max_audio_bitrate} kbps) แนะนำให้เลือก M4A Original หรือ MP3 320kbps เพื่อคงคุณภาพความละเอียดดนตรีไว้ครบถ้วน"
+                recommendation = f" เสียงต้นฉบับเป็น AAC คุณภาพสูง ({max_audio_bitrate} kbps) แนะนำให้เลือก M4A Original หรือ MP3 320kbps เพื่อคงคุณภาพความละเอียดดนตรีไว้ครบถ้วน"
             else:
-                recommendation = f"💡 เสียงต้นฉบับเป็น AAC ความละเอียดปกติ ({max_audio_bitrate} kbps) แนะนำให้เลือก M4A Original เพื่อบันทึกเสียงสดต้นฉบับได้ทันทีโดยไม่ต้องแปลงสัญญาณใหม่ หรือเลือก MP3 192kbps"
+                recommendation = f" เสียงต้นฉบับเป็น AAC ความละเอียดปกติ ({max_audio_bitrate} kbps) แนะนำให้เลือก M4A Original เพื่อบันทึกเสียงสดต้นฉบับได้ทันทีโดยไม่ต้องแปลงสัญญาณใหม่ หรือเลือก MP3 192kbps"
         elif 'mp3' in codec_lower:
-            recommendation = f"💡 เสียงต้นฉบับเป็น MP3 ({max_audio_bitrate} kbps) แนะนำให้ดาวน์โหลดเป็น MP3 320kbps หรือ M4A Original เพื่อให้ได้เสียงที่คมชัดที่สุดตามคุณภาพดั้งเดิม"
+            recommendation = f" เสียงต้นฉบับเป็น MP3 ({max_audio_bitrate} kbps) แนะนำให้ดาวน์โหลดเป็น MP3 320kbps หรือ M4A Original เพื่อให้ได้เสียงที่คมชัดที่สุดตามคุณภาพดั้งเดิม"
         else:
-            recommendation = f"💡 เสียงต้นฉบับเป็นฟอร์แมต {best_audio_codec.upper()} แนะนำให้ดาวน์โหลดเป็น M4A Original หรือ MP3 320kbps เพื่อการประมวลผลและการใช้งานที่เสถียรที่สุด"
+            recommendation = f" เสียงต้นฉบับเป็นฟอร์แมต {best_audio_codec.upper()} แนะนำให้ดาวน์โหลดเป็น M4A Original หรือ MP3 320kbps เพื่อการประมวลผลและการใช้งานที่เสถียรที่สุด"
 
         return jsonify({
             'title': custom_title if custom_title else info.get('title'),

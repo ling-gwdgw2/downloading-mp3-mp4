@@ -4,16 +4,16 @@
 
 ---
 
-## 📌 บันทึกการเปลี่ยนแปลงครั้งสำคัญ (Key Changes & Version Upgrades)
+##  บันทึกการเปลี่ยนแปลงครั้งสำคัญ (Key Changes & Version Upgrades)
 
-### 🚀 **Version 2.1.0 (ล่าสุด - 16 กรกฎาคม 2026)**
+###  **Version 2.1.0 (ล่าสุด - 16 กรกฎาคม 2026)**
 * **ระบบล้างแคชประหยัด RAM (10s Progress Cleanup)**: ลบ Cache ประวัติดาวน์โหลดและคิวจากหน่วยความจำหลังผ่านไป 10 วินาที ช่วยจัดการปัญหากิน RAM หรือ Memory Leak เมื่อรันโปรแกรมระยะยาว
 * **สตรีมปลอดภัยจำกัดเวลา (SSE Timeout Safety)**: กำหนดขีดจำกัดเชื่อมต่อสตรีมสถานะสูงสุด 10 นาที เพื่อความปลอดภัยและตัด Threads ที่ค้างอยู่เบื้องหลังโดยอัตโนมัติ
 * **ระบบล็อคการเขียนแท็กเดี่ยว (Duplicate Tagging Prevention)**: ติดตามสถานะไฟล์เพื่อป้องกันไม่ให้ไลบรารี Mutagen ทำการเขียนแท็กและดาวน์โหลดปกอัลบั้มซ้ำหลายครั้งในเซสชันเดียวกัน ช่วยเซฟแบนด์วิดท์และลดความเสี่ยงไฟล์เสียงเสียหาย
 * **ป้องกันการรั่วไหลข้อมูลส่วนตัว (Error Sanitizer)**: สกรีนและคัดกรองชื่อพาธส่วนตัว (`C:\Users\username\...`) ออกจากหน้าต่างรายงานข้อผิดพลาดบนหน้าจอ
 * **เพิ่มหน้าดาวน์โหลดสุดพรีเมียม (Premium Landing Page)**: เพิ่มหน้า [download_landing.html](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/download_landing.html) ที่ตกแต่งด้วยธีม Retro-Pixel นีออนสำหรับรองรับการดาวน์โหลดโปรแกรม
 
-### 🚀 **Version 2.0.0 (16 กรกฎาคม 2026)**
+###  **Version 2.0.0 (16 กรกฎาคม 2026)**
 * **รองรับลิงก์ Spotify (YouTube Search Fallback)**: ถอดรหัส JSON React `initialState` จากหน้าเว็บเพื่อดึงข้อมูลเพลง/ปก และสลับไปค้นหาเวอร์ชันที่ดีที่สุดบน YouTube เพื่อดาวน์โหลดมาแปลงเป็นไฟล์เพลง
 * **เขียนข้อมูลและหน้าปกของแท้ (Spotify Metadata & Cover Art Embedding)**: ดึงข้อมูลอย่างเป็นทางการจาก Spotify ฝังลงในแท็ก MP3 (ID3v2) และ M4A (MP4 Atom) หลังแปลงเสร็จเพื่อแสดงผลที่ถูกต้องในเครื่องเล่นเพลงทั่วไป
 * **ระบบเช็คลิสต์เลือกเพลง (Playlist Checklist)**: แสดงตารางรายการเพลงใน Playlist ทั้งหมดเพื่อให้ผู้ใช้ติ๊กเลือกดาวน์โหลดเฉพาะบางไฟล์ได้
@@ -21,7 +21,7 @@
 
 ---
 
-## 🗺️ แผนภาพสถาปัตยกรรมระบบ (System Architecture)
+##  แผนภาพสถาปัตยกรรมระบบ (System Architecture)
 
 แผนภาพแสดงการประสานการทำงานระหว่าง Client, Flask Backend และแกนประมวลผล yt-dlp/FFmpeg:
 
@@ -74,7 +74,7 @@ graph TD
 
 ---
 
-## 📦 วิธีการติดตั้งเพื่อพัฒนาและทดสอบ (Development Guide)
+##  วิธีการติดตั้งเพื่อพัฒนาและทดสอบ (Development Guide)
 
 ### 1. **สิ่งที่ต้องเตรียม (Prerequisites)**
 * Python เวอร์ชัน 3.8 หรือสูงกว่า
@@ -100,7 +100,7 @@ python app.py
 
 ---
 
-## 🛠️ ขั้นตอนการคอมไพล์เป็นไฟล์เดี่ยวและตัวติดตั้ง (Packaging Guide)
+##  ขั้นตอนการคอมไพล์เป็นไฟล์เดี่ยวและตัวติดตั้ง (Packaging Guide)
 
 ### 1. **คอมไพล์ด้วย PyInstaller**
 เราใช้สคริปต์คอมไพล์เฉพาะ **[build_exe.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/build_exe.py)** ในการควบคุมพารามิเตอร์ของ PyInstaller ทั้งหมด (แนบเทมเพลตและไลบรารีแกน `curl_cffi`):
@@ -117,5 +117,5 @@ python build_exe.py
 
 ---
 
-## 🔑 Code Signing Attribution
+##  Code Signing Attribution
 Free code signing for this project is generously provided by the **[SignPath Foundation](https://signpath.org)**.

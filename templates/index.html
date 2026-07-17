@@ -820,8 +820,8 @@
                         btnAnalyzing: "กำลังวิเคราะห์...",
                         panelTitle: "แผงควบคุมการดาวน์โหลด",
                         selectFormat: "เลือกประเภทไฟล์",
-                        langChangedToast: "เปลี่ยนภาษาสำเร็จแล้วค่ะ! 🌸",
-                        emptyInput: "กรุณากรอกลิงก์หรือคำค้นหาที่ต้องการดาวน์โหลดค่ะ ♪",
+                        langChangedToast: "เปลี่ยนภาษาสำเร็จแล้วค่ะ! ",
+                        emptyInput: "กรุณากรอกลิงก์หรือคำค้นหาที่ต้องการดาวน์โหลดค่ะ ",
                         analyzingLink: "กำลังวิเคราะห์ลิงก์วิดีโอ...",
                         searchingYouTube: "กำลังค้นหาคลิปวิดีโอบน YouTube...",
                         analyzeSuccess: "วิเคราะห์ข้อมูลสำเร็จ!",
@@ -837,8 +837,8 @@
                         btnAnalyzing: "Analyzing...",
                         panelTitle: "Download Control Panel",
                         selectFormat: "Select File Format",
-                        langChangedToast: "Language changed successfully! 🌸",
-                        emptyInput: "Please enter a link or search query to download ♪",
+                        langChangedToast: "Language changed successfully! ",
+                        emptyInput: "Please enter a link or search query to download ",
                         analyzingLink: "Analyzing video link...",
                         searchingYouTube: "Searching video on YouTube...",
                         analyzeSuccess: "Analyzed successfully!",
@@ -854,8 +854,8 @@
                         btnAnalyzing: "ກຳລັງວິເຄາະ...",
                         panelTitle: "ແພງຄວບຄຸມການດາວໂຫລດ",
                         selectFormat: "ເລືອກປະເພດໄຟລ໌",
-                        langChangedToast: "ປ່ຽນພາສາສຳເລັດແລ້ວ! 🌸",
-                        emptyInput: "ກະລຸນາປ້ອນລິ້ງ ຫຼື ຄຳຄົ້ນຫາທີ່ຕ້ອງການດາວໂຫລດ ♪",
+                        langChangedToast: "ປ່ຽນພາສາສຳເລັດແລ້ວ! ",
+                        emptyInput: "ກະລຸນາປ້ອນລິ້ງ ຫຼື ຄຳຄົ້ນຫາທີ່ຕ້ອງການດາວໂຫລດ ",
                         analyzingLink: "ກຳລັງວິເຄາະລິ້ງວິດີໂອ...",
                         searchingYouTube: "ກຳລັງຄົ້ນຫາຄລິບວິດີໂອເທິງ YouTube...",
                         analyzeSuccess: "ວິເຄາະຂໍ້ມູນສຳເລັດ!",
@@ -1293,7 +1293,7 @@
                     if (this.playlistVideos.length > 0) {
                         const selectedVideos = this.playlistVideos.filter(v => this.selectedPlaylistIndices.includes(String(v.index)));
                         if (selectedVideos.length === 0) {
-                            this.triggerToast("กรุณาเลือกอย่างน้อย 1 คลิปเพื่อดาวน์โหลดค่ะ ♪");
+                            this.triggerToast("กรุณาเลือกอย่างน้อย 1 คลิปเพื่อดาวน์โหลดค่ะ ");
                             this.isConverting = false;
                             this.downloadProgress = 0;
                             return;
@@ -1361,12 +1361,12 @@
                                     });
 
                                     playCuteSound('success');
-                                    this.triggerToast("ดาวน์โหลดไฟล์เสร็จสมบูรณ์เรียบร้อยแล้วค่ะ! ✨💿");
+                                    this.triggerToast("ดาวน์โหลดไฟล์เสร็จสมบูรณ์เรียบร้อยแล้วค่ะ! ");
                                 } else if (progress.status === 'cancelled') {
                                     source.close();
                                     this.isConverting = false;
                                     this.downloadProgress = 0;
-                                    this.triggerToast("ยกเลิกการดาวน์โหลดเรียบร้อยแล้วค่ะ 🌸");
+                                    this.triggerToast("ยกเลิกการดาวน์โหลดเรียบร้อยแล้วค่ะ ");
                                 } else if (progress.status === 'error') {
                                     source.close();
                                     this.isConverting = false;
@@ -1407,7 +1407,7 @@
                 triggerFileDownload(song) {
                     playCuteSound('success');
                     this.openFolder();
-                    this.triggerToast(`เปิดโฟลเดอร์เก็บไฟล์เพื่อดูเพลง ${song.title} แล้วค่ะ ♪`);
+                    this.triggerToast(`เปิดโฟลเดอร์เก็บไฟล์เพื่อดูเพลง ${song.title} แล้วค่ะ `);
                 },
 
                 triggerToast(message) {
