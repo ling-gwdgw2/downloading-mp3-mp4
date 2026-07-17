@@ -184,6 +184,87 @@ def auto_shutdown_monitor():
 
 _threading.Thread(target=auto_shutdown_monitor, daemon=True).start()
 
+auto_update_status = {
+    'status': 'idle',
+    'message': ''
+}
+
+def auto_update_engine_on_startup():
+    global auto_update_status
+    logging.info("Auto-Update: Checking for yt-dlp engine updates on startup...")
+    auto_update_status['status'] = 'checking'
+    auto_update_status['message'] = 'Checking for engine updates...'
+    try:
+        import json
+        import urllib.request
+        import zipfile
+        import tempfile
+        import shutil
+        
+        current_version = yt_dlp.version.__version__
+        
+        # 1. Fetch PyPI data
+        req = urllib.request.Request("https://pypi.org/pypi/yt-dlp/json", headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=10) as res:
+            pypi_data = json.loads(res.read().decode('utf-8'))
+            latest_version = pypi_data['info']['version']
+            
+        if current_version != latest_version:
+            logging.info(f"Auto-Update: Update available (v{latest_version}). Preparing download...")
+            auto_update_status['status'] = 'downloading'
+            auto_update_status['message'] = f'Downloading engine update v{latest_version}...'
+            
+            # Find whl download url
+            urls = pypi_data['urls']
+            whl_url = None
+            for url_info in urls:
+                if url_info['filename'].endswith('.whl'):
+                    whl_url = url_info['url']
+                    break
+                    
+            if not whl_url:
+                raise Exception("No valid wheel package found on PyPI.")
+                
+            temp_dir = tempfile.gettempdir()
+            temp_file_path = os.path.join(temp_dir, "yt_dlp_auto_update.whl")
+            
+            # Download
+            req_dl = urllib.request.Request(whl_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req_dl, timeout=60) as response_dl:
+                with open(temp_file_path, 'wb') as out_file:
+                    out_file.write(response_dl.read())
+                    
+            # Extract
+            target_dir = os.path.join(app_path, 'bin', 'yt-dlp-update')
+            if not os.path.exists(target_dir):
+                os.makedirs(target_dir)
+                
+            with zipfile.ZipFile(temp_file_path, 'r') as zip_ref:
+                for file in zip_ref.namelist():
+                    if file.startswith('yt_dlp/'):
+                        zip_ref.extract(file, target_dir)
+                        
+            # Cleanup temp file
+            try:
+                os.remove(temp_file_path)
+            except Exception:
+                pass
+                
+            logging.info(f"Auto-Update: Engine successfully updated in background to v{latest_version}. Ready for restart.")
+            auto_update_status['status'] = 'completed'
+            auto_update_status['message'] = f'Engine updated to v{latest_version}. Restart app to apply.'
+        else:
+            logging.info("Auto-Update: Engine is already the latest version.")
+            auto_update_status['status'] = 'up_to_date'
+            auto_update_status['message'] = 'Engine is up-to-date.'
+            
+    except Exception as e:
+        logging.error(f"Auto-Update failed: {e}")
+        auto_update_status['status'] = 'error'
+        auto_update_status['message'] = f'Check/Update failed: {str(e)}'
+
+_threading.Thread(target=auto_update_engine_on_startup, daemon=True).start()
+
 def _schedule_cleanup(download_id, delay=10):
     """Remove stale download entries after delay seconds to prevent memory leak."""
     import time
@@ -1246,12 +1327,33 @@ def engine_status():
                 latest_version = pypi_data['info']['version']
         except Exception:
             pass # Network issue or offline, fallback to current_version
+
+        # Read version from downloaded update folder if exists
+        update_version = None
+        update_path = os.path.join(app_path, 'bin', 'yt-dlp-update')
+        if os.path.exists(update_path):
+            try:
+                ver_file = os.path.join(update_path, 'yt_dlp', 'version.py')
+                if os.path.exists(ver_file):
+                    with open(ver_file, 'r', encoding='utf-8') as vf:
+                        ver_content = vf.read()
+                        match = re.search(r"__version__\s*=\s*['\"]([^'\"]+)['\"]", ver_content)
+                        if match:
+                            update_version = match.group(1)
+            except Exception:
+                pass
+
+        update_pending_restart = False
+        if update_version and latest_version and update_version == latest_version and current_version != latest_version:
+            update_pending_restart = True
             
         return jsonify({
             'current_version': current_version,
             'latest_version': latest_version,
             'is_updated': is_updated,
-            'needs_update': current_version != latest_version
+            'needs_update': current_version != latest_version,
+            'update_pending_restart': update_pending_restart,
+            'auto_update': auto_update_status
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500

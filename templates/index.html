@@ -579,10 +579,22 @@
                                     class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
                                 <label for="metadataCheck" class="cursor-pointer select-none">ฝังปกและข้อมูลเพลงอัตโนมัติ (ID3/M4A)</label>
                             </div>
-                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
+                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold flex-wrap">
                                 <i class="fa-solid fa-microchip"></i> Engine: <span class="text-slate-600" x-text="engineVersion">Loading...</span>
-                                <template x-if="engineIsUpdated">
-                                    <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Updated</span>
+                                
+                                <template x-if="!needsEngineUpdate">
+                                    <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Latest (ล่าสุด)</span>
+                                </template>
+
+                                <template x-if="needsEngineUpdate && updatePendingRestart">
+                                    <span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase animate-pulse">Pending Restart (กรุณารีสตาร์ทแอป)</span>
+                                </template>
+
+                                <template x-if="needsEngineUpdate && !updatePendingRestart && (autoUpdateStatus.status === 'checking' || autoUpdateStatus.status === 'downloading')">
+                                    <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase flex items-center gap-1">
+                                        <i class="fa-solid fa-arrows-rotate animate-spin"></i>
+                                        <span x-text="autoUpdateStatus.message || 'กำลังเช็คอัปเดต...'">กำลังเช็คอัปเดต...</span>
+                                    </span>
                                 </template>
                             </div>
                         </div>
@@ -594,12 +606,15 @@
                                     <span>คืนค่าเริ่มต้น</span>
                                 </button>
                             </template>
-                            <button @click="updateEngine()" :disabled="isUpdatingEngine"
-                                class="bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white py-2 px-4 rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-1.5">
-                                <i class="fa-solid fa-arrows-rotate"
-                                    :class="isUpdatingEngine ? 'animate-spin' : ''"></i>
-                                <span x-text="needsEngineUpdate ? 'อัปเดตใหม่' : 'อัปเดต'">อัปเดต</span>
-                            </button>
+
+                            <template x-if="needsEngineUpdate && !updatePendingRestart && autoUpdateStatus.status !== 'downloading' && autoUpdateStatus.status !== 'checking'">
+                                <button @click="updateEngine()" :disabled="isUpdatingEngine"
+                                    class="bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white py-2 px-4 rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-arrows-rotate"
+                                        :class="isUpdatingEngine ? 'animate-spin' : ''"></i>
+                                    <span x-text="needsEngineUpdate ? 'อัปเดตใหม่' : 'อัปเดต'">อัปเดต</span>
+                                </button>
+                            </template>
                         </div>
                     </div>
 
@@ -917,6 +932,8 @@
                 engineVersion: 'Loading...',
                 engineIsUpdated: false,
                 needsEngineUpdate: false,
+                updatePendingRestart: false,
+                autoUpdateStatus: { status: 'idle', message: '' },
                 videoContainer: 'mp4',
                 playlistVideos: [],
                 selectedPlaylistIndices: [],
@@ -940,6 +957,13 @@
                     setInterval(() => {
                         fetch('/api/ping', { method: 'POST' }).catch(err => console.error("Heartbeat error:", err));
                     }, 3000);
+
+                    // Poll engine status every 5 seconds if checking or downloading
+                    setInterval(() => {
+                        if (this.autoUpdateStatus && (this.autoUpdateStatus.status === 'checking' || this.autoUpdateStatus.status === 'downloading')) {
+                            this.checkEngineStatus();
+                        }
+                    }, 5000);
                 },
 
                 async selectFolder() {
@@ -1006,6 +1030,8 @@
                                 this.engineVersion = data.current_version;
                                 this.engineIsUpdated = data.is_updated;
                                 this.needsEngineUpdate = data.needs_update;
+                                this.updatePendingRestart = data.update_pending_restart;
+                                this.autoUpdateStatus = data.auto_update || { status: 'idle', message: '' };
                             }
                         })
                         .catch(err => console.error("Error loading engine status:", err));

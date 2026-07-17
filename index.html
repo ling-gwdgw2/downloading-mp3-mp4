@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,24 +8,35 @@
     <!-- Google Fonts: Plus Jakarta Sans & Quicksand to match the App style -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Quicksand:wght@500;600;700&family=VT323&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Quicksand:wght@500;600;700&family=VT323&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome Icons for visual enhancement -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         /* --------------------------------------------------
-           🎨 CORE CSS CONFIGURATION & DESIGN SYSTEM (Phoebe Gold Theme)
+             CORE CSS CONFIGURATION & DESIGN SYSTEM (Phoebe Gold Theme)
            -------------------------------------------------- */
         :root {
-            --bg-color: #fefcf3; /* Warm vanilla cream background */
-            --bg-card: rgba(255, 255, 255, 0.85); /* Milky white semi-transparent card */
-            --border-glow: rgba(234, 179, 8, 0.18); /* Warm yellow border */
-            --primary-cyan: #eab308; /* Phoebe golden yellow (#eab308) */
-            --primary-pink: #f59e0b; /* Phoebe golden orange (#f59e0b) */
-            --text-main: #334155; /* Slate-700 dark text */
-            --text-muted: #64748b; /* Slate-500 muted text */
-            --neon-shadow: 0 4px 20px rgba(234, 179, 8, 0.15); /* Warm shadow */
-            --neon-pink-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); /* Warm orange shadow */
+            --bg-color: #fefcf3;
+            /* Warm vanilla cream background */
+            --bg-card: rgba(255, 255, 255, 0.85);
+            /* Milky white semi-transparent card */
+            --border-glow: rgba(234, 179, 8, 0.18);
+            /* Warm yellow border */
+            --primary-cyan: #eab308;
+            /* Phoebe golden yellow (#eab308) */
+            --primary-pink: #f59e0b;
+            /* Phoebe golden orange (#f59e0b) */
+            --text-main: #334155;
+            /* Slate-700 dark text */
+            --text-muted: #64748b;
+            /* Slate-500 muted text */
+            --neon-shadow: 0 4px 20px rgba(234, 179, 8, 0.15);
+            /* Warm shadow */
+            --neon-pink-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+            /* Warm orange shadow */
             --glass-backdrop: blur(12px);
         }
 
@@ -52,11 +64,20 @@
             z-index: -1;
             pointer-events: none;
         }
-        .glow-blob-1 { top: -100px; right: -100px; }
-        .glow-blob-2 { bottom: 10%; left: -200px; background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, rgba(0, 0, 0, 0) 70%); }
+
+        .glow-blob-1 {
+            top: -100px;
+            right: -100px;
+        }
+
+        .glow-blob-2 {
+            bottom: 10%;
+            left: -200px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+        }
 
         /* --------------------------------------------------
-           📌 NAVIGATION BAR
+            NAVIGATION BAR
            -------------------------------------------------- */
         header {
             width: 100%;
@@ -83,7 +104,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
+
         .logo i {
             background: linear-gradient(45deg, var(--primary-cyan), var(--primary-pink));
             -webkit-background-clip: text;
@@ -268,9 +289,18 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.5);
         }
-        .mockup-dot:nth-child(1) { background: #ff5f56; }
-        .mockup-dot:nth-child(2) { background: #ffbd2e; }
-        .mockup-dot:nth-child(3) { background: #27c93f; }
+
+        .mockup-dot:nth-child(1) {
+            background: #ff5f56;
+        }
+
+        .mockup-dot:nth-child(2) {
+            background: #ffbd2e;
+        }
+
+        .mockup-dot:nth-child(3) {
+            background: #27c93f;
+        }
 
         .mockup-title {
             font-family: 'VT323', monospace;
@@ -298,12 +328,12 @@
             max-width: 140px;
             height: auto;
             border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
             animation: float 4s ease-in-out infinite;
         }
 
         /* --------------------------------------------------
-           💎 FEATURES SECTION
+             FEATURES SECTION
            -------------------------------------------------- */
         .features {
             padding: 80px 6%;
@@ -388,12 +418,26 @@
         }
 
         /* --------------------------------------------------
-           📋 CHANGELOG & PATCH NOTES SECTION
+             CHANGELOG & PATCH NOTES SECTION
            -------------------------------------------------- */
         .changelog {
             padding: 80px 6% 120px 6%;
-            max-width: 860px;
+            max-width: 1400px;
             margin: 0 auto;
+        }
+
+        .changelog-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .changelog-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
         }
 
         .changelog-card {
@@ -402,7 +446,7 @@
             border-radius: 24px;
             padding: 40px;
             backdrop-filter: var(--glass-backdrop);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
             position: relative;
         }
 
@@ -480,7 +524,7 @@
         }
 
         /* --------------------------------------------------
-           👣 FOOTER
+            FOOTER
            -------------------------------------------------- */
         footer {
             background: rgba(6, 7, 10, 0.95);
@@ -519,7 +563,7 @@
         }
 
         .copyright {
-            color: rgba(255,255,255,0.25);
+            color: rgba(255, 255, 255, 0.25);
             font-size: 13px;
         }
 
@@ -527,14 +571,28 @@
            💫 ANIMATIONS & MEDIA QUERIES
            -------------------------------------------------- */
         @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
         }
 
         @keyframes pulse-border {
-            0% { border-color: rgba(0, 242, 254, 0.3); }
-            100% { border-color: rgba(0, 242, 254, 0.7); box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
+            0% {
+                border-color: rgba(0, 242, 254, 0.3);
+            }
+
+            100% {
+                border-color: rgba(0, 242, 254, 0.7);
+                box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+            }
         }
 
         @media (max-width: 968px) {
@@ -543,7 +601,7 @@
                 text-align: center;
                 padding-top: 60px;
             }
-            
+
             .hero-title {
                 font-size: 42px;
             }
@@ -559,20 +617,21 @@
             .hero-visual {
                 margin-top: 40px;
             }
-            
+
             header {
                 padding: 16px 4%;
             }
         }
     </style>
 </head>
+
 <body>
 
     <!-- Glow background blobs -->
     <div class="glow-blob glow-blob-1"></div>
     <div class="glow-blob glow-blob-2"></div>
 
-    <!-- 📌 HEADER -->
+    <!-- HEADER -->
     <header>
         <div class="logo">
             <i class="fa-solid fa-cloud-arrow-down"></i> PHOEBE DOWNLOADER
@@ -581,9 +640,11 @@
             <ul class="nav-links">
                 <li><a href="#features" class="i18n-features">ฟีเจอร์</a></li>
                 <li><a href="#changelog" class="i18n-changelog">บันทึกแพทช์</a></li>
-                <li><a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" class="github-nav-btn" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></li>
+                <li><a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" class="github-nav-btn"
+                        target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></li>
             </ul>
-            <select id="landingLangSelector" onchange="changeLanguage(this.value)" style="background: rgba(255,255,255,0.75); border: 1px solid rgba(234, 179, 8, 0.25); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 700; color: #422006; outline: none; cursor: pointer; font-family: inherit;">
+            <select id="landingLangSelector" onchange="changeLanguage(this.value)"
+                style="background: rgba(255,255,255,0.75); border: 1px solid rgba(234, 179, 8, 0.25); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 700; color: #422006; outline: none; cursor: pointer; font-family: inherit;">
                 <option value="th">ภาษาไทย (TH)</option>
                 <option value="en">English (EN)</option>
                 <option value="lo">ພາສາລາວ (LO)</option>
@@ -592,24 +653,26 @@
     </header>
 
     <main>
-        <!-- 🚀 HERO AREA -->
+        <!-- HERO AREA -->
         <section class="hero">
             <div class="hero-info">
                 <div class="badge i18n-badge">Version 2.1.0 Released</div>
-                <h1 class="hero-title i18n-title">แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ HD</span> สไตล์ Retro-Pixel</h1>
+                <h1 class="hero-title i18n-title">แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ</h1>
                 <p class="hero-desc i18n-desc">
-                    ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียวด้วยความเร็วสูงสุด ทำงานเป็น Local Web Server เบาและเร็วเป็นพิเศษ พร้อมสตรีมมิ่งติดตามสถานะสดแบบวินาทีต่อวินาที (Real-time Progress Tracker)
+                    ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียว ทำงานเป็น Local Web Server เบาและเร็ว
                 </p>
                 <div class="download-actions">
-                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.1.0/PhoebeDownloaderSetup.exe" class="btn-main btn-download i18n-btn-download" target="_blank">
+                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.1.0/PhoebeDownloaderSetup.exe"
+                        class="btn-main btn-download i18n-btn-download" target="_blank">
                         <i class="fa-brands fa-windows"></i> ดาวน์โหลดสำหรับ Windows (.exe)
                     </a>
-                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/blob/main/Linux_mac.md" class="btn-main btn-secondary i18n-btn-secondary" target="_blank">
+                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/blob/main/Linux_mac.md"
+                        class="btn-main btn-secondary i18n-btn-secondary" target="_blank">
                         <i class="fa-brands fa-apple"></i> macOS / Linux Guide
                     </a>
                 </div>
             </div>
-            
+
             <div class="hero-visual">
                 <div class="mockup-container">
                     <div class="mockup-header">
@@ -623,7 +686,8 @@
                     <div class="mockup-content">
                         <!-- Use generated phoebe model picture -->
                         <img src="static/phoebe0.png" alt="Phoebe Model Mascot" class="phoebe-model-img">
-                        <div style="font-family: 'VT323', monospace; font-size: 24px; color: var(--primary-pink); letter-spacing: 1px;" class="i18n-mockup-status">
+                        <div style="font-family: 'VT323', monospace; font-size: 24px; color: var(--primary-pink); letter-spacing: 1px;"
+                            class="i18n-mockup-status">
                             STATUS: WAITING URL...
                         </div>
                     </div>
@@ -631,106 +695,141 @@
             </div>
         </section>
 
-        <!-- 💎 FEATURES SECTION -->
+        <!-- FEATURES SECTION -->
         <section class="features" id="features">
             <div class="section-header">
-                <span class="section-tag i18n-features-tag">คุณสมบัติระบบ</span>
-                <h2 class="section-title i18n-features-title">ฟีเจอร์เด่นระดับโปรแกรมดาวน์โหลดระดับโลก</h2>
+                <h2 class="section-title i18n-features-title">คุณสมบัติของโปรแกรม</h2>
             </div>
-            
+
             <div class="features-grid">
                 <!-- Card 1 -->
                 <div class="feature-card">
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-music"></i>
                     </div>
-                    <h3 class="feature-title i18n-feat1-title">แปลงไฟล์ MP3 บิตเรตสูง</h3>
-                    <p class="feature-desc i18n-feat1-desc">แปลงไฟล์เสียงได้รวดเร็วทันใจ เลือกบิตเรตได้ตามใจตั้งแต่ 128kbps, 192kbps จนถึงเสียงคมชัดระดับพรีเมียม 320kbps ด้วยแกนประมวลผล FFmpeg</p>
+                    <h3 class="feature-title i18n-feat1-title">แปลงไฟล์ MP3 MP4บิตเรตสูง</h3>
+                    <p class="feature-desc i18n-feat1-desc">แปลงไฟล์เสียง.MP3 .MP4 .M4A .FLAC .WAV ด้วยแกนประมวลผล
+                        FFmpeg</p>
                 </div>
-                
+
                 <!-- Card 2 -->
                 <div class="feature-card">
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-cookie-bite"></i>
                     </div>
                     <h3 class="feature-title i18n-feat2-title">แก้ทางบล็อกอัจฉริยะ</h3>
-                    <p class="feature-desc i18n-feat2-desc">ระบบ Browser Cookies Fallback ตรวจหาและดึงคุกกี้สิทธิ์การเข้าชมจากเบราว์เซอร์หลัก (Chrome, Edge, Firefox, Opera) ป้องกันการถูกปฏิเสธดาวน์โหลดจากบอตได้อย่างมั่นใจ</p>
+                    <p class="feature-desc i18n-feat2-desc">ระบบ Browser Cookies Fallback
+                        ตรวจหาและดึงคุกกี้สิทธิ์การเข้าชมจากเบราว์เซอร์หลัก (Chrome, Edge, Firefox, Opera)
+                        ป้องกันการถูกปฏิเสธดาวน์โหลดจากบอตได้อย่างมั่นใจ</p>
                 </div>
-                
+
                 <!-- Card 3 -->
                 <div class="feature-card">
                     <div class="feature-icon-wrapper">
                         <i class="fa-solid fa-circle-notch"></i>
                     </div>
                     <h3 class="feature-title i18n-feat3-title">ติดตามสถานะแบบเรียลไทม์</h3>
-                    <p class="feature-desc i18n-feat3-desc">ด้วยระบบ Server-Sent Events (SSE) หน้าจอจะแสดงอัตราความเร็ว (Speed), แถบหลอดเปอร์เซ็นต์โหลด (Progress Bar), และเวลาที่เหลือ (ETA) แบบเรียลไทม์เสถียร 100%</p>
+                    <p class="feature-desc i18n-feat3-desc">ด้วยระบบ Server-Sent Events (SSE) หน้าจอจะแสดงอัตราความเร็ว
+                        (Speed), แถบหลอดเปอร์เซ็นต์โหลด (Progress Bar), และเวลาที่เหลือ (ETA) แบบเรียลไทม์</p>
                 </div>
             </div>
         </section>
 
-        <!-- 📋 PATCH NOTES SECTION -->
+        <!-- PATCH NOTES SECTION -->
         <section class="changelog" id="changelog">
             <div class="section-header">
                 <span class="section-tag i18n-changelog-tag">บันทึกประวัติการพัฒนา</span>
-                <h2 class="section-title i18n-changelog-title">แพทช์การอัปเดต (Update Patch Notes)</h2>
+                <h2 class="section-title i18n-changelog-title">แพทช์การอัปเดต</h2>
             </div>
-            
-            <div class="changelog-card">
-                <div class="changelog-meta">
-                    <span class="version-badge">PATCH v2.1.0</span>
-                    <span class="release-date i18n-release-date">ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026</span>
-                </div>
-                
-                <div class="changelog-group">
-                    <h4 class="changelog-group-title i18n-patch-new-title"><i class="fa-solid fa-circle-plus"></i> ฟีเจอร์และระบบใหม่ (New Features)</h4>
-                    <ul class="changelog-list">
-                        <li class="i18n-patch-new-li1">**Single-Page UI Consolidation**: ยุบหน้ารายละเอียดการทำงาน มารวมกับหน้าต่างค้นหาหลักให้เสร็จสรรพในหน้าจอเดียว ไหลลื่น ไม่โหลดเปลี่ยนหน้าจอให้กวนใจ</li>
-                        <li class="i18n-patch-new-li2">**Browser Cookies Fallback Integration**: ค้นหาโฟลเดอร์เก็บคุกกี้เบราว์เซอร์อัตโนมัติบนคอมพิวเตอร์ และทำระบบสลับทำงานเมื่อดาวน์โหลดวิดีโอบางประเภทติดขัด</li>
-                        <li class="i18n-patch-new-li3">**Phoebe Visual Identity Addition**: นำเข้าและประดับชุดตัวแสดงผลสัญลักษ์ Phoebe (โมเดลการ์ตูน phoebe0/1/2) สร้างอรรถรสภาพสไตล์อนิเมะเรโทร</li>
-                    </ul>
-                </div>
-                
-                <div class="changelog-group">
-                    <h4 class="changelog-group-title i18n-patch-fix-title"><i class="fa-solid fa-wrench"></i> การปรับปรุงประสิทธิภาพและแก้ไขบั๊ก (Improvements & Bug Fixes)</h4>
-                    <ul class="changelog-list">
-                        <li class="i18n-patch-fix-li1">**Windows Shell Registry Integration**: ปรับเปลี่ยนพาธบันทึกไฟล์ดาวน์โหลดเริ่มต้น ให้ตรวจสอบจากที่อยู่โฟลเดอร์เซฟจริงผ่าน Windows System Explorer Registry</li>
-                        <li class="i18n-patch-fix-li2">**Code Cleanup**: ถอดระบบ GUI แบบ Native Python (`gui_app.py`, `create_logo.py`) ออก เพื่อลดขนาดตัวแอปหลังคอมไพล์ลงกว่า 40%</li>
-                        <li class="i18n-patch-fix-li3">**Local Logging System**: เพิ่มตัวเก็บประวัติเออร์เรอร์ลงไฟล์ `app.log` ภายในเครื่อง คลีนและตรวจสอบจุดติดขัดได้ทันที</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
 
-        <!-- ⚠️ LEGAL DISCLAIMER & TERMS OF USE -->
-        <section class="changelog" id="disclaimer" style="margin-top: 0; padding-top: 20px;">
-            <div class="changelog-card" style="border-color: rgba(255, 0, 127, 0.35); box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);">
-                <div class="changelog-group">
-                    <h4 class="changelog-group-title i18n-disclaimer-title" style="color: var(--primary-pink);">
-                        <i class="fa-solid fa-triangle-exclamation"></i> ข้อตกลงการใช้งานและคำเตือนทางกฎหมาย (Disclaimer)
-                    </h4>
-                    <ul class="changelog-list" style="margin-top: 15px;">
-                        <li class="i18n-disc-li1"><strong>เพื่อการใช้งานส่วนตัวเท่านั้น (Personal Use Only):</strong> ซอฟต์แวร์นี้สร้างขึ้นเพื่อวัตถุประสงค์ในการศึกษา การค้นคว้าวิจัย และการทำสำเนาสำรองข้อมูลมัลติมีเดียส่วนบุคคล (Personal Backup) เท่านั้น ห้ามนำไปใช้เพื่อแสวงหาผลประโยชน์ทางการค้าหรือธุรกิจโดยเด็ดขาด</li>
-                        <li class="i18n-disc-li2"><strong>การเคารพสิทธิ์ในทรัพย์สินทางปัญญา (Copyright Respect):</strong> ผู้ใช้งานจะต้องรับผิดชอบต่อกฎหมายลิขสิทธิ์ด้วยตนเอง โปรดดาวน์โหลดเฉพาะวิดีโอหรือไฟล์เสียงที่ได้รับสิทธิ์ตามกฎหมาย หรือได้รับอนุญาตจากเจ้าของลิขสิทธิ์อย่างเป็นทางการเท่านั้น และห้ามนำไฟล์ที่ดาวน์โหลดไปแจกจ่ายสู่สาธารณะโดยไม่ได้รับสิทธิ์</li>
-                        <li class="i18n-disc-li3"><strong>ข้อตกลงการใช้บริการแพลตฟอร์ม (Terms of Service):</strong> การดาวน์โหลดไฟล์จาก YouTube และ Spotify อาจขัดต่อข้อตกลงการใช้งาน (Terms of Service) ของทางแพลตฟอร์มนั้นๆ ผู้ใช้งานยอมรับและรับทราบถึงข้อกำหนดและความเสี่ยงในส่วนนี้ด้วยตนเอง</li>
-                        <li class="i18n-disc-li4"><strong>การปฏิเสธความรับผิดชอบ (No Liability):</strong> ผู้พัฒนาโปรแกรมจะไม่รับผิดชอบต่อการละเมิดกฎหมาย การดำเนินคดีทางลิขสิทธิ์ หรือความเสียหายใดๆ ทั้งสิ้นที่เกิดจากการใช้งานโปรแกรมนี้ที่ผิดวัตถุประสงค์ของผู้ใช้ปลายทาง</li>
-                    </ul>
+            <div class="changelog-container">
+                <div class="changelog-card">
+                    <div class="changelog-meta">
+                        <span class="version-badge">PATCH v2.1.0</span>
+                        <span class="release-date i18n-release-date">ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026</span>
+                    </div>
+
+                    <div class="changelog-group">
+                        <h4 class="changelog-group-title i18n-patch-new-title"><i class="fa-solid fa-circle-plus"></i>
+                            ฟีเจอร์และระบบใหม่</h4>
+                        <ul class="changelog-list">
+                            <li class="i18n-patch-new-li1">**Single-Page UI Consolidation**: ยุบหน้ารายละเอียดการทำงาน
+                                มารวมกับหน้าต่างค้นหาหลักให้เสร็จสรรพในหน้าจอเดียว ไหลลื่น ไม่โหลดเปลี่ยนหน้าจอให้กวนใจ
+                            </li>
+                            <li class="i18n-patch-new-li2">**Browser Cookies Fallback Integration**:
+                                ค้นหาโฟลเดอร์เก็บคุกกี้เบราว์เซอร์อัตโนมัติบนคอมพิวเตอร์
+                                และทำระบบสลับทำงานเมื่อดาวน์โหลดวิดีโอบางประเภทติดขัด</li>
+                            <li class="i18n-patch-new-li3">**Phoebe Visual Identity Addition**:
+                                นำเข้าและประดับชุดตัวแสดงผลสัญลักษ์ Phoebe (โมเดลการ์ตูน phoebe0/1/2)
+                                สร้างอรรถรสภาพสไตล์อนิเมะเรโทร</li>
+                        </ul>
+                    </div>
+
+                    <div class="changelog-group">
+                        <h4 class="changelog-group-title i18n-patch-fix-title"><i class="fa-solid fa-wrench"></i>
+                            การปรับปรุงประสิทธิภาพและแก้ไขบั๊ก</h4>
+                        <ul class="changelog-list">
+                            <li class="i18n-patch-fix-li1">**Windows Shell Registry Integration**:
+                                ปรับเปลี่ยนพาธบันทึกไฟล์ดาวน์โหลดเริ่มต้น ให้ตรวจสอบจากที่อยู่โฟลเดอร์เซฟจริงผ่าน
+                                Windows
+                                System Explorer Registry</li>
+                            <li class="i18n-patch-fix-li2">**Code Cleanup**: ถอดระบบ GUI แบบ Native Python
+                                (`gui_app.py`,
+                                `create_logo.py`) ออก เพื่อลดขนาดตัวแอปหลังคอมไพล์ลงกว่า 40%</li>
+                            <li class="i18n-patch-fix-li3">**Local Logging System**: เพิ่มตัวเก็บประวัติเออร์เรอร์ลงไฟล์
+                                `app.log` ภายในเครื่อง คลีนและตรวจสอบจุดติดขัดได้ทันที</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- LEGAL DISCLAIMER & TERMS OF USE -->
+                <div class="changelog-card" id="disclaimer"
+                    style="border-color: rgba(255, 0, 127, 0.35); box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);">
+                    <div class="changelog-group">
+                        <h4 class="changelog-group-title i18n-disclaimer-title" style="color: var(--primary-pink);">
+                            <i class="fa-solid fa-triangle-exclamation"></i> ข้อตกลงการใช้งานและคำเตือนทางกฎหมาย
+                        </h4>
+                        <ul class="changelog-list" style="margin-top: 15px;">
+                            <li class="i18n-disc-li1"><strong>เพื่อการใช้งานส่วนตัวเท่านั้น (Personal Use
+                                    Only):</strong>
+                                ซอฟต์แวร์นี้สร้างขึ้นเพื่อวัตถุประสงค์ในการศึกษา การค้นคว้าวิจัย
+                                และการทำสำเนาสำรองข้อมูลมัลติมีเดียส่วนบุคคล (Personal Backup) เท่านั้น
+                                ห้ามนำไปใช้เพื่อแสวงหาผลประโยชน์ทางการค้าหรือธุรกิจโดยเด็ดขาด</li>
+                            <li class="i18n-disc-li2"><strong>การเคารพสิทธิ์ในทรัพย์สินทางปัญญา (Copyright
+                                    Respect):</strong> ผู้ใช้งานจะต้องรับผิดชอบต่อกฎหมายลิขสิทธิ์ด้วยตนเอง
+                                โปรดดาวน์โหลดเฉพาะวิดีโอหรือไฟล์เสียงที่ได้รับสิทธิ์ตามกฎหมาย
+                                หรือได้รับอนุญาตจากเจ้าของลิขสิทธิ์อย่างเป็นทางการเท่านั้น
+                                และห้ามนำไฟล์ที่ดาวน์โหลดไปแจกจ่ายสู่สาธารณะโดยไม่ได้รับสิทธิ์</li>
+                            <li class="i18n-disc-li3"><strong>ข้อตกลงการใช้บริการแพลตฟอร์ม (Terms of Service):</strong>
+                                การดาวน์โหลดไฟล์จาก YouTube และ Spotify อาจขัดต่อข้อตกลงการใช้งาน (Terms of Service)
+                                ของทางแพลตฟอร์มนั้นๆ ผู้ใช้งานยอมรับและรับทราบถึงข้อกำหนดและความเสี่ยงในส่วนนี้ด้วยตนเอง
+                            </li>
+                            <li class="i18n-disc-li4"><strong>การปฏิเสธความรับผิดชอบ (No Liability):</strong>
+                                ผู้พัฒนาโปรแกรมจะไม่รับผิดชอบต่อการละเมิดกฎหมาย การดำเนินคดีทางลิขสิทธิ์
+                                หรือความเสียหายใดๆ
+                                ทั้งสิ้นที่เกิดจากการใช้งานโปรแกรมนี้ที่ผิดวัตถุประสงค์ของผู้ใช้ปลายทาง</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- 👣 FOOTER -->
+    <!-- FOOTER -->
     <footer>
         <div class="footer-logo">PHOEBE DOWNLOADER PROJECT</div>
         <ul class="footer-links">
             <li><a href="#features" class="i18n-footer-feat">ฟีเจอร์เด่น</a></li>
             <li><a href="#changelog" class="i18n-footer-change">ประวัติแพทช์</a></li>
             <li><a href="#disclaimer" class="i18n-footer-disc">ข้อตกลงและคำเตือน</a></li>
-            <li><a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" target="_blank">Repository บน GitHub</a></li>
+            <li><a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" target="_blank">Repository บน GitHub</a>
+            </li>
         </ul>
         <div class="copyright">
-            <p class="i18n-footer-copy">© 2026 Developed under MIT License. All assets designed for premium retro pixel aesthetic.</p>
-            <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);" class="i18n-footer-signpath">Free code signing is generously provided by the <a href="https://signpath.org" target="_blank" style="color: var(--primary-cyan); text-decoration: underline;">SignPath Foundation</a>.</p>
+            <p class="i18n-footer-copy">© 2026 ALING</p>
+            <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);" class="i18n-footer-signpath">Free
+                code signing is generously provided by the <a href="https://signpath.org" target="_blank"
+                    style="color: var(--primary-cyan); text-decoration: underline;">SignPath Foundation</a>.</p>
         </div>
     </footer>
 
@@ -741,14 +840,14 @@
                 "i18n-features": "ฟีเจอร์",
                 "i18n-changelog": "บันทึกแพทช์",
                 "i18n-badge": "Version 2.1.0 Released",
-                "i18n-title": "แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ HD</span> สไตล์ Retro-Pixel",
+                "i18n-title": "แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ 4k",
                 "i18n-desc": "ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียวด้วยความเร็วสูงสุด ทำงานเป็น Local Web Server เบาและเร็วเป็นพิเศษ พร้อมสตรีมมิ่งติดตามสถานะสดแบบวินาทีต่อวินาที (Real-time Progress Tracker)",
-                "i18n-btn-download": '<i class="fa-brands fa-windows"></i> ดาวน์โหลดสำหรับ Windows (.exe)',
+                "i18n-btn-download": '<i class="fa-brands fa-windows"></i> Windows (.exe)',
                 "i18n-btn-secondary": '<i class="fa-brands fa-apple"></i> macOS / Linux Guide',
                 "i18n-mockup-title": "PHOEBE ENGINE ACTIVE",
                 "i18n-mockup-status": "STATUS: WAITING URL...",
                 "i18n-features-tag": "คุณสมบัติระบบ",
-                "i18n-features-title": "ฟีเจอร์เด่นระดับโปรแกรมดาวน์โหลดระดับโลก",
+                "i18n-features-title": "คุณสมบัติของโปรแกรม",
                 "i18n-feat1-title": "แปลงไฟล์ MP3 บิตเรตสูง",
                 "i18n-feat1-desc": "แปลงไฟล์เสียงได้รวดเร็วทันใจ เลือกบิตเรตได้ตามใจตั้งแต่ 128kbps, 192kbps จนถึงเสียงคมชัดระดับพรีเมียม 320kbps ด้วยแกนประมวลผล FFmpeg",
                 "i18n-feat2-title": "แก้ทางบล็อกอัจฉริยะ",
@@ -862,7 +961,7 @@
         function changeLanguage(lang) {
             localStorage.setItem('phoebe_landing_lang', lang);
             document.getElementById('landingLangSelector').value = lang;
-            
+
             // Loop through all translation keys
             const keys = Object.keys(landingLocales[lang]);
             keys.forEach(key => {
@@ -880,4 +979,5 @@
         });
     </script>
 </body>
+
 </html>
