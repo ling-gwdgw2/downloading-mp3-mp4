@@ -683,13 +683,13 @@
         <!-- HERO AREA -->
         <section class="hero">
             <div class="hero-info">
-                <div class="badge i18n-badge">Version 2.1.0 Released</div>
+                <div class="badge i18n-badge">Version 2.2.0 Released</div>
                 <h1 class="hero-title i18n-title">แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ</h1>
                 <p class="hero-desc i18n-desc">
                     ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียว ทำงานเป็น Local Web Server เบาและเร็ว
                 </p>
                 <div class="download-actions">
-                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.1.0/PhoebeDownloaderSetup.exe"
+                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.2.0/PhoebeDownloaderSetup.exe"
                         class="btn-main btn-download i18n-btn-download" target="_blank">
                         <i class="fa-brands fa-windows"></i> ดาวน์โหลดสำหรับ Windows (.exe)
                     </a>
@@ -764,23 +764,17 @@
             <div class="changelog-container">
                 <div class="changelog-card">
                     <div class="changelog-meta">
-                        <span class="version-badge">PATCH v2.1.0</span>
+                        <span class="version-badge">PATCH v2.2.0</span>
                         <span class="release-date i18n-release-date">ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026</span>
                     </div>
 
-                    <div class="changelog-group">
+                                        <div class="changelog-group">
                         <h4 class="changelog-group-title i18n-patch-new-title"><i class="fa-solid fa-circle-plus"></i>
                             ฟีเจอร์และระบบใหม่</h4>
                         <ul class="changelog-list">
-                            <li class="i18n-patch-new-li1">**Single-Page UI Consolidation**: ยุบหน้ารายละเอียดการทำงาน
-                                มารวมกับหน้าต่างค้นหาหลักให้เสร็จสรรพในหน้าจอเดียว ไหลลื่น ไม่โหลดเปลี่ยนหน้าจอให้กวนใจ
-                            </li>
-                            <li class="i18n-patch-new-li2">**Browser Cookies Fallback Integration**:
-                                ค้นหาโฟลเดอร์เก็บคุกกี้เบราว์เซอร์อัตโนมัติบนคอมพิวเตอร์
-                                และทำระบบสลับทำงานเมื่อดาวน์โหลดวิดีโอบางประเภทติดขัด</li>
-                            <li class="i18n-patch-new-li3">**Phoebe Visual Identity Addition**:
-                                นำเข้าและประดับชุดตัวแสดงผลสัญลักษ์ Phoebe (โมเดลการ์ตูน phoebe0/1/2)
-                                สร้างอรรถรสภาพสไตล์อนิเมะเรโทร</li>
+                            <li class="i18n-patch-new-li1">**UI Layout Reorganization**: ย้ายตัวรายงานความคืบหน้า (Progress Bar) และตัวจัดการโฟลเดอร์เซฟไฟล์ (Settings & Logs) ไปไว้ที่ฝั่งขวา (Right Panel) พร้อมลบกล่องเพลงจำลองเพื่อประหยัดพื้นที่และเข้าถึงโฟลเดอร์ได้รวดเร็ว</li>
+                            <li class="i18n-patch-new-li2">**One-Click Paste & Auto-Analyze**: เพิ่มปุ่มไอคอนกระดาษ "วาง" ถัดจากกล่องอินพุตเพื่อดึงลิงก์จากคลิปบอร์ดมาใส่และวิเคราะห์ให้ทันทีโดยอัตโนมัติในคลิกเดียว</li>
+                            <li class="i18n-patch-new-li3">**Keyboard Enter Key Support**: รองรับการกดปุ่ม Enter บนแป้นพิมพ์เพื่อเริ่มสั่งวิเคราะห์หรือค้นหาลิงก์ได้โดยทันทีโดยไม่ต้องพึ่งเมาส์คลิกปุ่ม</li>
                         </ul>
                     </div>
 
@@ -788,15 +782,9 @@
                         <h4 class="changelog-group-title i18n-patch-fix-title"><i class="fa-solid fa-wrench"></i>
                             การปรับปรุงประสิทธิภาพและแก้ไขบั๊ก</h4>
                         <ul class="changelog-list">
-                            <li class="i18n-patch-fix-li1">**Windows Shell Registry Integration**:
-                                ปรับเปลี่ยนพาธบันทึกไฟล์ดาวน์โหลดเริ่มต้น ให้ตรวจสอบจากที่อยู่โฟลเดอร์เซฟจริงผ่าน
-                                Windows
-                                System Explorer Registry</li>
-                            <li class="i18n-patch-fix-li2">**Code Cleanup**: ถอดระบบ GUI แบบ Native Python
-                                (`gui_app.py`,
-                                `create_logo.py`) ออก เพื่อลดขนาดตัวแอปหลังคอมไพล์ลงกว่า 40%</li>
-                            <li class="i18n-patch-fix-li3">**Local Logging System**: เพิ่มตัวเก็บประวัติเออร์เรอร์ลงไฟล์
-                                `app.log` ภายในเครื่อง คลีนและตรวจสอบจุดติดขัดได้ทันที</li>
+                            <li class="i18n-patch-fix-li1">**PyInstaller Import Bypass**: แก้ไขบั๊ก FrozenImporter ทำให้แอปดึงเครื่องยนต์ yt-dlp รุ่นอัปเกรดภายนอกจาก bin/yt-dlp-update มาทำงานแทนตัวใน EXE จริงหลังรีสตาร์ทสำเร็จ</li>
+                            <li class="i18n-patch-fix-li2">**Version Normalization Check**: ปรับระบบเทียบเวอร์ชัน PyPI กับแอปผ่าน Tuple จำนวนเต็ม ป้องกันปุ่มอัปเดตแสดงซ้ำซ้อนจากรูปแบบวันที่ (เช่น 2026.07.04 เทียบกับ 2026.7.4)</li>
+                            <li class="i18n-patch-fix-li3">**Close Button & Heartbeat Removal**: ปิดปุ่มกากบาท [X] บน Windows Title Bar และ Alt+F4 (ใช้ Win32 API ctypes) บังคับปิดด้วยปุ่มปิดโปรแกรมใน UI เท่านั้นเพื่อความปลอดภัยในการเคลียร์ Cache</li>
                         </ul>
                     </div>
                 </div>
@@ -858,7 +846,7 @@
             th: {
                 "i18n-features": "ฟีเจอร์",
                 "i18n-changelog": "บันทึกแพทช์",
-                "i18n-badge": "Version 2.1.0 Released",
+                "i18n-badge": "Version 2.2.0 Released",
                 "i18n-title": "แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ 4k",
                 "i18n-desc": "ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียวด้วยความเร็วสูงสุด ทำงานเป็น Local Web Server เบาและเร็วเป็นพิเศษ พร้อมสตรีมมิ่งติดตามสถานะสดแบบวินาทีต่อวินาที (Real-time Progress Tracker)",
                 "i18n-btn-download": '<i class="fa-brands fa-windows"></i> Windows (.exe)',
@@ -879,13 +867,13 @@
                 "i18n-changelog-title": "แพทช์การอัปเดต (Update Patch Notes)",
                 "i18n-release-date": "ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026",
                 "i18n-patch-new-title": '<i class="fa-solid fa-circle-plus"></i> ฟีเจอร์และระบบใหม่ (New Features)',
-                "i18n-patch-new-li1": "**Single-Page UI Consolidation**: ยุบหน้ารายละเอียดการทำงาน มารวมกับหน้าต่างค้นหาหลักให้เสร็จสรรพในหน้าจอเดียว ไหลลื่น ไม่โหลดเปลี่ยนหน้าจอให้กวนใจ",
-                "i18n-patch-new-li2": "**Browser Cookies Fallback Integration**: ค้นหาโฟลเดอร์เก็บคุกกี้เบราว์เซอร์อัตโนมัติบนคอมพิวเตอร์ และทำระบบสลับทำงานเมื่อดาวน์โหลดวิดีโอบางประเภทติดขัด",
-                "i18n-patch-new-li3": "**Phoebe Visual Identity Addition**: นำเข้าและประดับชุดตัวแสดงผลสัญลักษ์ Phoebe (โมเดลการ์ตูน phoebe0/1/2) สร้างอรรถรสภาพสไตล์อนิเมะเรโทร",
+                "i18n-patch-new-li1": "**UI Layout Reorganization**: ย้ายตัวรายงานความคืบหน้า (Progress Bar) และตัวจัดการโฟลเดอร์เซฟไฟล์ (Settings & Logs) ไปไว้ที่ฝั่งขวา (Right Panel) พร้อมลบกล่องเพลงจำลองเพื่อประหยัดพื้นที่และเข้าถึงโฟลเดอร์ได้รวดเร็ว",
+                "i18n-patch-new-li2": "**One-Click Paste & Auto-Analyze**: เพิ่มปุ่มไอคอนกระดาษ \"วาง\" ถัดจากกล่องอินพุตเพื่อนำลิงก์จากคลิปบอร์ดมาใส่และวิเคราะห์ให้ทันทีโดยอัตโนมัติในคลิกเดียว",
+                "i18n-patch-new-li3": "**Keyboard Enter Key Support**: รองรับการกดปุ่ม Enter บนแป้นพิมพ์เพื่อเริ่มสั่งวิเคราะห์หรือค้นหาลิงก์ได้โดยทันทีโดยไม่ต้องพึ่งเมาส์คลิกปุ่ม",
                 "i18n-patch-fix-title": '<i class="fa-solid fa-wrench"></i> การปรับปรุงประสิทธิภาพและแก้ไขบั๊ก (Improvements & Bug Fixes)',
-                "i18n-patch-fix-li1": "**Windows Shell Registry Integration**: ปรับเปลี่ยนพาธบันทึกไฟล์ดาวน์โหลดเริ่มต้น ให้ตรวจสอบจากที่อยู่โฟลเดอร์เซฟจริงผ่าน Windows System Explorer Registry",
-                "i18n-patch-fix-li2": "**Code Cleanup**: ถอดระบบ GUI แบบ Native Python (`gui_app.py`, `create_logo.py`) ออก เพื่อลดขนาดตัวแอปหลังคอมไพล์ลงกว่า 40%",
-                "i18n-patch-fix-li3": "**Local Logging System**: เพิ่มตัวเก็บประวัติเออร์เรอร์ลงไฟล์ `app.log` ภายในเครื่อง คลีนและตรวจสอบจุดติดขัดได้ทันที",
+                "i18n-patch-fix-li1": "**PyInstaller Import Bypass**: แก้ไขบั๊ก FrozenImporter ทำให้แอปดึงเครื่องยนต์ yt-dlp รุ่นอัปเกรดภายนอกจาก bin/yt-dlp-update มาทำงานแทนตัวใน EXE จริงหลังรีสตาร์ทสำเร็จ",
+                "i18n-patch-fix-li2": "**Version Normalization Check**: ปรับระบบเทียบเวอร์ชัน PyPI กับแอปผ่าน Tuple จำนวนเต็ม ป้องกันปุ่มอัปเดตแสดงซ้ำซ้อนจากรูปแบบวันที่ (เช่น 2026.07.04 เทียบกับ 2026.7.4)",
+                "i18n-patch-fix-li3": "**Close Button & Heartbeat Removal**: ปิดปุ่มกากบาท [X] บน Windows Title Bar และ Alt+F4 (ใช้ Win32 API ctypes) บังคับปิดด้วยปุ่มปิดโปรแกรมใน UI เท่านั้นเพื่อความปลอดภัยในการเคลียร์ Cache",
                 "i18n-disclaimer-title": '<i class="fa-solid fa-triangle-exclamation"></i> ข้อตกลงการใช้งานและคำเตือนทางกฎหมาย (Disclaimer)',
                 "i18n-disc-li1": "<strong>เพื่อการใช้งานส่วนตัวเท่านั้น (Personal Use Only):</strong> ซอฟต์แวร์นี้สร้างขึ้นเพื่อวัตถุประสงค์ในการศึกษา การค้นคว้าวิจัย และการทำสำเนาสำรองข้อมูลมัลติมีเดียส่วนบุคคล (Personal Backup) เท่านั้น ห้ามนำไปใช้เพื่อแสวงหาผลประโยชน์ทางการค้าหรือธุรกิจโดยเด็ดขาด",
                 "i18n-disc-li2": "<strong>การเคารพสิทธิ์ในทรัพย์สินทางปัญญา (Copyright Respect):</strong> ผู้ใช้งานจะต้องรับผิดชอบต่อกฎหมายลิขสิทธิ์ด้วยตนเอง โปรดดาวน์โหลดเฉพาะวิดีโอหรือไฟล์เสียงที่ได้รับสิทธิ์ตามกฎหมาย หรือได้รับอนุญาตจากเจ้าของลิขสิทธิ์อย่างเป็นทางการเท่านั้น และห้ามนำไฟล์ที่ดาวน์โหลดไปแจกจ่ายสู่สาธารณะโดยไม่ได้รับสิทธิ์",
@@ -900,7 +888,7 @@
             en: {
                 "i18n-features": "Features",
                 "i18n-changelog": "Changelog",
-                "i18n-badge": "Version 2.1.0 Released",
+                "i18n-badge": "Version 2.2.0 Released",
                 "i18n-title": "Retro-Pixel Style <span>MP3 & HD Video</span> Downloader",
                 "i18n-desc": "Download, convert, and archive media files in one click at maximum speed. Runs as a lightweight local web server with a real-time progress tracker and cute retro interface.",
                 "i18n-btn-download": '<i class="fa-brands fa-windows"></i> Download for Windows (.exe)',
@@ -921,13 +909,13 @@
                 "i18n-changelog-title": "Update Patch Notes",
                 "i18n-release-date": "Released on: July 2026",
                 "i18n-patch-new-title": '<i class="fa-solid fa-circle-plus"></i> New Features',
-                "i18n-patch-new-li1": "**Single-Page UI Consolidation**: Merged all operation details into the main search panel on a single fluid interface.",
-                "i18n-patch-new-li2": "**Browser Cookies Fallback Integration**: Scans browser cookies automatically and falls back to them if downloads are blocked.",
-                "i18n-patch-new-li3": "**Phoebe Visual Identity Addition**: Added Phoebe mascot visual layouts (phoebe0/1/2 cartoon assets) for retro anime theme.",
+                "i18n-patch-new-li1": "**UI Layout Reorganization**: Relocated download progress bar and system configuration card to the right panel, removing mock panels.",
+                "i18n-patch-new-li2": "**One-Click Paste & Auto-Analyze**: Added clipboard \"Paste\" button that extracts text and triggers search instantly.",
+                "i18n-patch-new-li3": "**Keyboard Enter Key Support**: Binds the Enter key on the keyboard to trigger search query or link analysis instantly.",
                 "i18n-patch-fix-title": '<i class="fa-solid fa-wrench"></i> Improvements & Bug Fixes',
-                "i18n-patch-fix-li1": "**Windows Shell Registry Integration**: Customizes default file save path dynamically from Windows System Registry.",
-                "i18n-patch-fix-li2": "**Code Cleanup**: Removed Native Python GUI systems (`gui_app.py`, `create_logo.py`) to reduce compile size by 40%.",
-                "i18n-patch-fix-li3": "**Local Logging System**: Logs system events locally in `app.log` for easy troubleshooting.",
+                "i18n-patch-fix-li1": "**PyInstaller Import Bypass**: Fixes PyInstaller FrozenImporter priority loading external yt-dlp update on restart.",
+                "i18n-patch-fix-li2": "**Version Normalization Check**: Normalizes dates as integer tuples to prevent leading-zero update mismatch (e.g. 2026.07.04 vs 2026.7.4).",
+                "i18n-patch-fix-li3": "**Close Button & Heartbeat Removal**: Disables Windows native [X] close button and Alt+F4 to force clean exit via UI button.",
                 "i18n-disclaimer-title": '<i class="fa-solid fa-triangle-exclamation"></i> Terms of Use & Legal Disclaimer',
                 "i18n-disc-li1": "<strong>Personal Use Only:</strong> This software is built solely for educational, research, and personal archiving/backup purposes. Using this software for commercial purposes or business monetization is strictly prohibited.",
                 "i18n-disc-li2": "<strong>Respect for Intellectual Property:</strong> Users are solely responsible for copyright compliance. Download only authorized files and do not distribute files without proper permission.",
@@ -942,7 +930,7 @@
             lo: {
                 "i18n-features": "ຟີເຈີ",
                 "i18n-changelog": "ບັນທຶກແພດຊ໌",
-                "i18n-badge": "Version 2.1.0 Released",
+                "i18n-badge": "Version 2.2.0 Released",
                 "i18n-title": "ແອັບດາວໂຫລດເພງ <span>MP3 & ວິດີໂອ HD</span> ສະໄຕລ໌ Retro-Pixel",
                 "i18n-desc": "ດາວໂຫລດ, ແປງໄຟລ໌ ແລະ ເກັບກຳຂໍ້ມູນສື່ໄດ້ໃນຄລິກດຽວດ້ວຍຄວາມໄວສູງສຸດ. ເຮັດວຽກເປັນ Local Web Server ນ້ຳໜັກເບົາ ແລະ ໄວເປັນພິເສດ ພ້ອມລະບົບຕິດຕາມສະຖານະສົດ.",
                 "i18n-btn-download": '<i class="fa-brands fa-windows"></i> ດາວໂຫລດສຳລັບ Windows (.exe)',
