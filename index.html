@@ -4,7 +4,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Phoebe Video & Audio Downloader - ดาวน์โหลดโปรแกรมสำหรับ Windows, Mac & Linux</title>
+    
+    <!-- SEO & Metadata -->
+    <meta name="description" content="ดาวน์โหลดวิดีโอและเสียงประสิทธิภาพสูง แปลงไฟล์ MP3 320kbps และวิดีโอ MP4 HD/4K จาก YouTube, SoundCloud, Facebook และอื่นๆ ฟรี ด้วยโปรแกรมเดสก์ท็อป Phoebe Downloader">
+    <meta name="keywords" content="ดาวน์โหลด youtube, โหลดเพลง mp3, แปลงไฟล์ youtube เป็น mp3, youtube mp4, youtube downloader, 4k downloader, spotify to mp3, phoebe downloader, download video youtube">
+    <meta name="author" content="ALING">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#fefcf3" id="theme-color-meta">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://github.com/ling-gwdgw2/downloading-mp3-mp4">
+    <meta property="og:title" content="Phoebe Downloader - ดาวน์โหลดเพลง MP3 & วิดีโอ 4K ความละเอียดสูงฟรี">
+    <meta property="og:description" content="แอปพลิเคชันเดสก์ท็อปสำหรับ Windows, macOS & Linux แปลงไฟล์เสียงบิตเรตสูงสุด 320kbps และวิดีโอ HD/4K ทำงานเร็ว ปลอดภัย ไร้โฆษณา">
+    <meta property="og:image" content="https://raw.githubusercontent.com/ling-gwdgw2/downloading-mp3-mp4/main/static/sample.webp">
+    <meta property="og:site_name" content="Phoebe Downloader">
+    <meta property="og:locale" content="th_TH">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:locale:alternate" content="lo_LA">
+    
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://github.com/ling-gwdgw2/downloading-mp3-mp4">
+    <meta name="twitter:title" content="Phoebe Downloader - Download High Quality Audio/Video Free">
+    <meta name="twitter:description" content="Convert YouTube, SoundCloud to MP3 320kbps and 4K MP4. Fast, clean and lightweight local web app interface.">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/ling-gwdgw2/downloading-mp3-mp4/main/static/sample.webp">
+    
+    <!-- Canonical & Multilingual hreflang -->
+    <link rel="canonical" href="https://github.com/ling-gwdgw2/downloading-mp3-mp4">
+    <link rel="alternate" hreflang="x-default" href="https://github.com/ling-gwdgw2/downloading-mp3-mp4">
+    <link rel="alternate" hreflang="th" href="https://github.com/ling-gwdgw2/downloading-mp3-mp4?lang=th">
+    <link rel="alternate" hreflang="en" href="https://github.com/ling-gwdgw2/downloading-mp3-mp4?lang=en">
+    <link rel="alternate" hreflang="lo" href="https://github.com/ling-gwdgw2/downloading-mp3-mp4?lang=lo">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="logo.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="logo.ico">
+    
+    <!-- JSON-LD Schema Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Phoebe Downloader",
+      "operatingSystem": "Windows 10, Windows 11, macOS, Linux",
+      "applicationCategory": "UtilitiesApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "High-performance video and audio downloader desktop app using Flask backend, yt-dlp, and FFmpeg core. Supports MP3 320kbps, FLAC, WAV, and 4K MP4 downloads.",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "184"
+      },
+      "downloadUrl": "https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases"
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "Phoebe Downloader ดาวน์โหลดไฟล์เพลงและวิดีโอคุณภาพสูงสุดเท่าไหร่?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Phoebe Downloader รองรับการแปลงไฟล์เสียงเป็น MP3 คุณภาพสูง 320kbps, M4A, FLAC, WAV และวิดีโอ MP4 ความละเอียดสูงสุด 1080p Full HD หรือสูงสุดถึง 4K UHD โดยไม่มีโฆษณาคั่น"
+        }
+      }, {
+        "@type": "Question",
+        "name": "โปรแกรมนี้รองรับระบบปฏิบัติการใดบ้าง?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "รองรับ Windows (.exe ติดตั้งง่าย) และระบบปฏิบัติการ macOS และ Linux ผ่านคู่มือแบบละเอียดบน GitHub"
+        }
+      }, {
+        "@type": "Question",
+        "name": "ระบบดึงคุกกี้สิทธิ์การชม (Cookies Fallback) คืออะไร?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "เป็นระบบอัจฉริยะที่ช่วยป้องกันไม่ให้ระบบบล็อกจากการตรวจจับบอต โดยดึงสิทธิ์การเข้าชม (Cookies) จากเบราว์เซอร์หลักในเครื่องของคุณ ทำให้ดาวน์โหลดไฟล์ได้อย่างราบรื่นและต่อเนื่อง"
+        }
+      }]
+    }
+    </script>
+
     <!-- Google Fonts: Plus Jakarta Sans & Quicksand to match the App style -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -647,6 +737,351 @@
                 padding: 16px 4%;
             }
         }
+
+        /* --------------------------------------------------
+             INTERACTIVE MOCK SEARCH SHOWCASE STYLES
+           -------------------------------------------------- */
+        .mock-search-container {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(234, 179, 8, 0.25);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(234, 179, 8, 0.05);
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+            max-width: 580px;
+            width: 100%;
+        }
+
+        [data-theme="dark"] .mock-search-container {
+            background: rgba(17, 24, 39, 0.7);
+            border-color: rgba(234, 179, 8, 0.35);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .mock-search-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--bg-color);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            border-radius: 12px;
+            padding: 4px 8px 4px 16px;
+            gap: 12px;
+            position: relative;
+        }
+
+        .mock-search-input-wrapper:focus-within {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);
+        }
+
+        .mock-search-input-wrapper .search-icon {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .mock-search-input {
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            outline: none;
+            font-family: inherit;
+            padding: 10px 0;
+        }
+
+        .mock-search-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .mock-search-btn {
+            background: linear-gradient(45deg, var(--primary-cyan), var(--primary-pink));
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            color: #422006;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .mock-search-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 12px rgba(234, 179, 8, 0.3);
+        }
+
+        .mock-search-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Loading state */
+        .mock-loading-box {
+            margin-top: 14px;
+            padding: 12px;
+            background: rgba(234, 179, 8, 0.05);
+            border-radius: 10px;
+            border: 1px dashed rgba(234, 179, 8, 0.3);
+        }
+
+        .loading-bar {
+            height: 4px;
+            width: 100%;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 40%;
+            background: var(--primary-cyan);
+            animation: mock-loading-anim 1.5s infinite ease-in-out;
+            border-radius: 2px;
+        }
+
+        @keyframes mock-loading-anim {
+            0% { left: -40%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .loading-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Mock Results Card */
+        .mock-results-card {
+            margin-top: 14px;
+            background: var(--bg-card);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            border-bottom: 1px solid rgba(234, 179, 8, 0.1);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+        .results-thumb {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(234, 179, 8, 0.15);
+        }
+
+        .results-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .results-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .results-uploader {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .platform-badge {
+            font-size: 9px;
+            background: rgba(234, 179, 8, 0.15);
+            color: var(--badge-text);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            width: max-content;
+            margin-top: 4px;
+        }
+
+        .results-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .option-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .opt-btn {
+            background: var(--btn-secondary-bg);
+            border: 1px solid rgba(234, 179, 8, 0.15);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .opt-btn:hover {
+            background: var(--btn-secondary-hover-bg);
+            border-color: var(--primary-cyan);
+        }
+
+        .opt-btn.active {
+            background: var(--primary-cyan);
+            border-color: var(--primary-cyan);
+            color: #422006;
+        }
+
+        .mock-dl-trigger-btn {
+            width: 100%;
+            background: #f59e0b;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+
+        .mock-dl-trigger-btn:hover {
+            background: var(--primary-cyan);
+            color: #422006;
+            box-shadow: 0 6px 16px rgba(234, 179, 8, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mock Alert Modal */
+        .mock-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .mock-alert-box {
+            background: var(--bg-card);
+            border: 1px solid var(--primary-cyan);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), var(--neon-shadow);
+            text-align: center;
+            position: relative;
+            animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes scaleUp {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .mock-alert-icon {
+            font-size: 40px;
+            color: var(--primary-cyan);
+            margin-bottom: 16px;
+        }
+
+        .mock-alert-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .mock-alert-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .mock-alert-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
     </style>
 </head>
 
@@ -688,6 +1123,59 @@
                 <p class="hero-desc i18n-desc">
                     ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียว ทำงานเป็น Local Web Server เบาและเร็ว
                 </p>
+                
+                <!-- Interactive Mock Search Showcase -->
+                <div class="mock-search-container" id="mockSearchApp">
+                    <div class="mock-search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="mockSearchInput" placeholder="ลองวางลิงก์วิดีโอ หรือพิมพ์ชื่อเพลงที่ต้องการค้นหา..." class="mock-search-input" onkeyup="handleMockSearchKey(event)">
+                        <button id="mockSearchBtn" onclick="runMockSearch()" class="mock-search-btn">
+                            <span class="mock-btn-normal"><i class="fa-solid fa-wand-magic-sparkles"></i> <span class="i18n-mock-btn-text">วิเคราะห์</span></span>
+                            <span class="mock-btn-loading" style="display: none;"><i class="fa-solid fa-circle-notch animate-spin"></i></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Loading skeleton -->
+                    <div id="mockSearchLoading" class="mock-loading-box" style="display: none;">
+                        <div class="loading-bar"></div>
+                        <div class="loading-text"><i class="fa-solid fa-circle-notch animate-spin text-amber-500"></i>&nbsp;<span class="i18n-mock-loading-text">กำลังค้นหาและวิเคราะห์สตรีมมิ่งต้นทาง...</span></div>
+                    </div>
+                    
+                    <!-- Search Results / Format Selection Panel -->
+                    <div id="mockSearchResults" class="mock-results-card" style="display: none;">
+                        <div class="results-header">
+                            <img id="mockTrackThumb" src="" alt="Thumbnail" class="results-thumb">
+                            <div class="results-meta">
+                                <h4 id="mockTrackTitle" class="results-title"></h4>
+                                <p id="mockTrackUploader" class="results-uploader"></p>
+                                <span class="platform-badge">YOUTUBE</span>
+                            </div>
+                        </div>
+                        
+                        <div class="results-options">
+                            <div class="option-group">
+                                <span class="option-label i18n-mock-format-label">ฟอร์แมตไฟล์:</span>
+                                <div class="option-buttons">
+                                    <button class="opt-btn active" onclick="setMockFormat('mp3', this)">MP3 Audio</button>
+                                    <button class="opt-btn" onclick="setMockFormat('m4a', this)">M4A Audio</button>
+                                    <button class="opt-btn" onclick="setMockFormat('mp4', this)">MP4 Video</button>
+                                </div>
+                            </div>
+                            <div class="option-group">
+                                <span class="option-label i18n-mock-quality-label">ความละเอียด:</span>
+                                <div class="option-buttons" id="mockQualityBtns">
+                                    <button class="opt-btn active" onclick="setMockQuality('320kbps', this)">320kbps</button>
+                                    <button class="opt-btn" onclick="setMockQuality('192kbps', this)">192kbps</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="triggerMockDownload()" class="mock-dl-trigger-btn">
+                            <i class="fa-solid fa-circle-down"></i> <span class="i18n-mock-dl-btn-text">เริ่มดาวน์โหลดจำลอง</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="download-actions">
                     <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.2.0/PhoebeDownloaderSetup.exe"
                         class="btn-main btn-download i18n-btn-download" target="_blank">
@@ -1001,6 +1489,197 @@
                 icon.className = 'fa-solid fa-sun';
             } else {
                 icon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        // --------------------------------------------------
+        // INTERACTIVE MOCK SEARCH SHOWCASE CONTROLLER
+        // --------------------------------------------------
+        const mockTracks = {
+            melt: {
+                title: "Melt (メルト)",
+                uploader: "supercell / Hatsune Miku",
+                thumb: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150"
+            },
+            senbonzakura: {
+                title: "Senbonzakura (千本桜)",
+                uploader: "WhiteFlame / Kurousa-P",
+                thumb: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150"
+            },
+            default: {
+                title: "ตัวอย่างเพลงสตรีมมิ่งคุณภาพสูง",
+                uploader: "YouTube Stream Engine",
+                thumb: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150"
+            }
+        };
+
+        let currentMockFormat = 'mp3';
+        let currentMockQuality = '320kbps';
+
+        function handleMockSearchKey(event) {
+            if (event.key === 'Enter') {
+                runMockSearch();
+            }
+        }
+
+        function runMockSearch() {
+            const input = document.getElementById('mockSearchInput').value.trim();
+            if (!input) {
+                const currentLang = localStorage.getItem('phoebe_landing_lang') || 'th';
+                const emptyAlerts = {
+                    th: "กรุณาใส่ชื่อเพลงหรือลิงก์วิดีโอที่ต้องการวิเคราะห์ครับ",
+                    en: "Please enter a song name or video link to analyze.",
+                    lo: "ກະລຸນາໃສ່ຊື່ເພງຫຼືລິ້ງວິດີໂອທີ່ຕ້ອງການວິເຄາະ."
+                };
+                alert(emptyAlerts[currentLang] || emptyAlerts.th);
+                return;
+            }
+
+            const btn = document.getElementById('mockSearchBtn');
+            const btnNormal = btn.querySelector('.mock-btn-normal');
+            const btnLoading = btn.querySelector('.mock-btn-loading');
+            const loadingBox = document.getElementById('mockSearchLoading');
+            const resultsCard = document.getElementById('mockSearchResults');
+
+            // Show loading
+            btnNormal.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
+            loadingBox.style.display = 'block';
+            resultsCard.style.display = 'none';
+
+            // Simulate analysis time
+            setTimeout(() => {
+                btnNormal.style.display = 'inline-block';
+                btnLoading.style.display = 'none';
+                loadingBox.style.display = 'none';
+
+                // Determine result
+                let matched = mockTracks.default;
+                const inputLower = input.toLowerCase();
+                if (inputLower.includes('melt') || inputLower.includes('miku') || inputLower.includes('メルト')) {
+                    matched = mockTracks.melt;
+                } else if (inputLower.includes('senbonzakura') || inputLower.includes('千本') || inputLower.includes('桜')) {
+                    matched = mockTracks.senbonzakura;
+                } else if (input.startsWith('http://') || input.startsWith('https://')) {
+                    matched = {
+                        title: "สตรีมลิงก์ผ่านระบบคุกกี้สำรองสำเร็จ",
+                        uploader: input.split('//')[1].split('/')[0].replace('www.', ''),
+                        thumb: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150"
+                    };
+                } else {
+                    matched = {
+                        title: input + " (High-Definition Audio/Video)",
+                        uploader: "YouTube Search Match",
+                        thumb: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150"
+                    };
+                }
+
+                // Populate results
+                document.getElementById('mockTrackThumb').src = matched.thumb;
+                document.getElementById('mockTrackTitle').textContent = matched.title;
+                document.getElementById('mockTrackUploader').textContent = matched.uploader;
+
+                // Reset format/quality selections
+                const mp3Btn = document.querySelector('.opt-btn[onclick*="setMockFormat(\'mp3\'"]');
+                if (mp3Btn) {
+                    setMockFormat('mp3', mp3Btn);
+                }
+
+                // Show card
+                resultsCard.style.display = 'block';
+            }, 1200);
+        }
+
+        function setMockFormat(format, element) {
+            currentMockFormat = format;
+            
+            // Remove active class from brothers
+            const brothers = element.parentElement.querySelectorAll('.opt-btn');
+            brothers.forEach(b => b.classList.remove('active'));
+            element.classList.add('active');
+
+            // Adjust quality buttons based on format
+            const qualContainer = document.getElementById('mockQualityBtns');
+            if (!qualContainer) return;
+            
+            qualContainer.innerHTML = '';
+
+            if (format === 'mp3') {
+                qualContainer.innerHTML = `
+                    <button class="opt-btn active" onclick="setMockQuality('320kbps', this)">320kbps</button>
+                    <button class="opt-btn" onclick="setMockQuality('256kbps', this)">256kbps</button>
+                    <button class="opt-btn" onclick="setMockQuality('192kbps', this)">192kbps</button>
+                `;
+                currentMockQuality = '320kbps';
+            } else if (format === 'm4a') {
+                qualContainer.innerHTML = `
+                    <button class="opt-btn active" onclick="setMockQuality('Original AAC (Fast)', this)">Original AAC (Fast)</button>
+                `;
+                currentMockQuality = 'Original AAC (Fast)';
+            } else if (format === 'mp4') {
+                qualContainer.innerHTML = `
+                    <button class="opt-btn active" onclick="setMockQuality('1080p (Full HD)', this)">1080p (Full HD)</button>
+                    <button class="opt-btn" onclick="setMockQuality('720p (HD)', this)">720p (HD)</button>
+                    <button class="opt-btn" onclick="setMockQuality('2160p (4K)', this)">2160p (4K)</button>
+                `;
+                currentMockQuality = '1080p (Full HD)';
+            }
+        }
+
+        function setMockQuality(quality, element) {
+            currentMockQuality = quality;
+            const brothers = element.parentElement.querySelectorAll('.opt-btn');
+            brothers.forEach(b => b.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function triggerMockDownload() {
+            // Show custom premium popup modal
+            const overlay = document.createElement('div');
+            overlay.className = 'mock-alert-overlay';
+            overlay.id = 'mockAlertModal';
+            
+            const currentLang = localStorage.getItem('phoebe_landing_lang') || 'th';
+            let titleText = "ดาวน์โหลดตัวติดตั้งสำหรับเดสก์ท็อป";
+            let descText = `ระบบค้นหาจำลองทำการวิเคราะห์ข้อมูลเสร็จสิ้นแล้ว! หากต้องการแปลงไฟล์และดาวน์โหลดจริง กรุณาดาวน์โหลดตัวติดตั้งระบบสำหรับ Windows/macOS/Linux ของเรา`;
+            let confirmText = "ดาวน์โหลดสำหรับ Windows (.exe)";
+            let cancelText = "ปิดหน้าต่าง";
+
+            if (currentLang === 'en') {
+                titleText = "Download Desktop App Installer";
+                descText = "The mockup analysis has completed! To start downloading and converting real files, please install our desktop application for Windows, macOS, or Linux.";
+                confirmText = "Download for Windows (.exe)";
+                cancelText = "Close Window";
+            } else if (currentLang === 'lo') {
+                titleText = "ດາວໂຫລດຕົວຕິດຕັ້ງສໍາລັບເດັສທັອບ";
+                descText = "ລະບົບຄົ້ນຫາຈຳລອງໄດ້ເຮັດວຽກສຳເລັດແລ້ວ! ຖ້າທ່ານຕ້ອງການດາວໂຫລດແລະແປງໄຟລ໌ແທ້, ກະລຸນາດາວໂຫລດຕົວຕິດຕັ້ງ Windows/macOS/Linux ຂອງພວກເຮົາ.";
+                confirmText = "ດາວໂຫລດສໍາລັບ Windows (.exe)";
+                cancelText = "ປິດໜ້າຕ່າງ";
+            }
+
+            overlay.innerHTML = `
+                <div class="mock-alert-box">
+                    <div class="mock-alert-icon"><i class="fa-solid fa-cloud-arrow-down"></i></div>
+                    <h3 class="mock-alert-title">${titleText}</h3>
+                    <p class="mock-alert-desc">${descText}</p>
+                    <div class="mock-alert-actions">
+                        <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.2.0/PhoebeDownloaderSetup.exe" class="btn-main btn-download" style="padding: 10px 20px; font-size: 14px; border-radius: 10px;" onclick="closeMockAlert()">
+                            <i class="fa-brands fa-windows"></i> ${confirmText}
+                        </a>
+                        <button onclick="closeMockAlert()" class="btn-main btn-secondary" style="padding: 10px 20px; font-size: 14px; border-radius: 10px;">
+                            ${cancelText}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+        }
+
+        function closeMockAlert() {
+            const modal = document.getElementById('mockAlertModal');
+            if (modal) {
+                modal.remove();
             }
         }
 
