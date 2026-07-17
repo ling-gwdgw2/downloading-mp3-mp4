@@ -483,10 +483,21 @@
                         </div>
                     </div>
 
-                    <!-- CONVERSION PROGRESS BAR (Visible only during process) -->
+                    
+                </div>
+
+                
+            </div>
+
+            <!-- RIGHT PANEL: USER MUSIC LIBRARY & CONVERSION LOGS (Span 4 of 12) -->
+            <div class="lg:col-span-4 space-y-6">
+
+                
+
+<!-- CONVERSION PROGRESS BAR (Visible only during process) -->
                     <div x-show="isConverting || downloadProgress > 0"
                         x-transition:enter="transition ease-out duration-300"
-                        class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3" x-cloak>
+                        class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 space-y-4" x-cloak>
                         <div class="flex items-center justify-between text-xs font-bold text-slate-500">
                             <span class="flex items-center gap-1.5 text-miku-600">
                                 <i class="fa-solid fa-compact-disc" :class="isConverting ? 'animate-spin' : ''"></i>
@@ -497,22 +508,22 @@
                         </div>
 
                         <!-- Progress line -->
-                        <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200/40">
                             <div class="bg-gradient-to-r from-miku-400 to-[#d97706] h-full transition-all duration-300"
                                 :style="'width: ' + downloadProgress + '%'"></div>
                         </div>
 
                         <!-- Real-time Stats Grid -->
                         <div class="grid grid-cols-3 gap-2.5 text-center text-xs font-bold text-slate-700 pt-1">
-                            <div class="bg-white border border-slate-200/60 p-2 rounded-xl">
+                            <div class="bg-slate-50 border border-slate-200/40 p-2.5 rounded-xl">
                                 <div class="text-[9px] text-slate-400 uppercase">SPEED</div>
                                 <div class="mt-0.5" x-text="downloadSpeed">Connecting...</div>
                             </div>
-                            <div class="bg-white border border-slate-200/60 p-2 rounded-xl">
+                            <div class="bg-slate-50 border border-slate-200/40 p-2.5 rounded-xl">
                                 <div class="text-[9px] text-slate-400 uppercase">ETA</div>
                                 <div class="mt-0.5" x-text="downloadEta">--:--</div>
                             </div>
-                            <div class="bg-white border border-slate-200/60 p-2 rounded-xl">
+                            <div class="bg-slate-50 border border-slate-200/40 p-2.5 rounded-xl">
                                 <div class="text-[9px] text-slate-400 uppercase">SIZE</div>
                                 <div class="mt-0.5 text-[10px] truncate" x-text="downloadSize">-- / --</div>
                             </div>
@@ -529,9 +540,8 @@
                             </span>
                         </div>
                     </div>
-                </div>
 
-                <!-- SYSTEM CONFIGURATION & LOGS CARD -->
+<!-- SYSTEM CONFIGURATION & LOGS CARD -->
                 <div class="bg-white rounded-3xl p-6 border border-miku-100 shadow-sm flex flex-col space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div class="flex items-center gap-2.5 text-miku-600">
@@ -640,97 +650,10 @@
                             class="bg-slate-950 text-emerald-400 font-mono text-[10px] p-4 rounded-2xl max-h-[200px] overflow-y-auto whitespace-pre-wrap break-all border border-slate-800 shadow-inner"></pre>
                     </div>
                 </div>
-            </div>
 
-            <!-- RIGHT PANEL: USER MUSIC LIBRARY & CONVERSION LOGS (Span 4 of 12) -->
-            <div class="lg:col-span-4 space-y-6">
 
-                <!-- PLAYABLE CONVERTED LIBRARY (Matches Screenshot structure) -->
-                <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col space-y-4">
 
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="w-10 h-8 rounded-xl bg-[#fef9c3] flex items-center justify-center text-[#eab308] font-extrabold text-lg font-rounded shadow-inner">
-                                <i class="fa-solid fa-music text-xs"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-[15px] text-slate-800 leading-tight">My Converted Songs</h4>
-                                <p class="text-xs text-slate-400 font-bold"
-                                    x-text="librarySongs.length + ' เพลงพร้อมฟัง'"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Converted Songs List -->
-                    <div class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
-                        <template x-for="(song, idx) in librarySongs" :key="idx">
-                            <div
-                                class="flex items-center gap-3 p-2 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-                                <img :src="song.cover" class="w-11 h-11 rounded-xl object-cover shadow-sm bg-slate-900"
-                                    @error="$event.target.src = 'https://placehold.co/100x100/223c40/ffffff?text=Music'">
-                                <div class="flex-1 min-w-0">
-                                    <h5 class="text-xs font-bold text-slate-800 truncate" x-text="song.title"></h5>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase"
-                                        x-text="song.format + ' • ' + song.quality"></p>
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <button @click="togglePlayMelody(song)"
-                                        class="w-7 h-7 rounded-full bg-miku-100 text-miku-600 hover:bg-miku-200 flex items-center justify-center text-xs transition-all active:scale-90">
-                                        <i class="fa-solid"
-                                            :class="playingSongIndex === idx ? 'fa-stop text-red-500' : 'fa-play'"></i>
-                                    </button>
-                                    <button @click="triggerFileDownload(song)"
-                                        class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center text-xs transition-all active:scale-90">
-                                        <i class="fa-solid fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </template>
-
-                        <div x-show="librarySongs.length === 0"
-                            class="text-center py-6 text-slate-400 text-xs font-semibold">
-                            <i class="fa-solid fa-compact-disc animate-spin block text-lg mb-2 text-miku-300"></i>
-                            ยังไม่พบไฟล์ที่ถูกแปลงเสร็จสิ้น
-                        </div>
-                    </div>
-
-                    <!-- Built-in Synth Player Visualizer feedback -->
-                    <div x-show="playingSongIndex !== null"
-                        class="bg-slate-900 rounded-2xl p-3.5 flex flex-col space-y-2 text-white animate-pulse" x-cloak>
-                        <div class="flex items-center justify-between text-[11px] font-bold">
-                            <span class="text-miku-300 flex items-center gap-1">
-                                <i class="fa-solid fa-headphones"></i>
-                                กำลังเปิดเสียงพรีวิวคีย์สังเคราะห์...
-                            </span>
-                            <span class="text-[10px] text-rose-400">8-Bit Mode Active</span>
-                        </div>
-                        <div class="h-6 flex items-end justify-center gap-1 overflow-hidden pt-1">
-                            <span class="bg-miku-400 w-1.5 h-3 animate-bounce" style="animation-delay: 0.1s"></span>
-                            <span class="bg-miku-400 w-1.5 h-5 animate-bounce" style="animation-delay: 0.3s"></span>
-                            <span class="bg-miku-400 w-1.5 h-2 animate-bounce" style="animation-delay: 0.2s"></span>
-                            <span class="bg-miku-400 w-1.5 h-6 animate-bounce" style="animation-delay: 0.4s"></span>
-                            <span class="bg-miku-400 w-1.5 h-4 animate-bounce" style="animation-delay: 0.15s"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SYSTEM STATS WIDGET -->
-                <div
-                    class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-[#fef9c3] flex items-center justify-center overflow-hidden flex-shrink-0 border border-miku-100">
-                        <i class="fa-solid fa-circle-nodes text-miku-500 text-xl"></i>
-                    </div>
-                    <div class="flex flex-col space-y-0.5">
-                        <h4 class="font-bold text-[14px] text-slate-800 tracking-tight leading-tight">ระบบแปลงไฟล์อันดับ
-                            #1</h4>
-                        <p class="text-xs text-slate-500 leading-relaxed font-medium">
-                            เราใช้อัลกอริทึมจำลองการดึงย่านเสียงที่สมบูรณ์ที่สุด ครอบคลุมสัญญาณเสียงสูงสุดถึง 320kbps
-                            MP3 เพื่อความสุนทรีย์ของหูคุณ
-                        </p>
-                    </div>
-                </div>
+                
 
                 <!-- INFO ACCORDION GUIDE -->
                 <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex flex-col space-y-3.5">
