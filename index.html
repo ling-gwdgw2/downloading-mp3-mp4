@@ -23,6 +23,10 @@
             /* Warm vanilla cream background */
             --bg-card: rgba(255, 255, 255, 0.85);
             /* Milky white semi-transparent card */
+            --bg-header: rgba(254, 252, 243, 0.85);
+            /* Milky white semi-transparent header */
+            --bg-mockup: rgba(254, 252, 243, 0.6);
+            /* Milky white semi-transparent mockup background */
             --border-glow: rgba(234, 179, 8, 0.18);
             /* Warm yellow border */
             --primary-cyan: #eab308;
@@ -33,11 +37,93 @@
             /* Slate-700 dark text */
             --text-muted: #64748b;
             /* Slate-500 muted text */
+            --btn-secondary-bg: rgba(255, 255, 255, 0.65);
+            --btn-secondary-hover-bg: rgba(255, 255, 255, 0.95);
+            --badge-text: #a16207;
+            --badge-bg: rgba(234, 179, 8, 0.1);
+            --badge-border: rgba(234, 179, 8, 0.3);
             --neon-shadow: 0 4px 20px rgba(234, 179, 8, 0.15);
             /* Warm shadow */
             --neon-pink-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
             /* Warm orange shadow */
             --glass-backdrop: blur(12px);
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0b0f19;
+            /* Deep dark slate background */
+            --bg-card: rgba(17, 24, 39, 0.85);
+            /* Dark grey semi-transparent card */
+            --bg-header: rgba(11, 15, 25, 0.85);
+            /* Dark semi-transparent header */
+            --bg-mockup: rgba(17, 24, 39, 0.6);
+            /* Dark semi-transparent mockup background */
+            --border-glow: rgba(234, 179, 8, 0.25);
+            /* Golden border glow */
+            --primary-cyan: #fbbf24;
+            /* Brighter gold yellow */
+            --primary-pink: #f59e0b;
+            /* Gold orange */
+            --text-main: #f1f5f9;
+            /* Light text */
+            --text-muted: #94a3b8;
+            /* Muted light text */
+            --btn-secondary-bg: rgba(31, 41, 55, 0.65);
+            /* Dark secondary button */
+            --btn-secondary-hover-bg: rgba(55, 65, 81, 0.95);
+            --badge-text: #fef08a;
+            --badge-bg: rgba(234, 179, 8, 0.15);
+            --badge-border: rgba(234, 179, 8, 0.4);
+            --neon-shadow: 0 4px 20px rgba(251, 191, 36, 0.25);
+            --neon-pink-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
+        }
+
+        /* Smooth transitions for theme switching */
+        body, header, .feature-card, .changelog-card, .mockup-container, .mockup-content, a, button, select, input {
+            transition: background-color var(--transition-speed) ease, 
+                        border-color var(--transition-speed) ease, 
+                        color var(--transition-speed) ease, 
+                        box-shadow var(--transition-speed) ease,
+                        transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lang-select {
+            background: var(--btn-secondary-bg);
+            border: 1px solid rgba(234, 179, 8, 0.25);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .lang-select option {
+            background: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        .theme-toggle-btn {
+            background: var(--btn-secondary-bg);
+            border: 1px solid rgba(234, 179, 8, 0.25);
+            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--btn-secondary-hover-bg);
+            border-color: var(--primary-cyan);
+            transform: scale(1.05);
         }
 
         * {
@@ -85,7 +171,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(254, 252, 243, 0.85);
+            background: var(--bg-header);
             backdrop-filter: var(--glass-backdrop);
             border-bottom: 1px solid rgba(234, 179, 8, 0.12);
             position: sticky;
@@ -155,12 +241,12 @@
            🚀 HERO SECTION
            -------------------------------------------------- */
         .hero {
-            padding: 100px 8% 80px 8%;
+            padding: 100px 6% 80px 6%;
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 40px;
+            grid-template-columns: 0.75fr 1.25fr;
+            gap: 48px;
             align-items: center;
-            max-width: 1400px;
+            max-width: 1500px;
             margin: 0 auto;
             position: relative;
         }
@@ -174,11 +260,11 @@
         .badge {
             align-self: flex-start;
             padding: 6px 16px;
-            background: rgba(234, 179, 8, 0.1);
-            border: 1px solid rgba(234, 179, 8, 0.3);
+            background: var(--badge-bg);
+            border: 1px solid var(--badge-border);
             border-radius: 50px;
             font-size: 14px;
-            color: #a16207;
+            color: var(--badge-text);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -190,7 +276,7 @@
             font-weight: 800;
             line-height: 1.15;
             letter-spacing: -1px;
-            color: #1e293b;
+            color: var(--text-main);
         }
 
         .hero-title span {
@@ -238,13 +324,13 @@
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.65);
+            background: var(--btn-secondary-bg);
             border: 1px solid rgba(234, 179, 8, 0.2);
             color: var(--text-main);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--btn-secondary-hover-bg);
             transform: translateY(-2px);
         }
 
@@ -256,80 +342,19 @@
             align-items: center;
         }
 
-        .mockup-container {
+        .hero-screenshot {
             width: 100%;
-            max-width: 460px;
-            background: var(--bg-card);
+            max-width: 900px;
+            border-radius: 16px;
             border: 1px solid var(--border-glow);
-            border-radius: 24px;
-            padding: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), var(--neon-shadow);
-            backdrop-filter: var(--glass-backdrop);
-            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), var(--neon-shadow);
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
             z-index: 10;
         }
 
-        .mockup-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-            margin-bottom: 16px;
-        }
-
-        .mockup-dots {
-            display: flex;
-            gap: 6px;
-        }
-
-        .mockup-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        .mockup-dot:nth-child(1) {
-            background: #ff5f56;
-        }
-
-        .mockup-dot:nth-child(2) {
-            background: #ffbd2e;
-        }
-
-        .mockup-dot:nth-child(3) {
-            background: #27c93f;
-        }
-
-        .mockup-title {
-            font-family: 'VT323', monospace;
-            font-size: 20px;
-            color: var(--primary-cyan);
-            letter-spacing: 1.5px;
-        }
-
-        .mockup-content {
-            border-radius: 12px;
-            background: rgba(254, 252, 243, 0.6);
-            border: 1px solid rgba(234, 179, 8, 0.15);
-            padding: 24px;
-            text-align: center;
-            position: relative;
-            min-height: 240px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .phoebe-model-img {
-            max-width: 140px;
-            height: auto;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-            animation: float 4s ease-in-out infinite;
+        .hero-screenshot:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 0 30px rgba(234, 179, 8, 0.3);
         }
 
         /* --------------------------------------------------
@@ -643,12 +668,14 @@
                 <li><a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4" class="github-nav-btn"
                         target="_blank"><i class="fa-brands fa-github"></i> GitHub</a></li>
             </ul>
-            <select id="landingLangSelector" onchange="changeLanguage(this.value)"
-                style="background: rgba(255,255,255,0.75); border: 1px solid rgba(234, 179, 8, 0.25); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 700; color: #422006; outline: none; cursor: pointer; font-family: inherit;">
+            <select id="landingLangSelector" onchange="changeLanguage(this.value)" class="lang-select">
                 <option value="th">ภาษาไทย (TH)</option>
                 <option value="en">English (EN)</option>
                 <option value="lo">ພາສາລາວ (LO)</option>
             </select>
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn" aria-label="Toggle theme">
+                <i class="fa-solid fa-moon"></i>
+            </button>
         </div>
     </header>
 
@@ -674,24 +701,7 @@
             </div>
 
             <div class="hero-visual">
-                <div class="mockup-container">
-                    <div class="mockup-header">
-                        <div class="mockup-dots">
-                            <div class="mockup-dot"></div>
-                            <div class="mockup-dot"></div>
-                            <div class="mockup-dot"></div>
-                        </div>
-                        <div class="mockup-title i18n-mockup-title">PHOEBE ENGINE ACTIVE</div>
-                    </div>
-                    <div class="mockup-content">
-                        <!-- Use generated phoebe model picture -->
-                        <img src="static/phoebe0.png" alt="Phoebe Model Mascot" class="phoebe-model-img">
-                        <div style="font-family: 'VT323', monospace; font-size: 24px; color: var(--primary-pink); letter-spacing: 1px;"
-                            class="i18n-mockup-status">
-                            STATUS: WAITING URL...
-                        </div>
-                    </div>
-                </div>
+                <img src="static/sample.webp" alt="Phoebe Downloader Dashboard" class="hero-screenshot">
             </div>
         </section>
 
@@ -731,6 +741,15 @@
                     <h3 class="feature-title i18n-feat3-title">ติดตามสถานะแบบเรียลไทม์</h3>
                     <p class="feature-desc i18n-feat3-desc">ด้วยระบบ Server-Sent Events (SSE) หน้าจอจะแสดงอัตราความเร็ว
                         (Speed), แถบหลอดเปอร์เซ็นต์โหลด (Progress Bar), และเวลาที่เหลือ (ETA) แบบเรียลไทม์</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-clapperboard"></i>
+                    </div>
+                    <h3 class="feature-title i18n-feat4-title">ดาวน์โหลดวิดีโอ MP4 คมชัดสูง</h3>
+                    <p class="feature-desc i18n-feat4-desc">ดาวน์โหลดและรวมไฟล์เสียง/ภาพความละเอียด HD, Full HD (1080p) หรือสูงสุดถึง 4K แบบไม่มีโฆษณาคั่น</p>
                 </div>
             </div>
         </section>
@@ -854,6 +873,8 @@
                 "i18n-feat2-desc": "ระบบ Browser Cookies Fallback ตรวจหาและดึงคุกกี้สิทธิ์การเข้าชมจากเบราว์เซอร์หลัก (Chrome, Edge, Firefox, Opera) ป้องกันการถูกปฏิเสธดาวน์โหลดจากบอตได้อย่างมั่นใจ",
                 "i18n-feat3-title": "ติดตามสถานะแบบเรียลไทม์",
                 "i18n-feat3-desc": "ด้วยระบบ Server-Sent Events (SSE) หน้าจอจะแสดงอัตราความเร็ว (Speed), แถบหลอดเปอร์เซ็นต์โหลด (Progress Bar), และเวลาที่เหลือ (ETA) แบบเรียลไทม์เสถียร 100%",
+                "i18n-feat4-title": "ดาวน์โหลดวิดีโอ MP4 คมชัดสูง",
+                "i18n-feat4-desc": "ดาวน์โหลดและควบรวมไฟล์ภาพ/เสียงเป็นไฟล์ MP4 ความละเอียดสูงระดับ Full HD (1080p) หรือสูงสุดถึง 4K แบบไม่มีโฆษณาคั่นอย่างสมบูรณ์แบบ",
                 "i18n-changelog-tag": "บันทึกประวัติการพัฒนา",
                 "i18n-changelog-title": "แพทช์การอัปเดต (Update Patch Notes)",
                 "i18n-release-date": "ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026",
@@ -894,6 +915,8 @@
                 "i18n-feat2-desc": "Browser Cookies Fallback system automatically extracts cookies from major browsers (Chrome, Edge, Firefox, Opera) to bypass bot protection.",
                 "i18n-feat3-title": "Real-time Progress Tracker",
                 "i18n-feat3-desc": "Powered by Server-Sent Events (SSE), displays speed, progress percentage bar, and ETA in real-time with 100% stability.",
+                "i18n-feat4-title": "High-Definition MP4 Videos",
+                "i18n-feat4-desc": "Download and merge video and audio streams into high-definition MP4 files up to Full HD (1080p) or 4K with absolutely no ad interruptions.",
                 "i18n-changelog-tag": "Development Log",
                 "i18n-changelog-title": "Update Patch Notes",
                 "i18n-release-date": "Released on: July 2026",
@@ -933,7 +956,9 @@
                 "i18n-feat2-title": "ແກ້ທາງບລັອກອັດສະລິຍະ",
                 "i18n-feat2-desc": "ລະບົບ Browser Cookies Fallback ກວດຫາ ແລະ ດຶງຄຸກກີ້ສິດການເຂົ້າຊົມຈາກເບຣົາເຊີຫຼັກ (Chrome, Edge, Firefox, Opera) ປ້ອງກັນການຖືກປະຕິເສດດາວໂຫລດໄດ້ຢ່າງໝັ້ນໃຈ",
                 "i18n-feat3-title": "ຕິດຕາມສະຖານະແບບລຽວໄທມ໌",
-                "i18n-feat3-desc": "ດ້ວຍລະບົບ Server-Sent Events (SSE) ໜ້າຈໍຈະສະແດງອັດຕາຄວາມໄວ (Speed), ແຖບເປີເຊັນໂຫລດ (Progress Bar), ແລະ ເວລາທີ່ເຫຼືອ (ETA) ແບບລຽວໄທມ໌ຄົງທີ່ 100%",
+                "i18n-feat3-desc": "ດ້ວຍລະບົບ Server-Sent Events (SSE) ໜ້າຈໍຈະສະແດງອັດຕาความໄວ (Speed), ແຖບເປີເຊັນໂຫລດ (Progress Bar), ແລະ ເວລາທີ່ເຫຼືອ (ETA) ແບບລຽວໄທມ໌ຄົງທີ່ 100%",
+                "i18n-feat4-title": "ດາວໂຫລດວິດີໂອ MP4 ຄົມຊັດສູງ",
+                "i18n-feat4-desc": "ດາວໂຫລດ ແລະ ຄວບຮ່ວມໄຟລ໌ພາບ/ສຽງເປັນໄຟล໌ MP4 ຄວາມລະອຽດສູງລະດັບ Full HD (1080p) ຫຼື ສູງສຸດເຖິງ 4K ແບບບໍ່ມີໂຄສະນາຂັ້ນຢ່າງສົມບູນແບບ",
                 "i18n-changelog-tag": "ບັນທຶກປະຫວັດການພັດທະນາ",
                 "i18n-changelog-title": "ແພດຊ໌ການອັບເດດ (Update Patch Notes)",
                 "i18n-release-date": "ປ່ອຍອັບເດດເມື່ອ: ກໍລະກົດ 2026",
@@ -972,8 +997,31 @@
             });
         }
 
-        // Initialize language
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('phoebe_landing_theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            const icon = btn.querySelector('i');
+            if (theme === 'dark') {
+                icon.className = 'fa-solid fa-sun';
+            } else {
+                icon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        // Initialize language and theme
         document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('phoebe_landing_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
             const savedLang = localStorage.getItem('phoebe_landing_lang') || 'th';
             changeLanguage(savedLang);
         });
