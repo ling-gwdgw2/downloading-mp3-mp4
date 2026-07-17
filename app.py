@@ -39,13 +39,22 @@ logging.basicConfig(
 logging.info("Application starting up...")
 logging.info(f"App path: {app_path}")
 
-# Dynamic Engine Loading with Safe Fallback
+# Dynamic Engine Loading with Safe Fallback (bypassing PyInstaller's FrozenImporter)
 update_path = os.path.join(app_path, 'bin', 'yt-dlp-update')
 loaded_dynamic = False
 if os.path.exists(update_path):
+    # Temporarily remove PyInstaller's FrozenImporter to force loading from sys.path (external disk)
+    frozen_importers = []
+    for importer in list(sys.meta_path):
+        if "FrozenImporter" in type(importer).__name__:
+            frozen_importers.append(importer)
+            sys.meta_path.remove(importer)
+            
     sys.path.insert(0, update_path)
     try:
         import yt_dlp
+        import importlib
+        importlib.reload(yt_dlp)
         loaded_dynamic = True
         logging.info(f"Dynamically loaded updated yt-dlp engine from: {update_path} (Version: {yt_dlp.version.__version__})")
     except Exception as e:
@@ -56,6 +65,10 @@ if os.path.exists(update_path):
             shutil.rmtree(update_path, ignore_errors=True)
         except Exception:
             pass
+    finally:
+        # Restore FrozenImporters back to sys.meta_path
+        for importer in reversed(frozen_importers):
+            sys.meta_path.insert(0, importer)
 
 if not loaded_dynamic:
     import yt_dlp
