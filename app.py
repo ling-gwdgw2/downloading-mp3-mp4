@@ -180,6 +180,12 @@ auto_update_status = {
     'message': ''
 }
 
+def normalize_version(version_str):
+    if not version_str:
+        return (0, 0, 0)
+    parts = re.findall(r'\d+', str(version_str))
+    return tuple(int(p) for p in parts)
+
 def check_engine_updates_on_startup():
     global auto_update_status
     logging.info("Engine Update Check: Checking for yt-dlp engine updates on startup...")
@@ -197,7 +203,7 @@ def check_engine_updates_on_startup():
             pypi_data = json.loads(res.read().decode('utf-8'))
             latest_version = pypi_data['info']['version']
             
-        if current_version != latest_version:
+        if normalize_version(current_version) != normalize_version(latest_version):
             logging.info(f"Engine Update Check: Update available (v{latest_version}). Let user trigger manual update.")
             auto_update_status['status'] = 'need_update'
             auto_update_status['message'] = f'Update available: v{latest_version}'
@@ -1323,14 +1329,17 @@ def engine_status():
                 pass
 
         update_pending_restart = False
-        if update_version and latest_version and update_version == latest_version and current_version != latest_version:
-            update_pending_restart = True
+        if update_version and latest_version:
+            same_as_latest = normalize_version(update_version) == normalize_version(latest_version)
+            diff_from_current = normalize_version(current_version) != normalize_version(latest_version)
+            if same_as_latest and diff_from_current:
+                update_pending_restart = True
             
         return jsonify({
             'current_version': current_version,
             'latest_version': latest_version,
             'is_updated': is_updated,
-            'needs_update': current_version != latest_version,
+            'needs_update': normalize_version(current_version) != normalize_version(latest_version),
             'update_pending_restart': update_pending_restart,
             'auto_update': auto_update_status
         })
