@@ -1358,6 +1358,139 @@ def get_clipboard():
     except Exception:
         return jsonify({'text': ''})
 
+# GitHub App Update System
+APP_VERSION = "2.2.0"
+
+app_update_downloading = False
+app_update_progress = 0
+app_update_status = "idle"
+app_update_error = ""
+downloaded_installer_path = ""
+
+def download_installer_thread(url):
+    global app_update_downloading, app_update_progress, app_update_status, app_update_error, downloaded_installer_path
+    try:
+        app_update_downloading = True
+        app_update_status = "downloading"
+        app_update_progress = 0
+        app_update_error = ""
+        
+        # Create a temp directory to download the installer
+        temp_dir = tempfile.gettempdir()
+        dest_path = os.path.join(temp_dir, "PhoebeDownloaderSetup_update.exe")
+        
+        # Download with progress
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=15) as response:
+            total_size = int(response.info().get('Content-Length', 0))
+            downloaded = 0
+            block_size = 8192
+            with open(dest_path, 'wb') as f:
+                while True:
+                    block = response.read(block_size)
+                    if not block:
+                        break
+                    f.write(block)
+                    downloaded += len(block)
+                    if total_size > 0:
+                        app_update_progress = int((downloaded / total_size) * 100)
+                    else:
+                        app_update_progress = 50 # Fallback if no Content-Length
+        
+        downloaded_installer_path = dest_path
+        app_update_status = "ready"
+        app_update_downloading = False
+        logging.info(f"Downloaded update installer to {dest_path}")
+    except Exception as e:
+        app_update_status = "error"
+        app_update_downloading = False
+        app_update_error = str(e)
+        logging.error(f"Failed to download installer: {e}")
+
+@app.route('/api/app_status', methods=['GET'])
+def get_app_status():
+    latest_version = APP_VERSION
+    download_url = ""
+    release_notes = ""
+    needs_update = False
+    try:
+        import urllib.request
+        import json
+        req = urllib.request.Request(
+            "https://api.github.com/repos/ling-gwdgw2/downloading-mp3-mp4/releases/latest",
+            headers={'User-Agent': 'Mozilla/5.0'}
+        )
+        with urllib.request.urlopen(req, timeout=5) as res:
+            data = json.loads(res.read().decode('utf-8'))
+            latest_tag = data.get('tag_name', '').strip('v')
+            if latest_tag:
+                latest_version = latest_tag
+                release_notes = data.get('body', '')
+                for asset in data.get('assets', []):
+                    if asset.get('name', '').endswith('.exe'):
+                        download_url = asset.get('browser_download_url', '')
+                        break
+                # Compare versions using the same version comparison normalization
+                needs_update = normalize_version(APP_VERSION) != normalize_version(latest_version)
+    except Exception as e:
+        logging.error(f"Failed to check GitHub releases: {e}")
+    
+    return jsonify({
+        'current_version': APP_VERSION,
+        'latest_version': latest_version,
+        'needs_update': needs_update,
+        'download_url': download_url,
+        'release_notes': release_notes
+    })
+
+@app.route('/api/download_app_update', methods=['POST'])
+def start_app_update_download():
+    global app_update_downloading
+    try:
+        data = request.json or {}
+        url = data.get('url', '')
+        if not url:
+            return jsonify({'error': 'URL สำหรับอัปเดตว่างเปล่า'}), 400
+        
+        if app_update_downloading:
+            return jsonify({'message': 'กำลังดาวน์โหลดอัปเดตอยู่แล้ว'})
+        
+        import threading
+        t = threading.Thread(target=download_installer_thread, args=(url,))
+        t.daemon = True
+        t.start()
+        return jsonify({'message': 'เริ่มดาวน์โหลดอัปเดตในเบื้องหลังแล้ว'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/app_update_status', methods=['GET'])
+def get_app_update_progress():
+    return jsonify({
+        'status': app_update_status,
+        'progress': app_update_progress,
+        'error': app_update_error
+    })
+
+@app.route('/api/trigger_app_update', methods=['POST'])
+def trigger_app_update():
+    global downloaded_installer_path
+    if not downloaded_installer_path or not os.path.exists(downloaded_installer_path):
+        return jsonify({'error': 'ไม่พบไฟล์ติดตั้งสำหรับอัปเดต'}), 400
+    try:
+        import subprocess
+        subprocess.Popen([downloaded_installer_path], shell=True)
+        
+        def exit_soon():
+            import time
+            time.sleep(1)
+            os._exit(0)
+            
+        import threading
+        threading.Thread(target=exit_soon).start()
+        return jsonify({'message': 'กำลังเปิดตัวติดตั้งและปิดแอปพลิเคชันหลัก...'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/revert_engine', methods=['POST'])
 def revert_engine():
     try:

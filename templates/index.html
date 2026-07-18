@@ -582,43 +582,46 @@
                         </div>
                     </div>
 
-                    <!-- Subtitles and Update Engine actions -->
-                    <div
-                        class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs font-bold text-slate-700 border-t border-slate-100">
-                        <div class="flex flex-col space-y-1">
-                            <div class="flex items-center gap-2">
-                                <input type="checkbox" id="subtitlesCheck" x-model="subtitlesEnabled"
-                                    class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
-                                <label for="subtitlesCheck" class="cursor-pointer select-none">ดาวน์โหลดและฝังซับไตเติล (หากมี)</label>
-                            </div>
-                            <div class="flex items-center gap-2 mt-1">
-                                <input type="checkbox" id="metadataCheck" x-model="embedMetadataEnabled"
-                                    class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
-                                <label for="metadataCheck" class="cursor-pointer select-none">ฝังปกและข้อมูลเพลงอัตโนมัติ (ID3/M4A)</label>
-                            </div>
-                            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold flex-wrap">
-                                <i class="fa-solid fa-microchip"></i> Engine: <span class="text-slate-600" x-text="engineVersion">Loading...</span>
-                                
-                                <template x-if="!needsEngineUpdate">
-                                    <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Latest (ล่าสุด)</span>
-                                </template>
 
-                                <template x-if="needsEngineUpdate && updatePendingRestart">
-                                    <span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase animate-pulse">Pending Restart (กรุณารีสตาร์ทแอป)</span>
-                                </template>
 
-                                <template x-if="needsEngineUpdate && !updatePendingRestart && (autoUpdateStatus.status === 'checking' || autoUpdateStatus.status === 'downloading')">
-                                    <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase flex items-center gap-1">
-                                        <i class="fa-solid fa-arrows-rotate animate-spin"></i>
-                                        <span x-text="autoUpdateStatus.message || 'กำลังเช็คอัปเดต...'">กำลังเช็คอัปเดต...</span>
-                                    </span>
-                                </template>
-                            </div>
+                    <!-- Options Checkbox List -->
+                    <div class="space-y-1.5 pt-2 text-xs font-bold text-slate-700 border-t border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="subtitlesCheck" x-model="subtitlesEnabled"
+                                class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
+                            <label for="subtitlesCheck" class="cursor-pointer select-none">ดาวน์โหลดและฝังซับไตเติล (หากมี)</label>
                         </div>
                         <div class="flex items-center gap-2">
+                            <input type="checkbox" id="metadataCheck" x-model="embedMetadataEnabled"
+                                class="w-4 h-4 rounded text-miku-500 focus:ring-miku-400 border-slate-300">
+                            <label for="metadataCheck" class="cursor-pointer select-none">ฝังปกและข้อมูลเพลงอัตโนมัติ (ID3/M4A)</label>
+                        </div>
+                    </div>
+
+                    <!-- Engine Version Row -->
+                    <div class="flex items-center justify-between gap-3 pt-2.5 text-xs font-bold text-slate-700 border-t border-slate-100">
+                        <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold flex-wrap">
+                            <i class="fa-solid fa-microchip text-slate-400"></i> Engine: <span class="text-slate-600" x-text="engineVersion">Loading...</span>
+                            
+                            <template x-if="!needsEngineUpdate">
+                                <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Latest (ล่าสุด)</span>
+                            </template>
+
+                            <template x-if="needsEngineUpdate && updatePendingRestart">
+                                <span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase animate-pulse">Pending Restart</span>
+                            </template>
+
+                            <template x-if="needsEngineUpdate && !updatePendingRestart && (autoUpdateStatus.status === 'checking' || autoUpdateStatus.status === 'downloading')">
+                                <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase flex items-center gap-1">
+                                    <i class="fa-solid fa-arrows-rotate animate-spin"></i>
+                                    <span x-text="autoUpdateStatus.message || 'กำลังเช็ค...'">กำลังเช็ค...</span>
+                                </span>
+                            </template>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
                             <template x-if="engineIsUpdated">
                                 <button @click="revertEngine()" :disabled="isUpdatingEngine"
-                                    class="bg-rose-50 hover:bg-rose-100 text-rose-600 py-2 px-3 rounded-xl border border-rose-200 transition-all active:scale-95 flex items-center gap-1.5">
+                                    class="bg-rose-50 hover:bg-rose-100 text-rose-600 py-1.5 px-2.5 rounded-lg border border-rose-200 transition-all active:scale-95 flex items-center gap-1 text-[10px]">
                                     <i class="fa-solid fa-rotate-left"></i>
                                     <span>คืนค่าเริ่มต้น</span>
                                 </button>
@@ -626,10 +629,33 @@
 
                             <template x-if="needsEngineUpdate && !updatePendingRestart && autoUpdateStatus.status !== 'downloading' && autoUpdateStatus.status !== 'checking'">
                                 <button @click="updateEngine()" :disabled="isUpdatingEngine"
-                                    class="bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white py-2 px-4 rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-arrows-rotate"
-                                        :class="isUpdatingEngine ? 'animate-spin' : ''"></i>
+                                    class="bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white py-1.5 px-3 rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1 text-[10px]">
+                                    <i class="fa-solid fa-arrows-rotate" :class="isUpdatingEngine ? 'animate-spin' : ''"></i>
                                     <span x-text="needsEngineUpdate ? 'อัปเดตใหม่' : 'อัปเดต'">อัปเดต</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- App Version Row -->
+                    <div class="flex items-center justify-between gap-3 pt-2.5 text-xs font-bold text-slate-700 border-t border-slate-100/50">
+                        <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold flex-wrap">
+                            <i class="fa-solid fa-window-restore text-slate-400"></i> App: <span class="text-slate-600" x-text="'v' + appVersion">v2.2.0</span>
+                            
+                            <template x-if="!needsAppUpdate">
+                                <span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">Latest (ล่าสุด)</span>
+                            </template>
+
+                            <template x-if="needsAppUpdate">
+                                <span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase animate-pulse" x-text="'มีเวอร์ชันใหม่ v' + latestAppVersion">มีเวอร์ชันใหม่</span>
+                            </template>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <template x-if="needsAppUpdate">
+                                <button @click="startAppUpdate()" :disabled="appUpdateStatus.status === 'downloading'"
+                                    class="bg-rose-500 hover:bg-rose-600 disabled:bg-rose-300 text-white py-1.5 px-3 rounded-lg shadow transition-all active:scale-95 flex items-center gap-1 text-[10px]">
+                                    <i class="fa-solid fa-cloud-arrow-down" :class="appUpdateStatus.status === 'downloading' ? 'animate-bounce' : ''"></i>
+                                    <span x-text="appUpdateStatus.status === 'downloading' ? 'กำลังโหลด ' + appUpdateProgress + '%' : (appUpdateStatus.status === 'ready' ? 'เริ่มติดตั้งอัปเดต' : 'อัปเดตแอป')">อัปเดตแอป</span>
                                 </button>
                             </template>
                         </div>
@@ -868,6 +894,13 @@
                 playlistVideos: [],
                 selectedPlaylistIndices: [],
                 playlistSearch: '',
+                // App Updater States
+                appVersion: '2.2.0',
+                latestAppVersion: '2.2.0',
+                needsAppUpdate: false,
+                appDownloadUrl: '',
+                appUpdateStatus: { status: 'idle', progress: 0, error: '' },
+                appUpdateProgress: 0,
 
                 init() {
                     const savedLang = localStorage.getItem('phoebe_lang');
@@ -882,6 +915,7 @@
                             this.saveFolder = data.save_folder;
                         });
                     this.checkEngineStatus();
+                    this.checkAppVersion();
 
 
                     // Poll engine status every 5 seconds if checking or downloading
@@ -961,6 +995,86 @@
                             }
                         })
                         .catch(err => console.error("Error loading engine status:", err));
+                },
+
+                checkAppVersion() {
+                    fetch('/api/app_status')
+                        .then(res => res.json())
+                        .then(data => {
+                            this.appVersion = data.current_version;
+                            this.latestAppVersion = data.latest_version;
+                            this.needsAppUpdate = data.needs_update;
+                            this.appDownloadUrl = data.download_url;
+                        })
+                        .catch(err => console.error("Error loading app version:", err));
+                },
+
+                startAppUpdate() {
+                    if (this.appUpdateStatus.status === 'ready') {
+                        playCuteSound('success');
+                        fetch('/api/trigger_app_update', { method: 'POST' })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.error) {
+                                    this.triggerToast("เกิดข้อผิดพลาด: " + data.error);
+                                } else {
+                                    this.triggerToast(data.message);
+                                }
+                            })
+                            .catch(err => this.triggerToast("เกิดข้อผิดพลาดในการติดตั้ง"));
+                        return;
+                    }
+
+                    if (!this.appDownloadUrl) {
+                        this.triggerToast("ไม่พบที่อยู่ดาวน์โหลดของตัวติดตั้งใหม่");
+                        return;
+                    }
+
+                    playCuteSound('click');
+                    this.appUpdateStatus.status = 'downloading';
+                    this.appUpdateProgress = 0;
+
+                    fetch('/api/download_app_update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url: this.appDownloadUrl })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            this.appUpdateStatus.status = 'error';
+                            this.triggerToast("เริ่มดาวน์โหลดล้มเหลว: " + data.error);
+                        } else {
+                            this.triggerToast("กำลังดาวน์โหลดไฟล์อัปเดตในเบื้องหลัง...");
+                            this.pollAppUpdateProgress();
+                        }
+                    })
+                    .catch(err => {
+                        this.appUpdateStatus.status = 'error';
+                        this.triggerToast("การเชื่อมต่อขัดข้อง");
+                    });
+                },
+
+                pollAppUpdateProgress() {
+                    const interval = setInterval(() => {
+                        fetch('/api/app_update_status')
+                            .then(res => res.json())
+                            .then(data => {
+                                this.appUpdateStatus.status = data.status;
+                                this.appUpdateProgress = data.progress;
+                                if (data.status === 'ready') {
+                                    clearInterval(interval);
+                                    this.triggerToast("ดาวน์โหลดไฟล์อัปเดตเสร็จสิ้น! กรุณากดปุ่มติดตั้งเพื่ออัปเกรด");
+                                } else if (data.status === 'error') {
+                                    clearInterval(interval);
+                                    this.triggerToast("การดาวน์โหลดล้มเหลว: " + data.error);
+                                }
+                            })
+                            .catch(err => {
+                                clearInterval(interval);
+                                console.error("Error polling app update progress:", err);
+                            });
+                    }, 1000);
                 },
 
                 revertEngine() {
