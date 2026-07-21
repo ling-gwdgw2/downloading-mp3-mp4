@@ -470,12 +470,7 @@ class PyWebViewAPI:
             ydl_opts = {
                 'quiet': True,
                 'no_warnings': True,
-                'nocache': True,
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['android', 'ios', 'web']
-                    }
-                }
+                'nocache': True
             }
             if 'list=' in target_url or '/playlist' in target_url:
                 ydl_opts['extract_flat'] = True
@@ -710,11 +705,6 @@ class PyWebViewAPI:
                 'postprocessor_hooks': [make_postprocessor_hook(download_id)],
                 'retries': 10,
                 'fragment_retries': 10,
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['android', 'ios', 'web']
-                    }
-                },
                 'sleep_interval': 1,
                 'max_sleep_interval': 3,
                 'sleep_interval_requests': 1,
@@ -736,10 +726,10 @@ class PyWebViewAPI:
                 elif format_type == 'wav':
                     ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'wav'}]})
                 elif format_type.startswith('mp4_'):
-                    height = int(format_type.split('_')[1]) if '_' in format_type else 720
+                    height = int(format_type.split('_')[1]) if '_' in format_type else 2160
                     ydl_opts.update({'format': f'bestvideo[height<={height}]+bestaudio/best[height<={height}]/best', 'merge_output_format': video_container})
                 else:
-                    ydl_opts.update({'format': 'best[ext=mp4][height<=720]/best[height<=720]/best', 'merge_output_format': video_container})
+                    ydl_opts.update({'format': 'bestvideo+bestaudio/best', 'merge_output_format': video_container})
                     
                 download_url_with_fallback(ydl_opts, urls[0])
             else:
@@ -798,11 +788,6 @@ class PyWebViewAPI:
                         'postprocessor_hooks': [make_postprocessor_hook(download_id, override_title, override_artist, override_cover)],
                         'retries': 10,
                         'fragment_retries': 10,
-                        'extractor_args': {
-                            'youtube': {
-                                'player_client': ['android', 'ios', 'web']
-                            }
-                        },
                         'sleep_interval': 1,
                         'max_sleep_interval': 3,
                         'sleep_interval_requests': 1,
@@ -824,10 +809,10 @@ class PyWebViewAPI:
                     elif format_type == 'wav':
                         ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'wav'}]})
                     elif format_type.startswith('mp4_'):
-                        height = int(format_type.split('_')[1]) if '_' in format_type else 720
+                        height = int(format_type.split('_')[1]) if '_' in format_type else 2160
                         ydl_opts.update({'format': f'bestvideo[height<={height}]+bestaudio/best[height<={height}]/best', 'merge_output_format': video_container})
                     else:
-                        ydl_opts.update({'format': 'best[ext=mp4][height<=720]/best[height<=720]/best', 'merge_output_format': video_container})
+                        ydl_opts.update({'format': 'bestvideo+bestaudio/best', 'merge_output_format': video_container})
 
                     try:
                         download_url_with_fallback(ydl_opts, final_url)
