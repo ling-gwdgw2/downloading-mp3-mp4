@@ -908,17 +908,68 @@
                         this.currentLang = savedLang;
                     }
                     this.triggerToast(this.t('welcome'));
-                    // Load save folder path
-                    fetch('/settings')
-                        .then(res => res.json())
-                        .then(data => {
-                            this.saveFolder = data.save_folder;
-                        });
-                    this.checkEngineStatus();
-                    this.checkAppVersion();
 
+                    const loadApiData = () => {
+                        if (window.pywebview && window.pywebview.api) {
+                            window.pywebview.api.get_settings().then(data => {
+                                if (data && data.save_folder) this.saveFolder = data.save_folder;
+                            });
+                            this.checkEngineStatus();
+                            this.checkAppVersion();
+                        }
+                    };
 
-                    // Poll engine status every 5 seconds if checking or downloading
+                    if (window.pywebview && window.pywebview.api) {
+                        loadApiData();
+                    } else {
+                        window.addEventListener('pywebviewready', loadApiData);
+                    }
+
+                    // Register global progress update callback from pywebview evaluate_js
+                    window.updateDownloadProgress = (dId, progress) => {
+                        if (this.downloadId === dId) {
+                            if (progress.status === 'downloading') {
+                                this.conversionStatusText = 'กำลังสตรีมและเซฟไฟล์ลงไดรฟ์...';
+                                this.downloadProgress = progress.percent || 10;
+                                this.downloadSpeed = progress.speed || 'Downloading...';
+                                this.downloadEta = progress.eta || 'Calculating...';
+                                this.downloadSize = progress.size || '-- / --';
+                            } else if (progress.status === 'processing') {
+                                this.conversionStatusText = 'กำลังประสานภาพและย่านเสียงผ่าน FFmpeg...';
+                                this.downloadProgress = 99;
+                                this.downloadSpeed = 'Processing...';
+                                this.downloadEta = 'Working...';
+                                this.downloadSize = progress.size || 'Merging...';
+                            } else if (progress.status === 'finished') {
+                                this.conversionStatusText = 'ดาวน์โหลดเสร็จสมบูรณ์!';
+                                this.downloadProgress = 100;
+                                this.downloadSpeed = 'Done';
+                                this.downloadEta = '00:00';
+                                this.downloadSize = progress.size || 'Saved';
+                                this.isConverting = false;
+
+                                this.librarySongs.unshift({
+                                    title: this.activeSong.title,
+                                    channel: this.activeSong.channel,
+                                    format: this.selectedFormat.toUpperCase(),
+                                    quality: this.selectedQuality,
+                                    cover: this.activeSong.cover
+                                });
+
+                                playCuteSound('success');
+                                this.triggerToast("ดาวน์โหลดไฟล์เสร็จสมบูรณ์เรียบร้อยแล้วค่ะ!");
+                            } else if (progress.status === 'cancelled') {
+                                this.isConverting = false;
+                                this.downloadProgress = 0;
+                                this.triggerToast("ยกเลิกการดาวน์โหลดเรียบร้อยแล้วค่ะ");
+                            } else if (progress.status === 'error') {
+                                this.isConverting = false;
+                                this.downloadProgress = 0;
+                                this.triggerToast("เกิดข้อผิดพลาด: " + (progress.size || ''));
+                            }
+                        }
+                    };
+
                     setInterval(() => {
                         if (this.autoUpdateStatus && (this.autoUpdateStatus.status === 'checking' || this.autoUpdateStatus.status === 'downloading')) {
                             this.checkEngineStatus();
@@ -929,25 +980,12 @@
                 async selectFolder() {
                     playCuteSound('pop');
                     try {
-                        const response = await fetch('/select_folder', { method: 'POST' });
-                        const data = await response.json();
-                        if (data.dialog_failed || data.error) {
-                            const manualPath = prompt("ระบบเปิดหน้าต่างเลือกโฟลเดอร์ไม่ได้ กรุณากรอกที่อยู่โฟลเดอร์ปลายทางด้วยตัวเอง (เช่น C:\\Users\\Name\\Downloads):", this.saveFolder);
-                            if (manualPath) {
-                                const formData = new FormData();
-                                formData.append('manual_path', manualPath);
-                                const resManual = await fetch('/select_folder', { method: 'POST', body: formData });
-                                const dataManual = await resManual.json();
-                                if (dataManual.error) {
-                                    alert("ไม่สามารถบันทึกโฟลเดอร์นี้ได้: " + dataManual.error);
-                                } else {
-                                    this.saveFolder = dataManual.save_folder;
-                                    this.triggerToast("เปลี่ยนโฟลเดอร์สำเร็จ!");
-                                }
+                        if (window.pywebview && window.pywebview.api) {
+                            const data = await window.pywebview.api.select_folder();
+                            if (data && data.save_folder) {
+                                this.saveFolder = data.save_folder;
+                                this.triggerToast("เปลี่ยนโฟลเดอร์สำเร็จ!");
                             }
-                        } else {
-                            this.saveFolder = data.save_folder;
-                            this.triggerToast("เปลี่ยนโฟลเดอร์สำเร็จ!");
                         }
                     } catch (e) {
                         console.error(e);
@@ -956,7 +994,9 @@
 
                 openFolder() {
                     playCuteSound('click');
-                    fetch('/open_folder', { method: 'POST' });
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.open_folder();
+                    }
                 },
 
                 updateEngine() {
@@ -965,129 +1005,11 @@
                     this.isUpdatingEngine = true;
                     this.updateStatusText = "กำลังอัปเกรดเครื่องยนต์ yt-dlp ล่าสุดจาก PyPI...";
 
-                    fetch('/update_engine', { method: 'POST' })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.error) {
-                                this.updateStatusText = `อัปเกรดไม่สำเร็จ: ${data.error}`;
-                            } else {
-                                this.updateStatusText = data.message;
-                                this.checkEngineStatus();
-                            }
-                            this.isUpdatingEngine = false;
-                        })
-                        .catch(err => {
-                            this.updateStatusText = "การเชื่อมต่อขัดข้อง";
-                            this.isUpdatingEngine = false;
-                        });
-                },
-
-                checkEngineStatus() {
-                    fetch('/engine_status')
-                        .then(res => res.json())
-                        .then(data => {
-                            if (!data.error) {
-                                this.engineVersion = data.current_version;
-                                this.engineIsUpdated = data.is_updated;
-                                this.needsEngineUpdate = data.needs_update;
-                                this.updatePendingRestart = data.update_pending_restart;
-                                this.autoUpdateStatus = data.auto_update || { status: 'idle', message: '' };
-                            }
-                        })
-                        .catch(err => console.error("Error loading engine status:", err));
-                },
-
-                checkAppVersion() {
-                    fetch('/api/app_status')
-                        .then(res => res.json())
-                        .then(data => {
-                            this.appVersion = data.current_version;
-                            this.latestAppVersion = data.latest_version;
-                            this.needsAppUpdate = data.needs_update;
-                            this.appDownloadUrl = data.download_url;
-                        })
-                        .catch(err => console.error("Error loading app version:", err));
-                },
-
-                startAppUpdate() {
-                    if (this.appUpdateStatus.status === 'ready') {
-                        playCuteSound('success');
-                        fetch('/api/trigger_app_update', { method: 'POST' })
-                            .then(res => res.json())
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.update_engine()
                             .then(data => {
                                 if (data.error) {
-                                    this.triggerToast("เกิดข้อผิดพลาด: " + data.error);
-                                } else {
-                                    this.triggerToast(data.message);
-                                }
-                            })
-                            .catch(err => this.triggerToast("เกิดข้อผิดพลาดในการติดตั้ง"));
-                        return;
-                    }
-
-                    if (!this.appDownloadUrl) {
-                        this.triggerToast("ไม่พบที่อยู่ดาวน์โหลดของตัวติดตั้งใหม่");
-                        return;
-                    }
-
-                    playCuteSound('click');
-                    this.appUpdateStatus.status = 'downloading';
-                    this.appUpdateProgress = 0;
-
-                    fetch('/api/download_app_update', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ url: this.appDownloadUrl })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.error) {
-                            this.appUpdateStatus.status = 'error';
-                            this.triggerToast("เริ่มดาวน์โหลดล้มเหลว: " + data.error);
-                        } else {
-                            this.triggerToast("กำลังดาวน์โหลดไฟล์อัปเดตในเบื้องหลัง...");
-                            this.pollAppUpdateProgress();
-                        }
-                    })
-                    .catch(err => {
-                        this.appUpdateStatus.status = 'error';
-                        this.triggerToast("การเชื่อมต่อขัดข้อง");
-                    });
-                },
-
-                pollAppUpdateProgress() {
-                    const interval = setInterval(() => {
-                        fetch('/api/app_update_status')
-                            .then(res => res.json())
-                            .then(data => {
-                                this.appUpdateStatus.status = data.status;
-                                this.appUpdateProgress = data.progress;
-                                if (data.status === 'ready') {
-                                    clearInterval(interval);
-                                    this.triggerToast("ดาวน์โหลดไฟล์อัปเดตเสร็จสิ้น! กรุณากดปุ่มติดตั้งเพื่ออัปเกรด");
-                                } else if (data.status === 'error') {
-                                    clearInterval(interval);
-                                    this.triggerToast("การดาวน์โหลดล้มเหลว: " + data.error);
-                                }
-                            })
-                            .catch(err => {
-                                clearInterval(interval);
-                                console.error("Error polling app update progress:", err);
-                            });
-                    }, 1000);
-                },
-
-                revertEngine() {
-                    if (this.isUpdatingEngine) return;
-                    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการคืนค่าโปรแกรมประมวลผลกลับเป็นรุ่นเริ่มต้น?")) {
-                        playCuteSound('pop');
-                        this.isUpdatingEngine = true;
-                        this.updateStatusText = "กำลังล้างการอัปเดต...";
-                        fetch('/revert_engine', { method: 'POST' })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.error) {
-                                    this.updateStatusText = `คืนค่าล้มเหลว: ${data.error}`;
+                                    this.updateStatusText = `อัปเกรดไม่สำเร็จ: ${data.error}`;
                                 } else {
                                     this.updateStatusText = data.message;
                                     this.checkEngineStatus();
@@ -1101,6 +1023,127 @@
                     }
                 },
 
+                checkEngineStatus() {
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.engine_status()
+                            .then(data => {
+                                if (!data.error) {
+                                    this.engineVersion = data.current_version;
+                                    this.engineIsUpdated = data.is_updated;
+                                    this.needsEngineUpdate = data.needs_update;
+                                    this.updatePendingRestart = data.update_pending_restart;
+                                    this.autoUpdateStatus = data.auto_update || { status: 'idle', message: '' };
+                                }
+                            })
+                            .catch(err => console.error("Error loading engine status:", err));
+                    }
+                },
+
+                checkAppVersion() {
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.get_app_status()
+                            .then(data => {
+                                this.appVersion = data.current_version;
+                                this.latestAppVersion = data.latest_version;
+                                this.needsAppUpdate = data.needs_update;
+                                this.appDownloadUrl = data.download_url;
+                            })
+                            .catch(err => console.error("Error loading app version:", err));
+                    }
+                },
+
+                startAppUpdate() {
+                    if (this.appUpdateStatus.status === 'ready') {
+                        playCuteSound('success');
+                        if (window.pywebview && window.pywebview.api) {
+                            window.pywebview.api.trigger_app_update()
+                                .then(data => {
+                                    if (data.error) {
+                                        this.triggerToast("เกิดข้อผิดพลาด: " + data.error);
+                                    } else {
+                                        this.triggerToast(data.message);
+                                    }
+                                })
+                                .catch(err => this.triggerToast("เกิดข้อผิดพลาดในการติดตั้ง"));
+                        }
+                        return;
+                    }
+
+                    if (!this.appDownloadUrl) {
+                        this.triggerToast("ไม่พบที่อยู่ดาวน์โหลดของตัวติดตั้งใหม่");
+                        return;
+                    }
+
+                    playCuteSound('click');
+                    this.appUpdateStatus.status = 'downloading';
+                    this.appUpdateProgress = 0;
+
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.start_app_update_download(this.appDownloadUrl)
+                            .then(data => {
+                                if (data.error) {
+                                    this.appUpdateStatus.status = 'error';
+                                    this.triggerToast("เริ่มดาวน์โหลดล้มเหลว: " + data.error);
+                                } else {
+                                    this.triggerToast("กำลังดาวน์โหลดไฟล์อัปเดตในเบื้องหลัง...");
+                                    this.pollAppUpdateProgress();
+                                }
+                            })
+                            .catch(err => {
+                                this.appUpdateStatus.status = 'error';
+                                this.triggerToast("การเชื่อมต่อขัดข้อง");
+                            });
+                    }
+                },
+
+                pollAppUpdateProgress() {
+                    const interval = setInterval(() => {
+                        if (window.pywebview && window.pywebview.api) {
+                            window.pywebview.api.get_app_update_progress()
+                                .then(data => {
+                                    this.appUpdateStatus.status = data.status;
+                                    this.appUpdateProgress = data.progress;
+                                    if (data.status === 'ready') {
+                                        clearInterval(interval);
+                                        this.triggerToast("ดาวน์โหลดไฟล์อัปเดตเสร็จสิ้น! กรุณากดปุ่มติดตั้งเพื่ออัปเกรด");
+                                    } else if (data.status === 'error') {
+                                        clearInterval(interval);
+                                        this.triggerToast("การดาวน์โหลดล้มเหลว: " + data.error);
+                                    }
+                                })
+                                .catch(err => {
+                                    clearInterval(interval);
+                                    console.error("Error polling app update progress:", err);
+                                });
+                        }
+                    }, 1000);
+                },
+
+                revertEngine() {
+                    if (this.isUpdatingEngine) return;
+                    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการคืนค่าโปรแกรมประมวลผลกลับเป็นรุ่นเริ่มต้น?")) {
+                        playCuteSound('pop');
+                        this.isUpdatingEngine = true;
+                        this.updateStatusText = "กำลังล้างการอัปเดต...";
+                        if (window.pywebview && window.pywebview.api) {
+                            window.pywebview.api.revert_engine()
+                                .then(data => {
+                                    if (data.error) {
+                                        this.updateStatusText = `คืนค่าล้มเหลว: ${data.error}`;
+                                    } else {
+                                        this.updateStatusText = data.message;
+                                        this.checkEngineStatus();
+                                    }
+                                    this.isUpdatingEngine = false;
+                                })
+                                .catch(err => {
+                                    this.updateStatusText = "การเชื่อมต่อขัดข้อง";
+                                    this.isUpdatingEngine = false;
+                                });
+                        }
+                    }
+                },
+
                 toggleLogs() {
                     playCuteSound('click');
                     this.logsOpen = !this.logsOpen;
@@ -1110,33 +1153,35 @@
                 },
 
                 refreshLogs() {
-                    fetch('/api/logs')
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.logs) {
-                                this.systemLogs = data.logs;
-                                this.$nextTick(() => {
-                                    const consoleEl = document.getElementById('mikuLogConsole');
-                                    if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
-                                });
-                            }
-                        });
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.get_logs()
+                            .then(data => {
+                                if (data.logs) {
+                                    this.systemLogs = data.logs;
+                                    this.$nextTick(() => {
+                                        const consoleEl = document.getElementById('mikuLogConsole');
+                                        if (consoleEl) consoleEl.scrollTop = consoleEl.scrollHeight;
+                                    });
+                                }
+                            });
+                    }
                 },
 
                 shutdownApp() {
-                    if (confirm("ต้องการปิดระบบดาวน์โหลดและเซิร์ฟเวอร์หลักใช่หรือไม่?")) {
+                    if (confirm("ต้องการปิดระบบดาวน์โหลดใช่หรือไม่?")) {
                         playCuteSound('click');
-                        fetch('/shutdown', { method: 'POST' });
-                        alert("เซิร์ฟเวอร์หลักหยุดทำงานแล้ว คุณสามารถปิดแท็บนี้ได้ทันทีครับ");
+                        if (window.pywebview && window.pywebview.api) {
+                            window.pywebview.api.close_app();
+                        }
                     }
                 },
 
                 cancelDownload() {
                     if (confirm("ยืนยันการยกเลิกดาวน์โหลดชุดนี้?")) {
-                        const formData = new FormData();
-                        formData.append('download_id', this.downloadId);
-                        fetch('/api/cancel_download', { method: 'POST', body: formData });
-                        this.triggerToast("ส่งคำสั่งยกเลิกดาวน์โหลดแล้ว...");
+                        if (window.pywebview && window.pywebview.api) {
+                            window.pywebview.api.cancel_download(this.downloadId);
+                            this.triggerToast("ส่งคำสั่งยกเลิกดาวน์โหลดแล้ว...");
+                        }
                     }
                 },
 
@@ -1173,7 +1218,6 @@
                     this.selectedFormat = format;
                     this.triggerToast(`เปลี่ยนฟอร์แมตไฟล์เป็น: ${format.toUpperCase()}`);
 
-                    // Auto select the first quality option in the new list
                     this.$nextTick(() => {
                         const quals = this.availableQualities;
                         if (quals && quals.length > 0) {
@@ -1191,32 +1235,29 @@
                     } else if (this.selectedFormat === 'wav') {
                         return ['Lossless WAV'];
                     } else {
-                        // Video resolutions (mp4)
                         if (this.activeSong && this.activeSong.resolutions && this.activeSong.resolutions.length > 0) {
                             const vQuals = this.activeSong.resolutions.filter(q => q.includes('p'));
                             if (vQuals.length > 0) {
                                 return vQuals;
                             }
                         }
-                        // Default fallback
                         return ['2160p (4K)', '1080p (Full HD)', '720p (HD)', '480p'];
                     }
                 },
                 pasteFromClipboard() {
                     playCuteSound('click');
-                    fetch('/api/clipboard')
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.text) {
-                                this.urlInput = data.text;
-                                this.processInput();
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Failed to read clipboard:", err);
-                        });
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.get_clipboard()
+                            .then(data => {
+                                if (data && data.text) {
+                                    this.urlInput = data.text;
+                                    this.processInput();
+                                }
+                            })
+                            .catch(err => console.error("Failed to read clipboard:", err));
+                    }
                 },
-                // ANALYZE ACTION: Fetch metadata from the backend
+                // ANALYZE ACTION: Fetch metadata from native backend
                 processInput() {
                     if (!this.urlInput.trim()) {
                         this.triggerToast(this.t('emptyInput'));
@@ -1232,92 +1273,79 @@
                         this.triggerToast(this.t('searchingYouTube'));
                     }
                     this.isFetchingInfo = true;
-                    // Reset playlist variables immediately upon search/fetch
                     this.playlistVideos = [];
                     this.selectedPlaylistIndices = [];
                     this.playlistSearch = '';
 
-                    const formData = new FormData();
-                    formData.append('url', this.urlInput);
-
-                    fetch('/info', {
-                        method: 'POST',
-                        body: formData
-                    })
-                        .then(res => {
-                            if (!res.ok) throw new Error(this.t('analyzeFail'));
-                            return res.json();
-                        })
-                        .then(data => {
-                            if (data.error) {
-                                this.triggerToast("ล้มเหลว: " + data.error);
-                                return;
-                            }
-
-                            this.activeSong = {
-                                title: data.title,
-                                channel: data.uploader,
-                                platform: this.urlInput.includes('soundcloud') ? 'SOUNDCLOUD' : (this.urlInput.includes('facebook') ? 'FACEBOOK' : (this.urlInput.includes('vimeo') ? 'VIMEO' : 'YOUTUBE')),
-                                duration: data.duration,
-                                cover: data.thumbnail || 'https://placehold.co/400x400/223c40/ffffff?text=Music',
-                                videoUrl: data.url,
-                                resolutions: data.resolutions || [],
-                                audio_codec: data.audio_codec || '',
-                                audio_bitrate: data.audio_bitrate || '',
-                                audio_recommendation: data.audio_recommendation || ''
-                            };
-
-                            if (data.is_playlist && data.playlist_videos) {
-                                this.playlistVideos = data.playlist_videos;
-                                this.selectedPlaylistIndices = data.playlist_videos.map(v => String(v.index));
-                            }
-
-                            // Auto switch format to best available resolution
-                            if (data.resolutions && data.resolutions.length > 0) {
-                                const hasVideo = data.resolutions.some(q => q.includes('p'));
-                                if (hasVideo) {
-                                    this.selectedFormat = 'mp4';
-                                    // Pick best resolution
-                                    if (data.resolutions.includes('2160p (4K)')) this.selectedQuality = '2160p (4K)';
-                                    else if (data.resolutions.includes('1440p (2K)')) this.selectedQuality = '1440p (2K)';
-                                    else if (data.resolutions.includes('1080p (Full HD)')) this.selectedQuality = '1080p (Full HD)';
-                                    else if (data.resolutions.includes('720p (HD)')) this.selectedQuality = '720p (HD)';
-                                    else {
-                                        const videoQuals = data.resolutions.filter(q => q.includes('p'));
-                                        this.selectedQuality = videoQuals[0] || '720p (HD)';
-                                    }
-                                } else {
-                                    this.selectedFormat = 'mp3';
-                                    this.selectedQuality = '320kbps';
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.process_input(this.urlInput)
+                            .then(data => {
+                                if (data.error) {
+                                    this.triggerToast("ล้มเหลว: " + data.error);
+                                    return;
                                 }
-                            }
 
-                            playCuteSound('success');
-                            this.triggerToast(this.t('analyzeSuccess'));
-                        })
-                        .catch(err => {
-                            this.triggerToast(this.t('analyzeFail'));
-                        })
-                        .finally(() => {
-                            this.isFetchingInfo = false;
-                        });
+                                this.activeSong = {
+                                    title: data.title,
+                                    channel: data.uploader,
+                                    platform: this.urlInput.includes('soundcloud') ? 'SOUNDCLOUD' : (this.urlInput.includes('facebook') ? 'FACEBOOK' : (this.urlInput.includes('vimeo') ? 'VIMEO' : 'YOUTUBE')),
+                                    duration: data.duration,
+                                    cover: data.thumbnail || 'https://placehold.co/400x400/223c40/ffffff?text=Music',
+                                    videoUrl: data.url,
+                                    resolutions: data.resolutions || [],
+                                    audio_codec: data.audio_codec || '',
+                                    audio_bitrate: data.audio_bitrate || '',
+                                    audio_recommendation: data.audio_recommendation || ''
+                                };
+
+                                if (data.is_playlist && data.playlist_videos) {
+                                    this.playlistVideos = data.playlist_videos;
+                                    this.selectedPlaylistIndices = data.playlist_videos.map(v => String(v.index));
+                                }
+
+                                if (data.resolutions && data.resolutions.length > 0) {
+                                    const hasVideo = data.resolutions.some(q => q.includes('p'));
+                                    if (hasVideo) {
+                                        this.selectedFormat = 'mp4';
+                                        if (data.resolutions.includes('2160p (4K)')) this.selectedQuality = '2160p (4K)';
+                                        else if (data.resolutions.includes('1440p (2K)')) this.selectedQuality = '1440p (2K)';
+                                        else if (data.resolutions.includes('1080p (Full HD)')) this.selectedQuality = '1080p (Full HD)';
+                                        else if (data.resolutions.includes('720p (HD)')) this.selectedQuality = '720p (HD)';
+                                        else {
+                                            const videoQuals = data.resolutions.filter(q => q.includes('p'));
+                                            this.selectedQuality = videoQuals[0] || '720p (HD)';
+                                        }
+                                    } else {
+                                        this.selectedFormat = 'mp3';
+                                        this.selectedQuality = '320kbps';
+                                    }
+                                }
+
+                                playCuteSound('success');
+                                this.triggerToast(this.t('analyzeSuccess'));
+                            })
+                            .catch(err => {
+                                this.triggerToast(this.t('analyzeFail'));
+                            })
+                            .finally(() => {
+                                this.isFetchingInfo = false;
+                            });
+                    }
                 },
 
-                // START PREMIUM AUDIO CONVERSION
+                // START DOWNLOAD CONVERSION VIA NATIVE API
                 startDownloadConversion() {
                     if (this.isConverting) return;
 
                     this.isConverting = true;
                     this.downloadProgress = 3;
-                    this.conversionStatusText = "กำลังส่งคำสั่งดาวน์โหลดไปยังเซิร์ฟเวอร์หลัก...";
+                    this.conversionStatusText = "กำลังส่งคำสั่งดาวน์โหลดไปยังเครื่องยนต์...";
                     playCuteSound('pop');
 
-                    this.downloadId = 'dl_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
                     this.downloadSpeed = 'Connecting...';
                     this.downloadEta = 'Calculating...';
                     this.downloadSize = '-- / --';
 
-                    // Format type mapping
                     let formatType = 'mp4_720';
                     if (this.selectedFormat === 'mp3') {
                         formatType = 'mp3';
@@ -1327,17 +1355,11 @@
                         formatType = 'flac';
                     } else if (this.selectedFormat === 'wav') {
                         formatType = 'wav';
-                    } else { // mp4
-                        // Extract numeric height from selectedQuality (e.g. "2160p (4K)" -> "2160")
+                    } else {
                         const match = this.selectedQuality.match(/(\d+)/);
-                        if (match) {
-                            formatType = 'mp4_' + match[1];
-                        } else {
-                            formatType = 'mp4_720';
-                        }
+                        formatType = match ? 'mp4_' + match[1] : 'mp4_720';
                     }
 
-                    // Bitrate extraction
                     let bitrateVal = '192';
                     if (this.selectedQuality.includes('320')) bitrateVal = '320';
                     else if (this.selectedQuality.includes('256')) bitrateVal = '256';
@@ -1355,92 +1377,29 @@
                         targetUrl = selectedVideos.map(v => v.url).join(',');
                     }
 
-                    const formData = new FormData();
-                    formData.append('url', targetUrl);
-                    formData.append('format_type', formatType);
-                    formData.append('bitrate', bitrateVal);
-                    formData.append('subtitles', this.subtitlesEnabled ? 'true' : 'false');
-                    formData.append('download_id', this.downloadId);
-                    formData.append('video_container', this.videoContainer);
-                    formData.append('embed_metadata', this.embedMetadataEnabled ? 'true' : 'false');
+                    const params = {
+                        url: targetUrl,
+                        format_type: formatType,
+                        bitrate: bitrateVal,
+                        subtitles: this.subtitlesEnabled ? 'true' : 'false',
+                        video_container: this.videoContainer,
+                        embed_metadata: this.embedMetadataEnabled ? 'true' : 'false'
+                    };
 
-                    fetch('/download_start', {
-                        method: 'POST',
-                        body: formData
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.error) {
-                                throw new Error(data.error);
-                            }
-
-                            // Open SSE connection
-                            const source = new EventSource('/download_progress/' + this.downloadId);
-
-                            source.onmessage = (event) => {
-                                const progress = JSON.parse(event.data);
-
-                                if (progress.status === 'starting') {
-                                    this.conversionStatusText = 'กำลังเตรียมสตรีมวิดีโอและเลือกขนาดไฟล์...';
-                                    this.downloadProgress = 5;
-                                } else if (progress.status === 'downloading') {
-                                    this.conversionStatusText = 'กำลังสตรีมและเซฟไฟล์ลงไดรฟ์...';
-                                    this.downloadProgress = progress.percent || 10;
-                                    this.downloadSpeed = progress.speed || 'Downloading...';
-                                    this.downloadEta = progress.eta || 'Calculating...';
-                                    this.downloadSize = progress.size || '-- / --';
-                                } else if (progress.status === 'processing') {
-                                    this.conversionStatusText = 'กำลังประสานภาพและย่านเสียงผ่าน FFmpeg...';
-                                    this.downloadProgress = 99;
-                                    this.downloadSpeed = 'Processing...';
-                                    this.downloadEta = 'Working...';
-                                    this.downloadSize = progress.size || 'Merging...';
-                                } else if (progress.status === 'completed') {
-                                    this.conversionStatusText = 'ดาวน์โหลดเสร็จสมบูรณ์!';
-                                    this.downloadProgress = 100;
-                                    this.downloadSpeed = 'Done';
-                                    this.downloadEta = '00:00';
-                                    this.downloadSize = progress.size || 'Saved';
-
-                                    source.close();
-                                    this.isConverting = false;
-
-                                    // Add to library list
-                                    this.librarySongs.unshift({
-                                        title: this.activeSong.title,
-                                        channel: this.activeSong.channel,
-                                        format: this.selectedFormat.toUpperCase(),
-                                        quality: this.selectedQuality,
-                                        cover: this.activeSong.cover
-                                    });
-
-                                    playCuteSound('success');
-                                    this.triggerToast("ดาวน์โหลดไฟล์เสร็จสมบูรณ์เรียบร้อยแล้วค่ะ! ");
-                                } else if (progress.status === 'cancelled') {
-                                    source.close();
-                                    this.isConverting = false;
-                                    this.downloadProgress = 0;
-                                    this.triggerToast("ยกเลิกการดาวน์โหลดเรียบร้อยแล้วค่ะ ");
-                                } else if (progress.status === 'error') {
-                                    source.close();
-                                    this.isConverting = false;
-                                    this.downloadProgress = 0;
-                                    this.triggerToast("เกิดข้อผิดพลาด: " + progress.message);
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.start_download(params)
+                            .then(data => {
+                                if (data.error) {
+                                    throw new Error(data.error);
                                 }
-                            };
-
-                            source.onerror = () => {
-                                source.close();
+                                this.downloadId = data.download_id;
+                            })
+                            .catch(err => {
                                 this.isConverting = false;
                                 this.downloadProgress = 0;
-                                this.triggerToast("การเชื่อมต่อสตรีมสถานะหลุดกลางคัน");
-                            };
-                        })
-                        .catch(err => {
-                            this.isConverting = false;
-                            this.downloadProgress = 0;
-                            this.triggerToast("เริ่มดาวน์โหลดล้มเหลว: " + err.message);
-                        });
+                                this.triggerToast("เริ่มดาวน์โหลดล้มเหลว: " + err.message);
+                            });
+                    }
                 },
 
                 // PLAY MELODY SYNTHESIZER SIMULATOR
