@@ -965,8 +965,11 @@
                     }
                     this.triggerToast(this.t('welcome'));
 
+                    let loaded = false;
                     const loadApiData = () => {
+                        if (loaded) return;
                         if (window.pywebview && window.pywebview.api) {
+                            loaded = true;
                             window.pywebview.api.get_settings().then(data => {
                                 if (data && data.save_folder) this.saveFolder = data.save_folder;
                             });
@@ -975,11 +978,22 @@
                         }
                     };
 
-                    if (window.pywebview && window.pywebview.api) {
-                        loadApiData();
-                    } else {
-                        window.addEventListener('pywebviewready', loadApiData);
-                    }
+                    // 1. Direct check
+                    loadApiData();
+
+                    // 2. Event listener
+                    window.addEventListener('pywebviewready', loadApiData);
+
+                    // 3. Robust polling fallback for race conditions
+                    const initPoll = setInterval(() => {
+                        if (loaded) {
+                            clearInterval(initPoll);
+                        } else if (window.pywebview && window.pywebview.api) {
+                            loadApiData();
+                            clearInterval(initPoll);
+                        }
+                    }, 100);
+                    setTimeout(() => clearInterval(initPoll), 3000);
 
                     // Register global progress update callback from pywebview evaluate_js
                     window.updateDownloadProgress = (dId, progress) => {

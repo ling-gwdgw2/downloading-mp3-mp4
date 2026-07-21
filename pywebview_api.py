@@ -365,6 +365,8 @@ class PyWebViewAPI:
         self.app_update_error = ""
         self.downloaded_installer_path = ""
         self.is_updating_engine = False
+        self._last_push_time = {}
+        self._push_lock = threading.Lock()
 
     def set_window(self, window):
         self._window = window
@@ -592,12 +594,34 @@ class PyWebViewAPI:
             return {'status': 'cancel_requested'}
         return {'error': 'Missing download_id'}
 
-    def _push_progress(self, download_id, status_data):
-        """Push real-time progress data to AlpineJS via pywebview evaluate_js."""
-        if self._window:
-            safe_json = json.dumps(status_data).replace("'", "\\'")
-            js_code = f"if (window.updateDownloadProgress) window.updateDownloadProgress('{download_id}', {safe_json});"
-            self._window.evaluate_js(js_code)
+    def _push_progress(self, download_id, status_data, force=False):
+        """Push real-time progress data to AlpineJS via pywebview evaluate_js with rate-limiting (~15 updates/sec / ~65ms)."""
+        if not self._window:
+            return
+
+        import time
+        now = time.time()
+        status = status_data.get('status')
+        percent = status_data.get('percent', 0)
+
+        if force or status != 'downloading' or percent == 100:
+            should_push = True
+        else:
+            with self._push_lock:
+                last_time = self._last_push_time.get(download_id, 0)
+                if now - last_time >= 0.065:  # ~15 updates/sec max (~65ms)
+                    self._last_push_time[download_id] = now
+                    should_push = True
+                else:
+                    should_push = False
+
+        if should_push:
+            try:
+                safe_json = json.dumps(status_data).replace("'", "\\'")
+                js_code = f"if (window.updateDownloadProgress) window.updateDownloadProgress('{download_id}', {safe_json});"
+                self._window.evaluate_js(js_code)
+            except Exception as e:
+                logging.debug(f"Error evaluating JS for progress: {e}")
 
     def _run_download_thread(self, download_id, url, format_type, bitrate, subtitles, video_container='mp4', embed_metadata='false'):
         try:
@@ -818,7 +842,7 @@ class PyWebViewAPI:
                 'speed': 'Done',
                 'eta': '00:00',
                 'size': 'Complete'
-            })
+            }, force=True)
         except Exception as e:
             logging.error(f"Download thread error for {download_id}: {e}", exc_info=True)
             self._push_progress(download_id, {
@@ -827,7 +851,7 @@ class PyWebViewAPI:
                 'speed': 'Error',
                 'eta': 'Failed',
                 'size': str(e)
-            })
+            }, force=True)
         finally:
             self.cancelled_downloads.discard(download_id)
 
