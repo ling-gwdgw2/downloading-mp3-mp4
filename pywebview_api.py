@@ -1005,4 +1005,9 @@ class PyWebViewAPI:
 
     def close_app(self):
         logging.info("Close App requested by user via UI button.")
+        if self._window:
+            try:
+                self._window.destroy()
+            except Exception as e:
+                logging.error(f"Error destroying window: {e}")
         os._exit(0)

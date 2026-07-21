@@ -119,8 +119,11 @@ if __name__ == '__main__':
     )
     api.set_window(window)
 
-    # Prevent closing via standard window X button or Alt+F4
-    window.events.closing += lambda: False
+    def on_closing():
+        logging.info("App window closing requested. Exiting cleanly...")
+        return True
+
+    window.events.closing += on_closing
 
     # Start webview GUI loop
-    webview.start(disable_close_button)
+    webview.start()
