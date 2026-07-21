@@ -120,8 +120,16 @@ if __name__ == '__main__':
     api.set_window(window)
 
     def on_closing():
-        logging.info("App window closing requested. Exiting cleanly...")
-        return True
+        logging.info("App window close requested via Titlebar X / Alt+F4 / OS Signal.")
+        if api.is_downloading():
+            try:
+                window.evaluate_js("if (window.onNativeWindowClosing) window.onNativeWindowClosing();")
+            except Exception as e:
+                logging.error(f"Error calling onNativeWindowClosing JS callback: {e}")
+            return False  # Intercept and pause close until user confirms in UI modal
+        else:
+            api.close_app(force_confirm=True)
+            return True
 
     window.events.closing += on_closing
 

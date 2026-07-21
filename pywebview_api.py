@@ -367,6 +367,8 @@ class PyWebViewAPI:
         self.is_updating_engine = False
         self._last_push_time = {}
         self._push_lock = threading.Lock()
+        self.active_downloads = set()
+        self._download_lock = threading.Lock()
 
     def set_window(self, window):
         self._window = window
@@ -618,7 +620,14 @@ class PyWebViewAPI:
             except Exception as e:
                 logging.debug(f"Error evaluating JS for progress: {e}")
 
+    def is_downloading(self):
+        """Check if any download thread is currently active."""
+        with self._download_lock:
+            return len(self.active_downloads) > 0
+
     def _run_download_thread(self, download_id, url, format_type, bitrate, subtitles, video_container='mp4', embed_metadata='false'):
+        with self._download_lock:
+            self.active_downloads.add(download_id)
         try:
             save_dir = self.config.get('save_folder')
             os.makedirs(save_dir, exist_ok=True)
@@ -838,7 +847,9 @@ class PyWebViewAPI:
                 'size': str(e)
             }, force=True)
         finally:
-            self.cancelled_downloads.discard(download_id)
+            with self._download_lock:
+                self.active_downloads.discard(download_id)
+                self.cancelled_downloads.discard(download_id)
 
     # --------------------------------------------------
     # Engine & App Updater
@@ -1003,11 +1014,56 @@ class PyWebViewAPI:
         except Exception as e:
             return {'error': str(e)}
 
-    def close_app(self):
-        logging.info("Close App requested by user via UI button.")
+    def close_app(self, force_confirm=False):
+        """Production-Grade Graceful Shutdown Pipeline (4 Steps)."""
+        logging.info("Initiating Production-Grade Graceful Shutdown Pipeline...")
+        
+        # Step 2: Check active downloads state
+        if not force_confirm and self.is_downloading():
+            with self._download_lock:
+                count = len(self.active_downloads)
+            return {
+                'requires_confirmation': True,
+                'active_count': count,
+                'message': f"มี {count} รายการกำลังดาวน์โหลดอยู่ คุณแน่ใจหรือไม่ว่าต้องการออกจากโปรแกรม?"
+            }
+
+        # Step 3: Safety Timeout Guard in background thread (3.0s limit)
+        def safety_timeout_guard():
+            time.sleep(3.0)
+            logging.warning("Graceful Shutdown Safety Guard: 3.0s timeout reached. Force exiting process.")
+            os._exit(0)
+
+        guard = threading.Thread(target=safety_timeout_guard, daemon=True)
+        guard.start()
+
+        # Step 3: Signal active download threads to terminate
+        try:
+            with self._download_lock:
+                for d_id in list(self.active_downloads):
+                    self.cancelled_downloads.add(d_id)
+            logging.info("Signaled all active download threads to terminate.")
+        except Exception as e:
+            logging.error(f"Error signaling download threads: {e}")
+
+        # Step 3: Clean up temporary files (.part, .ytdl, .temp)
+        try:
+            save_dir = self.config.get('save_folder')
+            if save_dir and os.path.exists(save_dir):
+                for filename in os.listdir(save_dir):
+                    if filename.endswith('.part') or filename.endswith('.ytdl') or filename.endswith('.temp'):
+                        try: os.remove(os.path.join(save_dir, filename))
+                        except Exception: pass
+            logging.info("Temp cleanup completed during shutdown.")
+        except Exception as e:
+            logging.error(f"Error cleaning up temp files during shutdown: {e}")
+
+        # Step 4: Destroy window & native exit
+        logging.info("Closing PyWebView window and exiting process with code 0.")
         if self._window:
             try:
                 self._window.destroy()
             except Exception as e:
                 logging.error(f"Error destroying window: {e}")
+                
         os._exit(0)

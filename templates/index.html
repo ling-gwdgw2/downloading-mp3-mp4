@@ -1002,6 +1002,11 @@
                     }, 100);
                     setTimeout(() => clearInterval(initPoll), 3000);
 
+                    // Register global window closing callback for Titlebar X / Alt+F4 interception
+                    window.onNativeWindowClosing = () => {
+                        this.shutdownApp();
+                    };
+
                     // Register global progress update callback from pywebview evaluate_js
                     window.updateDownloadProgress = (dId, progress) => {
                         if (this.downloadId === dId) {
@@ -1245,12 +1250,22 @@
                 },
 
                 shutdownApp() {
-                    this.showConfirm("ต้องการปิดระบบดาวน์โหลดและโปรแกรมหลักใช่หรือไม่?", "ปิดโปรแกรม", () => {
-                        playCuteSound('click');
-                        if (window.pywebview && window.pywebview.api) {
-                            window.pywebview.api.close_app();
-                        }
-                    });
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.is_downloading().then(isDownloading => {
+                            let msg = "ต้องการปิดระบบดาวน์โหลดและโปรแกรมหลักใช่หรือไม่?";
+                            let title = "ปิดโปรแกรม";
+                            if (isDownloading) {
+                                msg = "⚠️ มีรายการกำลังดาวน์โหลดไฟล์ค้างอยู่! หากปิดโปรแกรมขณะนี้ การดาวน์โหลดจะถูกยกเลิกทันที คุณแน่ใจหรือไม่ว่าต้องการออกจากโปรแกรม?";
+                                title = "ยืนยันการยกเลิกและปิดแอป";
+                            }
+                            this.showConfirm(msg, title, () => {
+                                playCuteSound('click');
+                                window.pywebview.api.close_app(true);
+                            });
+                        }).catch(() => {
+                            window.pywebview.api.close_app(true);
+                        });
+                    }
                 },
 
                 cancelDownload() {
