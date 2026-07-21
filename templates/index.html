@@ -190,7 +190,7 @@
         @click="playCuteSound('pop')">
         <div
             class="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform duration-300 border-2 border-miku-200 bg-miku-50 flex items-center justify-center">
-            <img src="/static/phoebe1.png" class="w-full h-full object-contain">
+            <img src="static/phoebe1.png" class="w-full h-full object-contain">
         </div>
         <span class="font-bold text-xl tracking-tight text-slate-800 font-rounded">
             Phoebe <span class="text-miku-400">Loader</span>
@@ -204,10 +204,10 @@
         <section
             class="relative mb-8 rounded-3xl bg-gradient-to-r from-[#ffe0a1] to-[#fbe089] text-white shadow-xl p-8 md:p-12">
             <!-- Standing Chibi Character: inside right vinyl column, clear of search bar -->
-            <img src="/static/phoebe1.png"
+            <img src="static/phoebe1.png"
                 class="absolute right-[20%] bottom-0 h-[150px] md:h-[185px] object-contain pointer-events-none z-20 hidden sm:block">
             <!-- Large Anime Girl: fills hero height, slightly larger, shifted right -->
-            <img src="/static/phoebe2.png"
+            <img src="static/phoebe2.png"
                 class="absolute inset-y-0 right-[-3rem] h-full object-contain object-bottom pointer-events-none z-20 scale-[1.18] origin-bottom-right">
 
             <!-- Background Glows -->
@@ -305,7 +305,7 @@
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <div class="flex items-center gap-2.5">
                             <!-- Lying Chibi next to title -->
-                            <img src="/static/phoebe0.png"
+                            <img src="static/phoebe0.png"
                                 class="w-14 h-14 object-contain pointer-events-none hidden md:block flex-shrink-0">
                             <div
                                 class="w-10 h-10 rounded-xl bg-miku-100 text-miku-600 flex items-center justify-center">
@@ -332,7 +332,7 @@
                                 <!-- Song Cover Art (Dynamic from activeSong cover) -->
                                 <img :src="activeSong.cover" class="w-full h-full object-cover transition-all"
                                     :class="isConverting ? 'animate-vinyl blur-[2px] scale-90 rounded-full' : ''"
-                                    @error="$event.target.src = 'https://placehold.co/400x400/223c40/ffffff?text=Ready+to+Parse'">
+                                    @error="$event.target.src = 'static/phoebe1.png'">
 
                                 <!-- Vinyl Center label overlays only when downloading/converting -->
                                 <div x-show="isConverting"
@@ -889,7 +889,7 @@
                     channel: 'supercell / Hatsune Miku',
                     platform: 'YOUTUBE',
                     duration: '4:37',
-                    cover: 'https://placehold.co/400x400/223c40/ffffff?text=Miku+Music+10th',
+                    cover: 'static/phoebe1.png',
                     videoUrl: 'https://www.youtube.com/watch?v=o1jAMSGi_Xg',
                     resolutions: [],
                     audio_codec: '',
@@ -904,14 +904,14 @@
                         channel: 'WhiteFlame / Kurousa-P',
                         format: 'MP3',
                         quality: '320kbps',
-                        cover: 'https://placehold.co/400x400/223c40/92dadc?text=Senbonzakura'
+                        cover: 'static/phoebe1.png'
                     },
                     {
                         title: 'Miku Miku ni Shite Ageru',
                         channel: 'ika_mo',
                         format: 'WAV',
                         quality: 'Lossless 24bit',
-                        cover: 'https://placehold.co/400x400/ff7597/ffffff?text=Miku+IKA'
+                        cover: 'static/phoebe1.png'
                     }
                 ],
 
