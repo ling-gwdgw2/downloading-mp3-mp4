@@ -369,6 +369,7 @@ class PyWebViewAPI:
         self._push_lock = threading.Lock()
         self.active_downloads = set()
         self._download_lock = threading.Lock()
+        self.is_shutting_down = False
 
     def set_window(self, window):
         self._window = window
@@ -1016,8 +1017,9 @@ class PyWebViewAPI:
 
     def close_app(self, force_confirm=False):
         """Production-Grade Graceful Shutdown Pipeline (4 Steps)."""
-        logging.info("Initiating Production-Grade Graceful Shutdown Pipeline...")
-        
+        if self.is_shutting_down:
+            return
+
         # Step 2: Check active downloads state
         if not force_confirm and self.is_downloading():
             with self._download_lock:
@@ -1027,6 +1029,9 @@ class PyWebViewAPI:
                 'active_count': count,
                 'message': f"มี {count} รายการกำลังดาวน์โหลดอยู่ คุณแน่ใจหรือไม่ว่าต้องการออกจากโปรแกรม?"
             }
+
+        self.is_shutting_down = True
+        logging.info("Initiating Production-Grade Graceful Shutdown Pipeline...")
 
         # Step 3: Safety Timeout Guard in background thread (3.0s limit)
         def safety_timeout_guard():
@@ -1058,12 +1063,6 @@ class PyWebViewAPI:
         except Exception as e:
             logging.error(f"Error cleaning up temp files during shutdown: {e}")
 
-        # Step 4: Destroy window & native exit
-        logging.info("Closing PyWebView window and exiting process with code 0.")
-        if self._window:
-            try:
-                self._window.destroy()
-            except Exception as e:
-                logging.error(f"Error destroying window: {e}")
-                
+        # Step 4: Direct process termination without re-triggering FormClosing recursion
+        logging.info("Exiting native app process with code 0.")
         os._exit(0)

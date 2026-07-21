@@ -121,6 +121,9 @@ if __name__ == '__main__':
 
     def on_closing():
         logging.info("App window close requested via Titlebar X / Alt+F4 / OS Signal.")
+        if api.is_shutting_down:
+            return True
+
         if api.is_downloading():
             try:
                 window.evaluate_js("if (window.onNativeWindowClosing) window.onNativeWindowClosing();")
@@ -128,7 +131,8 @@ if __name__ == '__main__':
                 logging.error(f"Error calling onNativeWindowClosing JS callback: {e}")
             return False  # Intercept and pause close until user confirms in UI modal
         else:
-            api.close_app(force_confirm=True)
+            import threading
+            threading.Thread(target=lambda: api.close_app(force_confirm=True), daemon=True).start()
             return True
 
     window.events.closing += on_closing
