@@ -185,23 +185,16 @@
         };
     </script>
 
-    <!-- TOP LOGO & CONTROL HEADER -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex items-center justify-between w-full">
-        <div class="flex items-center gap-3 cursor-pointer group" @click="playCuteSound('pop')">
-            <div
-                class="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform duration-300 border-2 border-miku-200 bg-miku-50 flex items-center justify-center">
-                <img src="/static/phoebe1.png" class="w-full h-full object-contain">
-            </div>
-            <span class="font-bold text-xl tracking-tight text-slate-800 font-rounded">
-                Phoebe <span class="text-miku-400">Loader</span>
-            </span>
+    <!-- LOGO HEADER -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex items-center gap-3 cursor-pointer group"
+        @click="playCuteSound('pop')">
+        <div
+            class="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:scale-105 transition-transform duration-300 border-2 border-miku-200 bg-miku-50 flex items-center justify-center">
+            <img src="/static/phoebe1.png" class="w-full h-full object-contain">
         </div>
-
-        <button @click="shutdownApp()"
-            class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-3.5 py-2 rounded-xl border border-rose-200 text-xs transition-all shadow-sm flex items-center gap-2 active:scale-95">
-            <i class="fa-solid fa-power-off text-sm"></i>
-            <span>ปิดแอปพลิเคชัน</span>
-        </button>
+        <span class="font-bold text-xl tracking-tight text-slate-800 font-rounded">
+            Phoebe <span class="text-miku-400">Loader</span>
+        </span>
     </div>
 
     <!-- MAIN BODY CONTENT -->
@@ -562,10 +555,6 @@
                             <i class="fa-solid fa-gears text-lg animate-pulse"></i>
                             <h4 class="font-bold text-sm tracking-tight font-rounded">System Settings & Logs</h4>
                         </div>
-                        <button @click="shutdownApp()"
-                            class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-power-off"></i> ปิดโปรแกรม
-                        </button>
                     </div>
 
                     <!-- Config Grid -->
@@ -713,12 +702,6 @@
                             <span
                                 class="w-5 h-5 rounded-full bg-miku-100 text-miku-700 flex items-center justify-center text-[10px] font-bold mt-0.5">3</span>
                             <span>กดดาวน์โหลดและเพลิดเพลินกับเสียงดนตรีชั้นดีได้ทันที</span>
-                        </li>
-                        <li class="flex items-start gap-2.5 text-rose-600 font-bold border-t border-rose-100/50 pt-2">
-                            <span
-                                class="w-5 h-5 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-[11px] font-bold mt-0.5">!</span>
-                            <span>กรุณากดปุ่ม "ปิดโปรแกรม" ทุกครั้งก่อนออกจากหน้าแอป
-                                ไม่เช่นนั้นระบบหลังบ้านอาจจะไม่ปิดใช้งาน</span>
                         </li>
                     </ul>
                 </div>
