@@ -465,7 +465,16 @@ class PyWebViewAPI:
                     return {'error': 'Failed to extract video from MissAV.'}
                 target_url = m3u8_url
 
-            ydl_opts = {'quiet': True, 'no_warnings': True, 'nocache': True}
+            ydl_opts = {
+                'quiet': True,
+                'no_warnings': True,
+                'nocache': True,
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android', 'ios', 'web']
+                    }
+                }
+            }
             if 'list=' in target_url or '/playlist' in target_url:
                 ydl_opts['extract_flat'] = True
             if is_missav:
@@ -676,7 +685,15 @@ class PyWebViewAPI:
                 'progress_hooks': [make_progress_hook(download_id)],
                 'postprocessor_hooks': [make_postprocessor_hook(download_id)],
                 'retries': 10,
-                'fragment_retries': 10
+                'fragment_retries': 10,
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['android', 'ios', 'web']
+                    }
+                },
+                'sleep_interval': 1,
+                'max_sleep_interval': 3,
+                'sleep_interval_requests': 1,
             }
             
             if is_playlist:
@@ -756,7 +773,15 @@ class PyWebViewAPI:
                         'progress_hooks': [make_progress_hook(download_id)],
                         'postprocessor_hooks': [make_postprocessor_hook(download_id, override_title, override_artist, override_cover)],
                         'retries': 10,
-                        'fragment_retries': 10
+                        'fragment_retries': 10,
+                        'extractor_args': {
+                            'youtube': {
+                                'player_client': ['android', 'ios', 'web']
+                            }
+                        },
+                        'sleep_interval': 1,
+                        'max_sleep_interval': 3,
+                        'sleep_interval_requests': 1,
                     }
                     
                     if is_missav:
