@@ -1,120 +1,156 @@
-# Video & Audio Downloader — System Architecture & Changelog
+# Phoebe Downloader (v2.3.0) — Technical Architecture & System Report
 
-แอปพลิเคชันดาวน์โหลดวิดีโอและเสียงประสิทธิภาพสูง ทำงานแบบ Local Web Application (เซิร์ฟเวอร์ควบคุมภายในเครื่อง) พัฒนาด้วยภาษา Python (Flask) ร่วมกับแกนดาวน์โหลดประสิทธิภาพสูง `yt-dlp` และตัวแปลงสัญญาณสัญญาณ `FFmpeg` พร้อมส่วนติดต่อผู้ใช้สไตล์ Retro-Pixel ที่มีสีสันสวยงาม เข้าใจง่าย และแสดงผลสถานะแบบเรียลไทม์
+## 1. Executive Summary
 
----
-
-##  บันทึกการเปลี่ยนแปลงครั้งสำคัญ (Key Changes & Version Upgrades)
-
-###  **Version 2.2.0 (ล่าสุด - 17 กรกฎาคม 2026)**
-* **จัดระเบียบหน้ากากการใช้งาน (UI Layout Reorganization)**: ย้ายตัวแสดงผลความคืบหน้าดาวน์โหลด (Download Progress Bar) และตัวตั้งค่า/เปิดโฟลเดอร์เซฟไฟล์ (System Settings & Logs) มาไว้ที่ฝั่งขวา (Right Panel) พร้อมลบการ์ดพรีวิวเพลงและแบนเนอร์โฆษณาจำลองทิ้งทั้งหมดเพื่อความคลีนและเข้าถึงโฟลเดอร์ได้รวดเร็ว
-* **ปิดปุ่มกากบาทหน้าต่างเดสก์ท็อปและลบ Heartbeat**: ลบระบบ Heartbeat Auto-shutdown ของเบราว์เซอร์เดิมออกเนื่องจากรันแบบเดสก์ท็อปเต็มตัว พร้อมปิดสิทธิ์ใช้งานปุ่มกากบาท [X] บน Windows Title Bar (ผ่าน Win32 API `ctypes`) และดักจับ Alt+F4 เพื่อบังคับให้ออกจากโปรแกรมอย่างปลอดภัยผ่านปุ่ม "ปิดโปรแกรม" บน UI เท่านั้น เพื่อความเสถียรในการเคลียร์ Cache
-* **แก้ไขระบบอัปเดตเครื่องยนต์ประมวลผล (Engine Updater Normalization)**: แก้ไขข้อจำกัด PyInstaller บายพาส `FrozenImporter` เพื่อโหลด `yt-dlp` ตัวนอกเครื่องมาประมวลผลแทนตัวใน EXE จริงหลังรีสตาร์ท พร้อมใช้ระบบเทียบค่าเวอร์ชันผ่านเลขจำนวนเต็ม (Integer Tuple) ป้องกันปุ่มอัปเดตแสดงซ้ำซ้อนจากรูปแบบวันที่ (`2026.07.04` vs `2026.7.4`)
-* **เพิ่มปุ่มวางลิงก์ในคลิกเดียว & ปลดล็อคปุ่ม Enter**: เพิ่มปุ่มไอคอนกระดาษ "วาง" ถัดจากกล่องอินพุตเพื่อนำลิงก์จากคลิปบอร์ดมาใส่และวิเคราะห์ต่อทันที (Auto-Analyze) พร้อมผูกปุ่ม Enter บนแป้นพิมพ์เพื่อเริ่มวิเคราะห์หรือค้นหาลิงก์ได้สะดวกสบาย
-
-###  **Version 2.1.0 (16 กรกฎาคม 2026)**
-* **รองรับลิงก์ Spotify (YouTube Search Fallback)**: ถอดรหัส JSON React `initialState` จากหน้าเว็บเพื่อดึงข้อมูลเพลง/ปก และสลับไปค้นหาเวอร์ชันที่ดีที่สุดบน YouTube เพื่อดาวน์โหลดมาแปลงเป็นไฟล์เพลง
-* **เขียนข้อมูลและหน้าปกของแท้ (Spotify Metadata & Cover Art Embedding)**: ดึงข้อมูลอย่างเป็นทางการจาก Spotify ฝังลงในแท็ก MP3 (ID3v2) และ M4A (MP4 Atom) หลังแปลงเสร็จเพื่อแสดงผลที่ถูกต้องในเครื่องเล่นเพลงทั่วไป
-* **ระบบเช็คลิสต์เลือกเพลง (Playlist Checklist)**: แสดงตารางรายการเพลงใน Playlist ทั้งหมดเพื่อให้ผู้ใช้ติ๊กเลือกดาวน์โหลดเฉพาะบางไฟล์ได้
-* **ความคงทนในการโหลดแบบกลุ่ม (Batch Resilience)**: แยกเซสชันดาวน์โหลดในแต่ละแท็กเพลงออกจากกัน ทำให้หากมีเพลงใดเพลงหนึ่งในกลุ่มล้มเหลว ระบบจะข้ามไปทำงานเพลงถัดไปต่อโดยไม่หยุดทำงานทั้งหมด
+**Phoebe Downloader** is a production-grade, multi-platform media downloading and audio/video processing desktop application. Built with Python 3.11+, `pywebview` (native Windows Forms / WebView2 wrapper), `yt-dlp`, and `FFmpeg`, it delivers a responsive glassmorphic UI powered by Alpine.js and Tailwind CSS without requiring heavy web runtimes like Electron or Chromium binaries.
 
 ---
 
-##  แผนภาพสถาปัตยกรรมระบบ (System Architecture)
+## 2. High-Level Architecture Overview
 
-แผนภาพแสดงการประสานการทำงานระหว่าง Client, Flask Backend และแกนประมวลผล yt-dlp/FFmpeg:
+The system follows a decoupled, 3-tier desktop architecture:
 
 ```mermaid
 graph TD
-    %% Frontend Components
-    subgraph Client Browser [เว็บเบราว์เซอร์ของผู้ใช้]
-        UI[Retro-Pixel UX/UI HTML & CSS]
-        AJAX[JavaScript Fetch / API Call]
-        SSE[EventSource Client / SSE Listener]
+    subgraph Frontend Layer [Frontend UI - HTML5 / Alpine.js / Tailwind CSS]
+        UI[User Interface & Glassmorphic View]
+        Alpine[Alpine.js State Manager]
+        Synth[Web Audio API Synthesizer]
     end
 
-    %% Backend Flask Components
-    subgraph Flask Local Server [เซิร์ฟเวอร์ควบคุมภายในเครื่อง]
-        APP[app.py - Flask Controller]
-        MW[check_ffmpeg Middleware]
-        CORE_LOAD[Dynamic Engine Loader]
-        TH_MGR[Background Thread Manager]
-        TR_MGR[Session & Progress Tracker]
+    subgraph Native Bridge Layer [pywebview JS API Bridge]
+        IPC[window.pywebview.api]
+        EvalJS[evaluate_js Throttled Progress Push]
     end
 
-    %% Execution Engine
-    subgraph Downloader Core [แกนประมวลผล]
-        YTDL[yt_dlp Library Core]
-        FFMPEG[FFmpeg Essentials Binary]
+    subgraph Backend Engine Layer [Python Backend - PyWebViewAPI]
+        API[pywebview_api.py Controller]
+        DLThread[Multi-Threaded Download Pool]
+        Analyzer[Audio/Video Stream Analyzer]
+        PostProc[FFmpeg & Mutagen Tagging]
+        Updater[Dynamic Engine Hot-Swapper]
+        Shutdown[4-Step Graceful Shutdown Guard]
     end
 
-    %% Target Sources
-    subgraph Target Websites [เว็บไซต์ปลายทาง]
-        YT[YouTube API / Streams]
-        OTHER[1,000+ Video/Audio Sites]
-    end
-
-    %% Connections
-    UI --> AJAX
-    UI --> SSE
-    AJAX -->|1. ขอข้อมูล / เริ่มดาวน์โหลด| APP
-    SSE -->|3. ติดตามสถานะแบบสด| APP
-    APP --> MW
-    MW -->|ตรวจหา| FFMPEG
-    APP --> CORE_LOAD
-    CORE_LOAD -->|โหลดแกนนำเข้า| YTDL
-    APP --> TH_MGR
-    TH_MGR -->|รันเบื้องหลัง| YTDL
-    YTDL -->|ดึงข้อมูลมัลติมีเดีย| Target Websites
-    YTDL -->|รวมไฟล์ / แปลงไฟล์| FFMPEG
-    YTDL -->|2. รายงานสถานะ| TR_MGR
-    TR_MGR -->|4. ส่งข้อมูลสถานะเรียลไทม์| SSE
+    UI --> Alpine
+    Alpine <-->|Promises| IPC
+    IPC <--> API
+    API --> DLThread
+    DLThread --> Analyzer
+    Analyzer --> PostProc
+    API --> Shutdown
+    API --> Updater
+    API -.->|IPC Updates ~15fps| EvalJS
+    EvalJS -.-> Alpine
 ```
 
 ---
 
-##  วิธีการติดตั้งเพื่อพัฒนาและทดสอบ (Development Guide)
+## 3. Core Systems & Subsystems
 
-### 1. **สิ่งที่ต้องเตรียม (Prerequisites)**
-* Python เวอร์ชัน 3.8 หรือสูงกว่า
-* ตัวแปลงสัญญาณ FFmpeg (หากรันครั้งแรก ระบบมี Middleware แนะนำดาวน์โหลดและตั้งค่าพาธลงโฟลเดอร์ `bin/` อัตโนมัติ)
+### 3.1. Production-Grade Graceful Shutdown Pipeline (4-Step Guard)
+To prevent data corruption, zombie background processes, and `.NET` `System.InsufficientExecutionStackException` recursion bugs, the application enforces a strict 4-step shutdown architecture:
 
-### 2. **ขั้นตอนการรันเพื่อทดสอบโลคอล**
-```bash
-# 1. โคลนคลังโค้ดลงมาในเครื่อง
-git clone https://github.com/ling-gwdgw2/downloading-mp3-mp4.git
-cd downloading-mp3-mp4
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant Titlebar as Titlebar [X] / Alt+F4 / OS Signal
+    participant AppPy as app.py (FormClosing)
+    participant UI as Alpine.js Modal
+    participant API as PyWebViewAPI Engine
+    participant OS as System OS Process
 
-# 2. สร้างสภาพแวดล้อมจำลอง (Virtual Environment)
-python -m venv .venv
-.venv\Scripts\activate
-
-# 3. ติดตั้งไลบรารีจำเป็น
-pip install -r requirements.txt
-
-# 4. เริ่มรันแอปพลิเคชัน
-python app.py
+    User->>Titlebar: Request Close App
+    Titlebar->>AppPy: Trigger window.events.closing
+    AppPy->>API: Check is_downloading()
+    alt Active Downloads Present
+        API-->>AppPy: Returns True (Active Jobs > 0)
+        AppPy->>UI: Invoke window.onNativeWindowClosing()
+        AppPy-->>Titlebar: Return False (Pause OS Close)
+        UI->>User: Display Glassmorphic Warning Modal
+        User->>UI: Confirm "Force Exit"
+        UI->>API: close_app(force_confirm=True)
+    else No Active Downloads
+        AppPy->>API: close_app(force_confirm=True)
+    end
+    API->>API: Set is_shutting_down = True
+    API->>API: Spawn 3.0s Safety Timeout Guard Thread
+    API->>API: Signal threads (cancelled_downloads.add(id))
+    API->>API: Clean up temp files (.part, .ytdl, .temp)
+    API->>OS: Direct os._exit(0)
 ```
-*ตัวระบบโลคอลจะเริ่มทำงานที่ http://127.0.0.1:5000 และจะเปิดเว็บเบราว์เซอร์หน้าจอดาวน์โหลดหลักขึ้นมาให้โดยอัตโนมัติ*
+
+1. **Step 1: Event Interception:** Intercepts native Windows `FormClosing`, `Alt+F4`, and UI events cleanly.
+2. **Step 2: State Verification & Confirmation:** Queries thread-safe download counters (`is_downloading()`). If jobs are active, pops a non-native glassmorphic modal while keeping the app responsive.
+3. **Step 3: Cleanup & Signal:** Signals thread cancellation via `cancelled_downloads` set, deletes orphaned `.part`/`.ytdl` files, and runs a **3.0-second Safety Timeout Guard** to force exit if thread joins deadlock.
+4. **Step 4: Non-Recursive Native Exit:** Terminates the process using `os._exit(0)` cleanly without triggering WinForms event loops.
 
 ---
 
-##  ขั้นตอนการคอมไพล์เป็นไฟล์เดี่ยวและตัวติดตั้ง (Packaging Guide)
-
-### 1. **คอมไพล์ด้วย PyInstaller**
-เราใช้สคริปต์คอมไพล์เฉพาะ **[build_exe.py](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/build_exe.py)** ในการควบคุมพารามิเตอร์ของ PyInstaller ทั้งหมด (แนบเทมเพลตและไลบรารีแกน `curl_cffi`):
-```bash
-python build_exe.py
-```
-ผลลัพธ์ไฟล์เดี่ยวสำเร็จรูปจะปรากฏขึ้นที่โฟลเดอร์ **`dist/YouTubeDownloader.exe`** แบบซ่อนหน้าจอคอนโซลดำ (`--noconsole`)
-
-### 2. **สร้างตัวติดตั้ง Windows ด้วย Inno Setup**
-1. เปิดโปรแกรม **Inno Setup Compiler**
-2. เปิดไฟล์สคริปต์ **[setup.iss](file:///c:/Users/vivo9/Desktop/youtube%20mp3%20mp4/setup.iss)** ผ่านโปรแกรม
-3. กดปุ่ม **Compile** (คีย์ลัด F9) เพื่อรวมโฟลเดอร์ `dist/` ออกมาเป็นไฟล์ติดตั้งตัวเดียว
-4. ตัวติดตั้งสำเร็จรูปจะถูกบันทึกไว้ในโฟลเดอร์ **`installer_output/YouTubeDownloaderSetup.exe`**
+### 3.2. Adaptive High-Resolution Format Extraction (4K / 2K / 1080p / Audio)
+- **Unconstrained DASH Selector:** Utilizes `'bestvideo+bestaudio/best'` format selection strings. Removing legacy Android `player_client` restrictions unlocks YouTube's 39+ adaptive DASH video and audio streams.
+- **Dynamic Resolution Resolution Parser:** Detects and parses streams up to **2160p (4K)**, **1440p (2K)**, **1080p (Full HD)**, **720p**, and **480p**.
 
 ---
 
-##  Code Signing Attribution
-Free code signing for this project is generously provided by the **[SignPath Foundation](https://signpath.org)**.
+### 3.3. Audio Source Analyzer & Transcoding Engine
+- **Source Inspection:** Pre-analyzes source audio codecs (Opus, AAC, MP3, Vorbis) and bitrates.
+- **Transcoding Options:** Supports high-quality 320kbps MP3 encoding, M4A container extraction, and Lossless FLAC/WAV conversion via `FFmpeg`.
+- **ID3 & Metadata Embedding:** Uses `mutagen` to inject title, artist, album art cover, and track metadata into downloaded audio files.
+
+---
+
+### 3.4. Anti-Blocking & Bot Evasion System
+- **Browser Impersonation:** Employs `curl_cffi` to mimic Chrome/Safari TLS fingerprints.
+- **Request Normalization:** Implements user-agent rotation, custom header sets, PO-token handling, and exponential backoff retry algorithms to avoid YouTube IP rate-limiting.
+
+---
+
+### 3.5. Dynamic Engine Updater (Bypassing PyInstaller `FrozenImporter`)
+- **Hot-Swapping Binary Engine:** Checks PyPI for the latest `yt-dlp` version. Downloads new engine updates to `bin/yt-dlp-update`.
+- **Importer Bypassing:** Dynamically manipulates `sys.meta_path` to bypass PyInstaller's static `FrozenImporter`, allowing seamless engine upgrades without reinstalling the application `.exe`.
+
+---
+
+### 3.6. IPC Throttling & Progress Rate-Limiter
+- **Thread-Safe Rate Limiting:** Limits UI progress updates (`_push_progress`) via `_push_lock` and timestamps to ~15 updates/second (~65ms interval).
+- **Immediate Terminal Updates:** Forces immediate evaluation (`force=True`) on critical states (`finished`, `error`, `cancelled`) to guarantee zero UI latency on completion.
+
+---
+
+### 3.7. Packaging & Deployment Subsystem
+- **PyInstaller Bundle:** Packaging script (`build_exe.py`) compiles the app into a single standalone executable (`dist/YouTubeDownloader.exe`) with bundled `FFmpeg` binaries and `templates/static` assets.
+- **Inno Setup Script (`setup.iss` v2.3.0):** Multi-language Windows installer supporting English, Thai, and Lao. Enforces 64-bit Windows 10+ environments and installs cleanly into `{localappdata}\Programs\Phoebe Downloader`.
+
+---
+
+## 4. Technology Stack Summary
+
+| Layer | Technology / Library | Purpose |
+| :--- | :--- | :--- |
+| **GUI Wrapper** | `pywebview` 5.x (WebView2 / WinForms) | Lightweight native desktop window wrapper |
+| **Frontend Framework** | Alpine.js 3.x + Tailwind CSS | Reactive UI state management & glassmorphic styling |
+| **Backend Core** | Python 3.11+ | Application logic, threading, and system APIs |
+| **Extractor Engine** | `yt-dlp` | Video/audio stream extraction & downloading |
+| **Media Converter** | `FFmpeg` | Video/audio merging, format conversion & normalization |
+| **Metadata Processor** | `mutagen` | ID3, MP4, FLAC audio metadata & cover art tagging |
+| **Network Client** | `curl_cffi` | TLS fingerprint impersonation for anti-bot evasion |
+| **Installer** | Inno Setup 6.x (`setup.iss`) | Production Windows installer packaging |
+
+---
+
+## 5. File & Directory Map
+
+```
+youtube mp3 mp4/
+├── app.py                      # Main entry point & PyWebView window initialization
+├── pywebview_api.py            # Backend Native API Controller & Processing Engine
+├── build_exe.py                # PyInstaller build automation script
+├── setup.iss                   # Inno Setup 6 installer specification script (v2.3.0)
+├── templates/
+│   ├── index.html              # Main Alpine.js UI layout & controllers
+│   ├── setup.html              # FFmpeg initial setup wizard interface
+│   └── static/                 # Embedded asset directory (phoebe0.png, phoebe1.png, etc.)
+└── bin/                        # Binary executables directory (ffmpeg.exe, ffprobe.exe)
+```
