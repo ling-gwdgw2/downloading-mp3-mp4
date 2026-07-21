@@ -743,9 +743,36 @@
             <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">System Update</p>
             <p class="text-xs font-semibold text-slate-200 mt-0.5" x-text="toastMessage">Notification details</p>
         </div>
-        <button @click="toastShow = false" class="text-slate-400 hover:text-white transition-colors">
-            <i class="fa-solid fa-xmark text-sm"></i>
-        </button>
+    <!-- CUSTOM GLASSMORPHIC CONFIRMATION MODAL (Replaces browser native confirm/alert popups) -->
+    <div x-show="confirmModal.show" 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md" 
+         style="display: none;">
+        <div @click.away="handleConfirmNo()" class="w-full max-w-md p-6 bg-slate-900/95 border border-sky-500/30 rounded-2xl shadow-2xl text-slate-100 transform transition-all">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="p-3 bg-sky-500/20 text-sky-400 rounded-xl border border-sky-500/40">
+                    <i class="fa-solid fa-circle-question text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-100" x-text="confirmModal.title || 'ยืนยันการทำรายการ'"></h3>
+                    <p class="text-xs text-sky-400 font-medium">Phoebe Downloader System</p>
+                </div>
+            </div>
+            <p class="text-sm text-slate-300 mb-6 leading-relaxed bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/60" x-text="confirmModal.message"></p>
+            <div class="flex items-center justify-end space-x-3">
+                <button @click="handleConfirmNo()" class="px-4 py-2 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition">
+                    <span x-text="confirmModal.cancelText || 'ยกเลิก'"></span>
+                </button>
+                <button @click="handleConfirmYes()" class="px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 rounded-xl shadow-lg shadow-sky-500/25 transition transform active:scale-95">
+                    <span x-text="confirmModal.confirmText || 'ตกลง'"></span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- ALPINE APP LOGIC IN JAVASCRIPT -->
@@ -758,10 +785,39 @@
                 selectedQuality: '320kbps',
                 isConverting: false,
                 downloadProgress: 0,
-                conversionStatusText: '',
                 toastShow: false,
                 toastMessage: '',
                 toastTimeout: null,
+
+                // Custom Confirm Modal State
+                confirmModal: {
+                    show: false,
+                    title: '',
+                    message: '',
+                    confirmText: 'ตกลง',
+                    cancelText: 'ยกเลิก',
+                    onConfirm: null
+                },
+
+                showConfirm(message, title = 'ยืนยันการทำรายการ', onConfirm = null) {
+                    this.confirmModal.title = title;
+                    this.confirmModal.message = message;
+                    this.confirmModal.onConfirm = onConfirm;
+                    this.confirmModal.show = true;
+                    playCuteSound('pop');
+                },
+
+                handleConfirmYes() {
+                    this.confirmModal.show = false;
+                    if (typeof this.confirmModal.onConfirm === 'function') {
+                        this.confirmModal.onConfirm();
+                    }
+                },
+
+                handleConfirmNo() {
+                    this.confirmModal.show = false;
+                    playCuteSound('click');
+                },
 
                 // Multi-Language System
                 currentLang: 'th',
@@ -1121,7 +1177,7 @@
 
                 revertEngine() {
                     if (this.isUpdatingEngine) return;
-                    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการคืนค่าโปรแกรมประมวลผลกลับเป็นรุ่นเริ่มต้น?")) {
+                    this.showConfirm("คุณแน่ใจหรือไม่ว่าต้องการคืนค่าโปรแกรมประมวลผลกลับเป็นรุ่นเริ่มต้น?", "คืนค่าเครื่องยนต์", () => {
                         playCuteSound('pop');
                         this.isUpdatingEngine = true;
                         this.updateStatusText = "กำลังล้างการอัปเดต...";
@@ -1141,7 +1197,7 @@
                                     this.isUpdatingEngine = false;
                                 });
                         }
-                    }
+                    });
                 },
 
                 toggleLogs() {
@@ -1168,21 +1224,21 @@
                 },
 
                 shutdownApp() {
-                    if (confirm("ต้องการปิดระบบดาวน์โหลดใช่หรือไม่?")) {
+                    this.showConfirm("ต้องการปิดระบบดาวน์โหลดและโปรแกรมหลักใช่หรือไม่?", "ปิดโปรแกรม", () => {
                         playCuteSound('click');
                         if (window.pywebview && window.pywebview.api) {
                             window.pywebview.api.close_app();
                         }
-                    }
+                    });
                 },
 
                 cancelDownload() {
-                    if (confirm("ยืนยันการยกเลิกดาวน์โหลดชุดนี้?")) {
+                    this.showConfirm("ยืนยันการยกเลิกดาวน์โหลดชุดนี้?", "ยกเลิกการดาวน์โหลด", () => {
                         if (window.pywebview && window.pywebview.api) {
                             window.pywebview.api.cancel_download(this.downloadId);
                             this.triggerToast("ส่งคำสั่งยกเลิกดาวน์โหลดแล้ว...");
                         }
-                    }
+                    });
                 },
 
                 setActiveTab(tab) {
