@@ -15,7 +15,7 @@ from curl_cffi import requests as curl_requests
 import yt_dlp
 
 # Application version
-APP_VERSION = "2.3.0"
+APP_VERSION = "2.3.1"
 
 # Normalize version string for integer tuple comparison
 def normalize_version(version_str):
