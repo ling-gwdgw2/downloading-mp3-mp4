@@ -285,6 +285,32 @@ def parse_spotify_track(url):
         'url': virtual_url
     }
 
+# Application version
+APP_VERSION = "2.3.2"
+
+def crop_cover_to_square(image_bytes):
+    """Crop any image (e.g. 16:9 YouTube thumbnail) to a 1:1 square JPEG image bytes."""
+    if not image_bytes:
+        return None
+    try:
+        from PIL import Image
+        import io
+        img = Image.open(io.BytesIO(image_bytes))
+        if img.mode not in ('RGB', 'L'):
+            img = img.convert('RGB')
+        w, h = img.size
+        if w != h:
+            min_dim = min(w, h)
+            left = (w - min_dim) // 2
+            top = (h - min_dim) // 2
+            img = img.crop((left, top, left + min_dim, top + min_dim))
+        output = io.BytesIO()
+        img.save(output, format='JPEG', quality=95)
+        return output.getvalue()
+    except Exception as e:
+        logging.warning(f"Error center-cropping cover image to 1:1 square: {e}")
+        return image_bytes
+
 def embed_metadata_to_file(file_path, title, artist, thumbnail_url):
     try:
         if not os.path.exists(file_path):
@@ -293,11 +319,21 @@ def embed_metadata_to_file(file_path, title, artist, thumbnail_url):
         cover_bytes = None
         if thumbnail_url:
             try:
-                req = urllib.request.Request(thumbnail_url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    cover_bytes = response.read()
+                if thumbnail_url.startswith("data:"):
+                    header, encoded = thumbnail_url.split(",", 1)
+                    cover_bytes = base64.b64decode(encoded)
+                elif thumbnail_url.startswith(("http://", "https://")):
+                    req = urllib.request.Request(thumbnail_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=10) as response:
+                        cover_bytes = response.read()
+                elif os.path.exists(thumbnail_url):
+                    with open(thumbnail_url, 'rb') as f:
+                        cover_bytes = f.read()
             except Exception as e:
-                logging.warning(f"Failed to download cover art from {thumbnail_url}: {e}")
+                logging.warning(f"Failed to fetch cover art from {thumbnail_url}: {e}")
+
+        if cover_bytes:
+            cover_bytes = crop_cover_to_square(cover_bytes)
 
         ext = os.path.splitext(file_path)[1].lower()
         if ext == '.mp3':
@@ -408,6 +444,38 @@ class PyWebViewAPI:
             else:
                 return {'error': 'Folder path does not exist.'}
         except Exception as e:
+            return {'error': str(e)}
+
+    def select_custom_cover(self):
+        """Open native file dialog to select a custom cover image, crop to 1:1 square, and return base64 data URI."""
+        if not self._window:
+            return {'error': 'Window reference not available.'}
+        
+        try:
+            import webview
+            file_types = ('Image Files (*.jpg;*.jpeg;*.png;*.webp)', 'All files (*.*)')
+            result = self._window.create_file_dialog(webview.OPEN_DIALOG, file_types=file_types)
+            if not result or len(result) == 0:
+                return {'cancelled': True}
+            
+            image_path = result[0]
+            with open(image_path, 'rb') as f:
+                raw_bytes = f.read()
+            
+            cropped_bytes = crop_cover_to_square(raw_bytes)
+            if not cropped_bytes:
+                return {'error': 'Failed to process selected image.'}
+            
+            encoded = base64.b64encode(cropped_bytes).decode('utf-8')
+            data_uri = f"data:image/jpeg;base64,{encoded}"
+            
+            return {
+                'success': True,
+                'cover_data': data_uri,
+                'filename': os.path.basename(image_path)
+            }
+        except Exception as e:
+            logging.error(f"Error selecting custom cover: {e}", exc_info=True)
             return {'error': str(e)}
 
     def get_clipboard(self):
@@ -593,6 +661,7 @@ class PyWebViewAPI:
         subtitles = str(params.get('subtitles', 'false')).lower()
         video_container = params.get('video_container', 'mp4')
         embed_metadata = str(params.get('embed_metadata', 'false')).lower()
+        override_cover = params.get('override_cover') or params.get('custom_cover')
 
         if not url:
             return {'error': 'Missing URL parameter.'}
@@ -601,7 +670,7 @@ class PyWebViewAPI:
         
         threading.Thread(
             target=self._run_download_thread,
-            args=(download_id, url, format_type, bitrate, subtitles, video_container, embed_metadata),
+            args=(download_id, url, format_type, bitrate, subtitles, video_container, embed_metadata, override_cover),
             daemon=True
         ).start()
 
@@ -647,7 +716,7 @@ class PyWebViewAPI:
         with self._download_lock:
             return len(self.active_downloads) > 0
 
-    def _run_download_thread(self, download_id, url, format_type, bitrate, subtitles, video_container='mp4', embed_metadata='false'):
+    def _run_download_thread(self, download_id, url, format_type, bitrate, subtitles, video_container='mp4', embed_metadata='false', override_cover=None):
         with self._download_lock:
             self.active_downloads.add(download_id)
         try:

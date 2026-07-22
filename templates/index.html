@@ -329,8 +329,8 @@
                             <div
                                 class="relative w-full aspect-square max-w-[220px] rounded-2xl overflow-hidden shadow-md bg-slate-900 flex items-center justify-center group border border-slate-100">
 
-                                <!-- Song Cover Art (Dynamic from activeSong cover) -->
-                                <img :src="activeSong.cover" class="w-full h-full object-cover transition-all"
+                                <!-- Song Cover Art (Dynamic from activeSong cover or customCover) -->
+                                <img :src="activeSong.customCover || activeSong.cover" class="w-full h-full object-cover transition-all"
                                     :class="isConverting ? 'animate-vinyl blur-[2px] scale-90 rounded-full' : ''"
                                     @error="$event.target.src = 'static/phoebe1.png'">
 
@@ -342,12 +342,17 @@
                                 </div>
                             </div>
 
-                            <!-- Artist / Channel Details -->
-                            <div class="text-center mt-3 space-y-0.5">
+                            <!-- Artist / Channel Details & Custom Cover Picker Button -->
+                            <div class="text-center mt-3 space-y-1">
                                 <h4 class="font-bold text-sm text-slate-800" x-text="activeSong.title">
                                     กรุณาเลือกหรือวางลิงก์เพลงที่ต้องการดาวน์โหลด</h4>
                                 <p class="text-xs text-slate-400 font-bold" x-text="'Channel: ' + activeSong.channel">
                                 </p>
+                                <button @click="selectCustomCover()"
+                                    class="mt-1 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl border border-slate-200 inline-flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95">
+                                    <i class="fa-solid fa-image text-slate-500"></i>
+                                    <span x-text="activeSong.customCover ? '📷 เปลี่ยนรูปปกแล้ว (1:1)' : '📷 เปลี่ยนรูปปก (Change Cover)'"></span>
+                                </button>
                             </div>
                         </div>
 
@@ -941,8 +946,8 @@
                 selectedPlaylistIndices: [],
                 playlistSearch: '',
                 // App Updater States
-                appVersion: '2.3.1',
-                latestAppVersion: '2.3.1',
+                appVersion: '2.3.2',
+                latestAppVersion: '2.3.2',
                 needsAppUpdate: false,
                 appDownloadUrl: '',
                 appUpdateStatus: { status: 'idle', progress: 0, error: '' },
@@ -1458,7 +1463,8 @@
                         bitrate: bitrateVal,
                         subtitles: this.subtitlesEnabled ? 'true' : 'false',
                         video_container: this.videoContainer,
-                        embed_metadata: this.embedMetadataEnabled ? 'true' : 'false'
+                        embed_metadata: this.embedMetadataEnabled ? 'true' : 'false',
+                        custom_cover: (this.activeSong && this.activeSong.customCover) ? this.activeSong.customCover : null
                     };
 
                     if (window.pywebview && window.pywebview.api) {
@@ -1473,6 +1479,23 @@
                                 this.isConverting = false;
                                 this.downloadProgress = 0;
                                 this.triggerToast("เริ่มดาวน์โหลดล้มเหลว: " + err.message);
+                            });
+                    }
+                },
+
+                selectCustomCover() {
+                    if (window.pywebview && window.pywebview.api && window.pywebview.api.select_custom_cover) {
+                        window.pywebview.api.select_custom_cover()
+                            .then(res => {
+                                if (res && res.success) {
+                                    if (!this.activeSong) this.activeSong = {};
+                                    this.activeSong.customCover = res.cover_data;
+                                    playCuteSound('pop');
+                                    this.triggerToast("อัปโหลดและครอบตัดรูปปก 1:1 เรียบร้อยแล้ว!");
+                                }
+                            })
+                            .catch(err => {
+                                console.error("Error selecting custom cover:", err);
                             });
                     }
                 },
