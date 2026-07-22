@@ -412,6 +412,28 @@ class PyWebViewAPI:
 
     def get_clipboard(self):
         try:
+            import ctypes
+            CF_UNICODETEXT = 13
+            user32 = ctypes.windll.user32
+            kernel32 = ctypes.windll.kernel32
+            
+            if user32.OpenClipboard(None):
+                try:
+                    h_cd = user32.GetClipboardData(CF_UNICODETEXT)
+                    if h_cd:
+                        ptr = kernel32.GlobalLock(h_cd)
+                        if ptr:
+                            try:
+                                text = ctypes.wstring_at(ptr)
+                                return {'text': text}
+                            finally:
+                                kernel32.GlobalUnlock(h_cd)
+                finally:
+                    user32.CloseClipboard()
+        except Exception:
+            pass
+
+        try:
             import tkinter as tk
             root = tk.Tk()
             root.withdraw()
@@ -615,8 +637,7 @@ class PyWebViewAPI:
 
         if should_push:
             try:
-                safe_json = json.dumps(status_data).replace("'", "\\'")
-                js_code = f"if (window.updateDownloadProgress) window.updateDownloadProgress('{download_id}', {safe_json});"
+                js_code = f"if (window.updateDownloadProgress) window.updateDownloadProgress('{download_id}', {json.dumps(status_data)});"
                 self._window.evaluate_js(js_code)
             except Exception as e:
                 logging.debug(f"Error evaluating JS for progress: {e}")
