@@ -1118,7 +1118,7 @@
         <!-- HERO AREA -->
         <section class="hero">
             <div class="hero-info">
-                <div class="badge i18n-badge">Version 2.3.0 Released</div>
+                <div class="badge i18n-badge">Version 2.3.2 Released</div>
                 <h1 class="hero-title i18n-title">แอปดาวน์โหลดเพลง <span>MP3 & วิดีโอ</span></h1>
                 <p class="hero-desc i18n-desc">
                     ดาวน์โหลด แปลงไฟล์ และรวบรวมไฟล์เสียง/ภาพในครั้งเดียว ทำงานเป็น Native GUI เบาและเร็ว
@@ -1177,7 +1177,7 @@
                 </div>
 
                 <div class="download-actions">
-                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.3.0/PhoebeDownloaderSetup.exe"
+                    <a href="https://github.com/ling-gwdgw2/downloading-mp3-mp4/releases/download/v2.3.2/PhoebeDownloaderSetup.exe"
                         class="btn-main btn-download i18n-btn-download" target="_blank">
                         <i class="fa-brands fa-windows"></i> ดาวน์โหลดสำหรับ Windows (.exe)
                     </a>
@@ -1252,17 +1252,17 @@
             <div class="changelog-container">
                 <div class="changelog-card">
                     <div class="changelog-meta">
-                        <span class="version-badge">RELEASE v2.3.0</span>
+                        <span class="version-badge">RELEASE v2.3.2</span>
                         <span class="release-date i18n-release-date">ปล่อยอัปเดตเมื่อ: กรกฎาคม 2026</span>
                     </div>
 
                     <div class="changelog-group">
                         <h4 class="changelog-group-title i18n-patch-new-title"><i class="fa-solid fa-circle-plus"></i>
-                            ฟีเจอร์และระบบใหม่ (v2.3.0)</h4>
+                            ฟีเจอร์และระบบใหม่ (v2.3.2)</h4>
                         <ul class="changelog-list">
-                            <li class="i18n-patch-new-li1">**Production Graceful Shutdown**: ระบบดักจับการปิดแอปพลิเคชัน 4 ขั้นตอน ตรวจสอบสถานะดาวน์โหลดค้าง แสดงการ์ดเตือนความปลอดภัย พร้อม 3.0s Timeout Safety Guard</li>
-                            <li class="i18n-patch-new-li2">**4K High-Resolution Video Fix**: ปรับปรุงการสตรีมฟอร์แมต DASH ดึงความละเอียดวิดีโอสูงสุด 2160p (4K) และ 1440p (2K) เต็มประสิทธิภาพ</li>
-                            <li class="i18n-patch-new-li3">**Alpine.js pywebviewready Integration**: เพิ่มระบบซิงค์เวลาและตรวจสอบ 3 ชั้น ป้องกันปัญหาหน้าเว็บโหลดก่อน Bridge Native API พร้อมทำความสะอาดไอคอนรูปภาพ</li>
+                            <li class="i18n-patch-new-li1">**1:1 Square Cover Art Auto-Crop**: ตัดขอบข้างรูปปก YouTube (16:9) เป็นสี่เหลี่ยมจัตุรัส 1:1 (720x720px) ด้วย Pillow (PIL) ก่อนฝังลงไฟล์ MP3/M4A/FLAC แก้ปัญหาขอบดำใน Windows Explorer</li>
+                            <li class="i18n-patch-new-li2">**Custom Cover Art Picker**: เพิ่มปุ่ม "📷 เปลี่ยนรูปปก" ให้ผู้ใช้เลือกรูปภาพ (.jpg, .png, .webp) จากเครื่องคอมพิวเตอร์เพื่อใช้เป็นรูปปกเอง พร้อมตัดเป็น 1:1 อัตโนมัติ</li>
+                            <li class="i18n-patch-new-li3">**Fast Win32 Clipboard Reader**: ดึงข้อมูลลิงก์จากคลิปบอร์ดด้วย Windows Native ctypes user32.OpenClipboard เร็วขึ้น 100 เท่า (< 1ms) โดยไม่ต้องสร้างหน้าต่าง Tkinter ชั่วคราว</li>
                         </ul>
                     </div>
 
@@ -1270,9 +1270,9 @@
                         <h4 class="changelog-group-title i18n-patch-fix-title"><i class="fa-solid fa-wrench"></i>
                             การปรับปรุงประสิทธิภาพและแก้ไขบั๊ก</h4>
                         <ul class="changelog-list">
-                            <li class="i18n-patch-fix-li1">**IPC Throttle Acceleration**: เพิ่มระบบจำกัดความถี่ progress push (~15 fps) ป้องกันปัญหา UI thread Lag ขณะดาวน์โหลดด้วยความเร็วสูง</li>
-                            <li class="i18n-patch-fix-li2">**FormClosing Recursion Guard**: แก้ไขการลูปซ้ำซ้อนใน Windows Forms ป้องกันข้อผิดพลาด Stack Overflow Exception</li>
-                            <li class="i18n-patch-fix-li3">**Pure Native WebView Architecture**: ย้ายเอนจินจาก Flask WebServer สู่ Native PyWebView Binding ทำงานเร็วขึ้นและปลอดภัย 100%</li>
+                            <li class="i18n-patch-fix-li1">**Optimized Real-time Progress Bridge**: ปรับปรุงระบบส่งข้อมูล JSON ผ่าน evaluate_js ให้การแสดงผลเปอร์เซ็นต์ ความเร็ว และเวลาคงเหลือลื่นไหลไม่สะดุด</li>
+                            <li class="i18n-patch-fix-li2">**Pure Native PyWebView Architecture**: พัฒนาโครงสร้างการทำงานบน Native Bridge ปราศจากพอร์ต HTTP Server ท้องถิ่น ลดการใช้ทรัพยากรและปลอดภัยสูง</li>
+                            <li class="i18n-patch-fix-li3">**Graceful Application Shutdown**: ระบบปิดแอปพลิเคชันและเคลียร์ Thread ทำงานเบื้องหลังอย่างสมบูรณ์แบบ</li>
                         </ul>
                     </div>
                 </div>
