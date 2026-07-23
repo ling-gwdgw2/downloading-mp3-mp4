@@ -4,6 +4,8 @@
 
 **Phoebe Downloader** is a production-grade, multi-platform media downloading and audio/video processing desktop application. Built with Python 3.11+, `pywebview` (native Windows Forms / WebView2 wrapper), `yt-dlp`, and `FFmpeg`, it delivers a responsive glassmorphic UI powered by Alpine.js and Tailwind CSS without requiring heavy web runtimes like Electron or Chromium binaries.
 
+<img width="1230" height="953" alt="Screenshot 2026-07-23 210407" src="https://github.com/user-attachments/assets/61714d2c-f0b5-49fd-9463-c1bd6cb8d7ed" />
+
 ---
 
 ## 2. High-Level Architecture Overview
