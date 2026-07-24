@@ -317,7 +317,15 @@
                             </div>
                         </div>
                         <span
-                            class="text-xs bg-slate-100 text-slate-600 font-extrabold px-3 py-1 rounded-full uppercase"
+                            class="text-xs font-extrabold px-3 py-1 rounded-full uppercase"
+                            :class="{
+                                'bg-red-50 text-red-600': activeSong.platform === 'YOUTUBE',
+                                'bg-slate-900 text-white': activeSong.platform === 'TIKTOK',
+                                'bg-orange-50 text-orange-600': activeSong.platform === 'SOUNDCLOUD',
+                                'bg-blue-50 text-blue-600': activeSong.platform === 'FACEBOOK',
+                                'bg-cyan-50 text-cyan-600': activeSong.platform === 'VIMEO',
+                                'bg-slate-100 text-slate-600': !['YOUTUBE', 'TIKTOK', 'SOUNDCLOUD', 'FACEBOOK', 'VIMEO'].includes(activeSong.platform)
+                            }"
                             x-text="activeSong.platform">YOUTUBE</span>
                     </div>
 
@@ -972,8 +980,8 @@
                 selectedPlaylistIndices: [],
                 playlistSearch: '',
                 // App Updater States
-                appVersion: '2.3.4',
-                latestAppVersion: '2.3.4',
+                appVersion: '2.3.5',
+                latestAppVersion: '2.3.5',
                 needsAppUpdate: false,
                 appDownloadUrl: '',
                 appUpdateStatus: { status: 'idle', progress: 0, error: '' },
@@ -1394,7 +1402,7 @@
                                 this.activeSong = {
                                     title: data.title,
                                     channel: data.uploader,
-                                    platform: this.urlInput.includes('soundcloud') ? 'SOUNDCLOUD' : (this.urlInput.includes('facebook') ? 'FACEBOOK' : (this.urlInput.includes('vimeo') ? 'VIMEO' : 'YOUTUBE')),
+                                    platform: this.urlInput.includes('soundcloud') ? 'SOUNDCLOUD' : (this.urlInput.includes('facebook') ? 'FACEBOOK' : (this.urlInput.includes('vimeo') ? 'VIMEO' : (this.urlInput.includes('tiktok') ? 'TIKTOK' : 'YOUTUBE'))),
                                     duration: data.duration,
                                     cover: data.thumbnail || 'https://placehold.co/400x400/223c40/ffffff?text=Music',
                                     videoUrl: data.url,

@@ -15,7 +15,7 @@ from curl_cffi import requests as curl_requests
 import yt_dlp
 
 # Application version
-APP_VERSION = "2.3.4"
+APP_VERSION = "2.3.5"
 
 # Normalize version string for integer tuple comparison
 def normalize_version(version_str):
@@ -286,7 +286,7 @@ def parse_spotify_track(url):
     }
 
 # Application version
-APP_VERSION = "2.3.4"
+APP_VERSION = "2.3.5"
 
 def crop_cover_to_square(image_bytes):
     """Crop any image (e.g. 16:9 YouTube thumbnail) to a 1:1 square JPEG image bytes."""
@@ -669,8 +669,11 @@ class PyWebViewAPI:
                 'video_recommendation': vid_recommendation
             }
         except Exception as e:
+            err_msg = str(e)
+            if 'TikTok' in err_msg and 'blocked' in err_msg.lower():
+                err_msg = "TikTok ระงับการดึงข้อมูลจาก IP นี้ชั่วคราว โปรดหลีกเลี่ยงการดาวน์โหลดถี่เกินไป หรือลองใหม่อีกครั้งในภายหลัง"
             logging.error(f"Error in process_input for {url}: {e}", exc_info=True)
-            return {'error': str(e)}
+            return {'error': err_msg}
 
     # --------------------------------------------------
     # Download Execution
@@ -947,7 +950,11 @@ class PyWebViewAPI:
                         download_url_with_fallback(ydl_opts, final_url)
                         completed_batch += 1
                     except Exception as b_err:
-                        logging.error(f"Error downloading batch item {final_url}: {b_err}")
+                        err_msg = str(b_err)
+                        if 'TikTok' in err_msg and 'blocked' in err_msg.lower():
+                            logging.error(f"TikTok IP block on batch item {final_url}: {err_msg}")
+                        else:
+                            logging.error(f"Error downloading batch item {final_url}: {b_err}")
                         failed_batch += 1
 
             self._push_progress(download_id, {
@@ -958,13 +965,16 @@ class PyWebViewAPI:
                 'size': 'Complete'
             }, force=True)
         except Exception as e:
+            err_msg = str(e)
+            if 'TikTok' in err_msg and 'blocked' in err_msg.lower():
+                err_msg = "TikTok ระงับการดึงข้อมูลจาก IP นี้ชั่วคราว โปรดหลีกเลี่ยงการดาวน์โหลดถี่เกินไป หรือลองใหม่อีกครั้งในภายหลัง"
             logging.error(f"Download thread error for {download_id}: {e}", exc_info=True)
             self._push_progress(download_id, {
                 'status': 'error',
                 'percent': 0,
                 'speed': 'Error',
                 'eta': 'Failed',
-                'size': str(e)
+                'size': err_msg
             }, force=True)
         finally:
             with self._download_lock:
