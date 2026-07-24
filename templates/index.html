@@ -361,7 +361,7 @@
                             <div>
                                 <label
                                     class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">เลือกประเภทไฟล์</label>
-                                <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                                <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2">
                                     <button @click="selectFormat('mp3')"
                                         :class="selectedFormat === 'mp3' ? 'bg-[#59cccc] text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
                                         class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
@@ -386,11 +386,23 @@
                                         <i class="fa-solid fa-wave-square text-lg"></i>
                                         <span>Lossless WAV</span>
                                     </button>
+                                    <button @click="selectFormat('orig_audio')"
+                                        :class="selectedFormat === 'orig_audio' ? 'bg-[#ffb075] text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
+                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all text-center">
+                                        <i class="fa-solid fa-headphones text-lg"></i>
+                                        <span>Audio ต้นฉบับ</span>
+                                    </button>
                                     <button @click="selectFormat('mp4')"
                                         :class="selectedFormat === 'mp4' ? 'bg-[#cceeed] text-slate-700 border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
-                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all col-span-2 md:col-span-1">
+                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
                                         <i class="fa-solid fa-file-video text-lg"></i>
                                         <span>Video MP4</span>
+                                    </button>
+                                    <button @click="selectFormat('orig_video')"
+                                        :class="selectedFormat === 'orig_video' ? 'bg-[#89a5e8] text-white border-transparent' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-100'"
+                                        class="py-3 px-2 rounded-xl border font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm active:scale-95 transition-all text-center">
+                                        <i class="fa-solid fa-film text-lg"></i>
+                                        <span>Video ต้นฉบับ</span>
                                     </button>
                                 </div>
                             </div>
@@ -946,8 +958,8 @@
                 selectedPlaylistIndices: [],
                 playlistSearch: '',
                 // App Updater States
-                appVersion: '2.3.2',
-                latestAppVersion: '2.3.2',
+                appVersion: '2.3.3',
+                latestAppVersion: '2.3.3',
                 needsAppUpdate: false,
                 appDownloadUrl: '',
                 appUpdateStatus: { status: 'idle', progress: 0, error: '' },

@@ -15,7 +15,7 @@ from curl_cffi import requests as curl_requests
 import yt_dlp
 
 # Application version
-APP_VERSION = "2.3.1"
+APP_VERSION = "2.3.3"
 
 # Normalize version string for integer tuple comparison
 def normalize_version(version_str):
@@ -286,7 +286,7 @@ def parse_spotify_track(url):
     }
 
 # Application version
-APP_VERSION = "2.3.2"
+APP_VERSION = "2.3.3"
 
 def crop_cover_to_square(image_bytes):
     """Crop any image (e.g. 16:9 YouTube thumbnail) to a 1:1 square JPEG image bytes."""
@@ -623,12 +623,13 @@ class PyWebViewAPI:
             best_audio_codec = None
             max_audio_bitrate = 0
             for f in formats:
-                codec = f.get('acodec')
-                if codec and codec != 'none':
-                    bitrate = f.get('abr') or f.get('tbr') or 0
-                    if bitrate > max_audio_bitrate:
-                        max_audio_bitrate = int(bitrate)
-                        best_audio_codec = codec.split('.')[0]
+                if f.get('vcodec') == 'none':
+                    codec = f.get('acodec')
+                    if codec and codec != 'none':
+                        bitrate = f.get('abr') or f.get('tbr') or 0
+                        if bitrate > max_audio_bitrate:
+                            max_audio_bitrate = int(bitrate)
+                            best_audio_codec = codec.split('.')[0]
             
             if not best_audio_codec:
                 best_audio_codec = "aac"
@@ -817,7 +818,11 @@ class PyWebViewAPI:
                         'postprocessors': [{'key': 'FFmpegEmbedSubtitle'}]
                     })
 
-                if format_type == 'mp3':
+                if format_type == 'orig_audio':
+                    ydl_opts.update({'format': 'bestaudio/best'})
+                elif format_type == 'orig_video':
+                    ydl_opts.update({'format': 'bestvideo+bestaudio/best'})
+                elif format_type == 'mp3':
                     ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': bitrate}]})
                 elif format_type == 'm4a':
                     ydl_opts.update({'format': 'bestaudio[ext=m4a]/bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'm4a'}]})
@@ -900,7 +905,11 @@ class PyWebViewAPI:
                     if subtitles == 'true':
                         ydl_opts.update({'writesubtitles': True, 'writeautomaticsub': True, 'embedsubtitles': True, 'postprocessors': [{'key': 'FFmpegEmbedSubtitle'}]})
 
-                    if format_type == 'mp3':
+                    if format_type == 'orig_audio':
+                        ydl_opts.update({'format': 'bestaudio/best'})
+                    elif format_type == 'orig_video':
+                        ydl_opts.update({'format': 'bestvideo+bestaudio/best'})
+                    elif format_type == 'mp3':
                         ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': bitrate}]})
                     elif format_type == 'm4a':
                         ydl_opts.update({'format': 'bestaudio[ext=m4a]/bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'm4a'}]})
