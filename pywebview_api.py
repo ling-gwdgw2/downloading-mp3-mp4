@@ -15,7 +15,7 @@ from curl_cffi import requests as curl_requests
 import yt_dlp
 
 # Application version
-APP_VERSION = "2.3.3"
+APP_VERSION = "2.3.4"
 
 # Normalize version string for integer tuple comparison
 def normalize_version(version_str):
@@ -286,7 +286,7 @@ def parse_spotify_track(url):
     }
 
 # Application version
-APP_VERSION = "2.3.3"
+APP_VERSION = "2.3.4"
 
 def crop_cover_to_square(image_bytes):
     """Crop any image (e.g. 16:9 YouTube thumbnail) to a 1:1 square JPEG image bytes."""
@@ -622,7 +622,19 @@ class PyWebViewAPI:
 
             best_audio_codec = None
             max_audio_bitrate = 0
+            best_video_codec = None
+            best_video_ext = None
+            max_video_height = 0
+
             for f in formats:
+                vcodec = f.get('vcodec')
+                if vcodec and vcodec != 'none':
+                    height = f.get('height') or 0
+                    if height >= max_video_height:
+                        max_video_height = height
+                        best_video_codec = vcodec.split('.')[0]
+                        best_video_ext = f.get('ext')
+
                 if f.get('vcodec') == 'none':
                     codec = f.get('acodec')
                     if codec and codec != 'none':
@@ -635,7 +647,11 @@ class PyWebViewAPI:
                 best_audio_codec = "aac"
                 max_audio_bitrate = 128
 
-            recommendation = f" เสียงต้นฉบับเป็น {best_audio_codec.upper()} ({max_audio_bitrate} kbps) แนะนำให้เลือก M4A Original หรือ MP3 320kbps เพื่อความคมชัดดั้งเดิม"
+            recommendation = f" เสียงต้นฉบับเป็น {best_audio_codec.upper()} ({max_audio_bitrate} kbps) แนะนำให้เลือก Audio ต้นฉบับ หรือ MP3 320kbps เพื่อความคมชัดดั้งเดิม"
+            
+            vid_recommendation = ""
+            if best_video_codec:
+                vid_recommendation = f" วิดีโอต้นฉบับสูงสุดที่ {max_video_height}p เป็นโคเดก {best_video_codec.upper()} (ไฟล์ .{best_video_ext}) แนะนำให้เลือก Video ต้นฉบับเพื่อภาพที่สมบูรณ์ที่สุด"
 
             return {
                 'title': custom_title if custom_title else info.get('title'),
@@ -646,7 +662,11 @@ class PyWebViewAPI:
                 'url': url,
                 'audio_codec': best_audio_codec,
                 'audio_bitrate': max_audio_bitrate if max_audio_bitrate > 0 else None,
-                'audio_recommendation': recommendation
+                'audio_recommendation': recommendation,
+                'video_codec': best_video_codec,
+                'video_height': max_video_height if max_video_height > 0 else None,
+                'video_ext': best_video_ext,
+                'video_recommendation': vid_recommendation
             }
         except Exception as e:
             logging.error(f"Error in process_input for {url}: {e}", exc_info=True)
